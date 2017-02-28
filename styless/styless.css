@@ -1,0 +1,19 @@
+.btnQuote{
+    background-color: lightblue;
+    margin:0;
+    border: 1px solid black;
+    border-radius:6px;
+    padding:6px 8px;
+    
+}
+.showQuote{
+   border: 1px solid green;
+   border-radius:6px;
+}
+.quoteCont{
+    width:500px;
+    text-align:center;
+}
+.btnQuote:hover{
+   box-shadow: 2px 5px 20px;
+}
