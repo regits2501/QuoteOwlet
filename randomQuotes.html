@@ -3,19 +3,42 @@
 
    <head>
       <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">  
+      <title>Quote Owlet</title>
+      <meta name="description" content="Random quotes generator.">
+      <meta name="keywords" content="quotes, random quotes">
       <link rel="stylesheet" type="text/css" href="/home/p2051/Locals/RandomQuotesMachine/styless/styless.css"> 
-   <script src="/home/p2051/Locals/RandomQuotesMachine/scripts/addClickEvent.js"></script>
+      
+     <script src="/home/p2051/Locals/RandomQuotesMachine/scripts/initGlobalObject.js"></script>
+     <script src="/home/p2051/Locals/RandomQuotesMachine/scripts/polyLib.js"></script> 
+     <script src="/home/p2051/Locals/RandomQuotesMachine/scripts/toolbox.js"></script> 
+     <script src="/home/p2051/Locals/RandomQuotesMachine/scripts/getJSONPController.js"></script> 
    </head>
 
 
 <body>
-
+<script src="/home/p2051/Locals/RandomQuotesMachine/scripts/main.js"></script> 
 
 <div class="quoteCont">
-  <p class="showQuote">Quote goes here. </p>
- <p class="showAuthor"> Author goes here. </p> 
-<button class="btnQuote">Get Quote</button>
-  
+   
+   <div class="owletCont">
+        <div class="quoteClick"> <!-- dummy div for making clcikable area in front of .svg image --> 
+        </div>
+        <div class="left quoteSign">”
+        </div>
+ 
+        <object class="quoteOwlet" type="image/svg+xml" data="/home/p2051/Locals/RandomQuotesMachine/images/QuoteOwlet.svg">
+   
+        </object>
+ 
+        <div class="right quoteSign">”
+        </div> 
+   </div>
+   
+   <p class="showQuote">Quote goes here.</p>
+   <p class="showAuthor"> Author goes here.</p> 
+
+
 </div>
 
 
