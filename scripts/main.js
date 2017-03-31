@@ -14,8 +14,9 @@
 
   quoter.messages = {
       noQuoteInArray: "There is no quote in array."
-  }
-  quoter.url = "http://api.forismatic.com/api/1.0/"; // server url
+  }                 /* https://thingproxy.freeboard.io/fetch/ is the forward proxy we use to avoid 
+                       "mixed content" loading since api.forismatic.com doesnt support https */
+  quoter.url = "https://thingproxy.freeboard.io/fetch/http://api.forismatic.com/api/1.0/"; // server url
   quoter.queryData = {                     // making data object specific to JSONP server we are connnecting to. 
       method: 'getQuote',
       format: 'jsonp',
@@ -54,11 +55,11 @@
  quoter.putQuote = function(){
        
       if(_pS_.quotes.length !== 0){
-         var q = _pS_.quotes.pop();    // take element from quotes
+         var q = _pS_.quotes.splice(0,1)[0]; console.log(_pS_.quotes[0])   // take (remove) first element from quotes 
          var quoteText = q.quoteText;   // get text
          var quoteAuthor = q.quoteAuthor;   // get author
       }
-      else console.log(this.messages.noQuoteInArray);  // here could go putQuote again
+      else console.log(this.messages.noQuoteInArray);  
       textContent(this.textPlace, quoteText);
       textContent(this.authorPlace, quoteAuthor);
 
@@ -66,13 +67,23 @@
   }.bind(quoter);
 
   quoter.preLoadQuote = function (num){
-      this.getQuote(num); // Gets data from server and initiates callback function that puts that 
+      this.getQuote(num); // Gets data from server and initiates callback function which puts that 
                               // data in "quotes" array. "preLoads" data into array before showing it on page.
   }
   quoter.showQuoteData = function(){
        
       this.putQuote(); // show quote data on page
-      this.preLoadQuote(); // preloads one more quote in quotes array for eventual next invocation  
+      if(_pS_.quotes.length == 0)this.preLoadQuote();// preloads one more quote in quotes array for eventual next
+                                                     // invocation, if there is none in quotes array. There could
+                                                     // be more then one, if you where to click multiple times. 
+                                                     // Each click 
+                                                     // shows a quote on page and preloads one more. So if data
+                                                     // doesnt come defore your subsequent click, click has no 
+                                                     // data to display, and and data from clicks would come in 
+                                                     // close intervals (like in a batch) filling array with more
+                                                     // then one. Thats why we preload only when there is no 
+                                                     // quote in array.   
+
   }.bind(quoter)
 
   quoter.chooseTriggerElement = function (el){ // picks element to be "trigger" for showing data on page. This is
@@ -87,9 +98,10 @@
   }.bind(quoter);
  
   
+  
   quoter.setQuoteRequest();// Setting parameters needed for getJSONPcontroller api,
                            // can go even when DOM not loaded.
-  quoter.preLoadQuote() // Requesting quote data from server, also doesn't need DOM to be fully loaded.
+  quoter.preLoadQuote() // Requesting quote data from server, also doesn't need DOM to be loaded.
   whenPageReady(quoter.setQuotePlace); // Selecting html elements for placing quote data into. Needs DOM tree.
   whenPageReady(quoter.chooseTriggerElement.bind(null,".quoteClick"));//This function uses CSS selector syntax                                                                        //to select html element.
   whenPageReady(quoter.setQuoteTrigger); // When page is loaded, set "clicking the button"                                                    // as event that triggers display of quote data on page

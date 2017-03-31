@@ -1,4 +1,4 @@
-/* Defining utility functions: 
+/* Defining utility functions and modules: 
 
  whenReady() - description
  addEvent()- -//-
@@ -102,58 +102,4 @@ if(typeof _pS_.modulMgr ==="object" && _pS_.modulMgr !== null){ // checking to s
 // write function removeEvent();
 
 }
-/*
-function addClickEvt(){
-    
-    var btn = document.getElementsByClassName("btnQuote")[0];
-    var paragraph = document.getElementsByClassName("showQuote")[0];
-    var author = document.getElementsByClassName("showAuthor")[0];
 
-    var dataObj = {
-        method:"getQuote",
-        format: "jsonp",
-        lang: "en" 
-        
-    }
- 
-    
-     function getQuoteJSONP(){
-          var script = document.createElement("script");  // create script element
-                     var url = "http://api.forismatic.com/api/1.0/"
-         console.log("inside getQuote"); 
-          var cbname = "addClickEvt."+"putQuote"; 
-          var cbvalue = getQuoteJSONP.counter++;
-
-          cbname += cbvalue;  // make name of this callback
-          var textContent = _pS_.modulMgr.require(["textContent"]).textContent;
-          
-          addClickEvt["putQuote"+cbvalue] = function(response){      
-               try{                               // do your thing with server data 
-                      textContent(paragraph,response.quoteText);
-                      textContent(author, response.quoteAuthor); 
-               }
-               finally{                           // remove script 
-                   script.parentNode.removeChild(document.getElementsByClassName(cbname)[0]);console.log(cbname);
-                   console.log("removing script element")
-               }
-               
-          }
-    
-          script.className = cbname;
-          script.type = "text/javascript";
-          var formEncode = _pS_.modulMgr.require(["formEncode"]).formEncode; 
-          url += "?"+formEncode(dataObj)+"&jsonp="+cbname; 
-              //http://api.forismatic.com/api/1.0/?method=getQuote&format=jsonp&jsonp=putQuote1 like that
-
-         script.src = url;  
-         document.body.appendChild(script); // inserting script element into DOM tree triggers the request      
-     }
-    
-     getQuoteJSONP.counter = 0;
-     var o = _pS_.modulMgr.require(["addEvent"]); console.log(o.addEvent); 
-     o.addEvent(btn, "click", getQuoteJSONP);console.log() 
-    
-}
-var o = _pS_.modulMgr.require(["whenReady"]); console.log(o.whenReady); 
-o.whenReady(addClickEvt); console.log("addClickEvent.js loaded");
-*/

@@ -105,7 +105,7 @@ if(typeof _pS_.modulMgr === "object" && _pS_.modulMgr !== null){
      
    },
    insertQueryData: function () {
-     if (this.url.indexOf('?') == - 1) this.url += '?'; // put query string delimiter if one doesnt exist
+     if (this.url.indexOf('?') == -1) this.url += '?'; // put query string delimiter if one doesnt exist
      this.checkJSONPinQueryData(); // set wrapper function's name  for jsonp property value
      var queryString = formEncode(this.queryData); // use form-url encoding (function formEncode defined in other lib) 
      this.url += queryString;

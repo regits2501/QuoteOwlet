@@ -74,17 +74,28 @@ body{
    top:30px;
    left:-15px;
    line-height:2em; 
-   perspective:200px;
+   
+   -ms-transform-origin:top;
+   -webkit-transform-origin:top;
+   
    transform-origin: top;
+   -ms-transform:skewY(35deg);
+   -webkit-transform:skewY(35deg);
    transform: skewY(35deg); 
 
-   animation-name: leftWingFlap, tuckWing;
-   animation-fill-mode:forwards; 
-   animation-duration:8s,0.7s; 
-   animation-delay:0s,7.5s; /* tuckWing starts just before first one finishes */
-   animation-iteration-count:1,1;
-   animation-timing-function:cubic-bezier(.61,-0.3,.71,.71);
+   animation: leftWingFlap 8s 0s 1 cubic-bezier(.61,-0.3,.71,.71) forwards, 
+                 tuckWing 0.7s 7.5s 1 cubic-bezier(.61,-0.3,.71,.71) forwards;
+
+   -webkit-animation: leftWingFlap 8s 0s 1 cubic-bezier(.61,-0.3,.71,.71) forwards, 
+                 tuckWing 0.7s 7.5s 1 cubic-bezier(.61,-0.3,.71,.71) forwards;
+
+   -moz-animation: leftWingFlap 8s 0s 1 cubic-bezier(.61,-0.3,.71,.71) forwards, 
+                 tuckWing 0.7s 7.5s 1 cubic-bezier(.61,-0.3,.71,.71) forwards;
+   
+   -o-animation: leftWingFlap 8s 0s 1 cubic-bezier(.61,-0.3,.71,.71) forwards, 
+                 tuckWing 0.7s 7.5s 1 cubic-bezier(.61,-0.3,.71,.71) forwards;
 }
+
 
 
 
@@ -117,6 +128,94 @@ body{
    }
    
 }
+@-webkit-keyframes leftWingFlap{
+     10%{ /* wing up*/
+      transform:skewY(20deg) skewX(40deg) translateY(10px) rotateX(-110deg) rotateZ(10deg); 
+      left:-32px;
+   }
+   15%{
+      transform: skewY(35deg); /* wing down */
+   }
+   20%{
+      transform:skewY(20deg) skewX(40deg) translateY(10px) rotateX(-110deg) rotateZ(10deg);
+      left:-32px;
+   }
+   25%{
+      transform: skewY(35deg); 
+   }
+   33%{
+      transform:skewY(20deg) skewX(40deg) translateY(10px) rotateX(-110deg) rotateZ(10deg);
+      left:-32px;
+   }
+   93%{
+      transform: skewY(35deg);
+   }
+   96%{
+       
+      transform: skewY(20deg) skewX(40deg) translateY(10px) rotateX(-110deg) rotateZ(10deg) ;
+      left:-30px;
+   }
+   
+}
+@-moz-keyframes leftWingFlap{
+     10%{ /* wing up*/
+      transform:skewY(20deg) skewX(40deg) translateY(10px) rotateX(-110deg) rotateZ(10deg); 
+      left:-32px;
+   }
+   15%{
+      transform: skewY(35deg); /* wing down */
+   }
+   20%{
+      transform:skewY(20deg) skewX(40deg) translateY(10px) rotateX(-110deg) rotateZ(10deg);
+      left:-32px;
+   }
+   25%{
+      transform: skewY(35deg); 
+   }
+   33%{
+      transform:skewY(20deg) skewX(40deg) translateY(10px) rotateX(-110deg) rotateZ(10deg);
+      left:-32px;
+   }
+   93%{
+      transform: skewY(35deg);
+   }
+   96%{
+       
+      transform: skewY(20deg) skewX(40deg) translateY(10px) rotateX(-110deg) rotateZ(10deg) ;
+      left:-30px;
+   }
+   
+}
+@-o-keyframes leftWingFlap{
+     10%{ /* wing up*/
+      transform:skewY(20deg) skewX(40deg) translateY(10px) rotateX(-110deg) rotateZ(10deg); 
+      left:-32px;
+   }
+   15%{
+      transform: skewY(35deg); /* wing down */
+   }
+   20%{
+      transform:skewY(20deg) skewX(40deg) translateY(10px) rotateX(-110deg) rotateZ(10deg);
+      left:-32px;
+   }
+   25%{
+      transform: skewY(35deg); 
+   }
+   33%{
+      transform:skewY(20deg) skewX(40deg) translateY(10px) rotateX(-110deg) rotateZ(10deg);
+      left:-32px;
+   }
+   93%{
+      transform: skewY(35deg);
+   }
+   96%{
+       
+      transform: skewY(20deg) skewX(40deg) translateY(10px) rotateX(-110deg) rotateZ(10deg) ;
+      left:-30px;
+   }
+   
+}
+
 
 .right{
    position:absolute;
@@ -124,21 +223,126 @@ body{
    right:-17px;
    line-height:2em;
 
-   perspective:200px;
    transform-origin: top;
+   -ms-transform-origin:top;
+   -webkit-transform-origin:top;
+
    transform:rotateY(-180deg) skewY(35deg); 
-   animation-name: rightWingFlap, tuckWing; /* since we have two animation we are not gonna use shorthand*/
-   animation-fill-mode:forwards;
-   animation-duration:8s, 0.9s;
-   animation-delay: 0s,7.5s;
-   animation-iteration-count:1, 1;
-   animation-timing-function:cubic-bezier(.61,-0.3,.71,.71);
+   -ms-transform:rotateY(-180deg) skewY(35deg); 
+   -webkit-transform:rotateY(-180deg) skewY(35deg); 
    
+   animation: rightWingFlap 8s 0s 1 cubic-bezier(.61,-0.3,.71,.71) forwards, 
+                     tuckWing 0.9s 7.5s 1 cubic-bezier(.61,-0.3,.71,.71) forwards;
+   
+  -webkit-animation: rightWingFlap 8s 0s 1 cubic-bezier(.61,-0.3,.71,.71) forwards, 
+                            tuckWing 0.9s 7.5s 1 cubic-bezier(.61,-0.3,.71,.71) forwards;
+  
+   -moz-animation: rightWingFlap 8s 0s 1 cubic-bezier(.61,-0.3,.71,.71) forwards, 
+                          tuckWing 0.9s 7.5s 1 cubic-bezier(.61,-0.3,.71,.71) forwards;
+
+   -o-animation: rightWingFlap 8s 0s 1 cubic-bezier(.61,-0.3,.71,.71) forwards, 
+                         tuckWing 0.9s 7.5s 1 cubic-bezier(.61,-0.3,.71,.71) forwards;
 }
 
 
 /* put webkit prefix for other browsers*/
 @keyframes rightWingFlap{
+     10%{   /* wing up */
+      transform: rotateY(-180deg) skewY(20deg) skewX(40deg) translateY(10px) rotateX(-110deg) rotateZ(10deg) ;
+      right:-30px;
+   }
+   15%{
+   
+      transform:rotateY(-180deg) skewY(35deg);  /* wing down */ 
+   }
+   20%{
+  
+      transform: rotateY(-180deg) skewY(20deg) skewX(40deg) translateY(10px) rotateX(-110deg) rotateZ(10deg) ;
+      right:-30px;
+   }
+   25%{
+
+      transform:rotateY(-180deg) skewY(35deg); 
+   }
+   33%{
+     
+      transform: rotateY(-180deg) skewY(20deg) skewX(40deg) translateY(10px) rotateX(-110deg) rotateZ(10deg) ;
+      right:-30px;
+   }
+   93%{
+      transform:rotateY(-180deg) skewY(35deg);
+   }
+   96%{
+       
+      transform: rotateY(-180deg) skewY(20deg) skewX(40deg) translateY(10px) rotateX(-110deg) rotateZ(10deg) ;
+      right:-30px;
+   }
+}
+@-webkit-keyframes rightWingFlap{
+     10%{   /* wing up */
+      transform: rotateY(-180deg) skewY(20deg) skewX(40deg) translateY(10px) rotateX(-110deg) rotateZ(10deg) ;
+      right:-30px;
+   }
+   15%{
+   
+      transform:rotateY(-180deg) skewY(35deg);  /* wing down */ 
+   }
+   20%{
+  
+      transform: rotateY(-180deg) skewY(20deg) skewX(40deg) translateY(10px) rotateX(-110deg) rotateZ(10deg) ;
+      right:-30px;
+   }
+   25%{
+
+      transform:rotateY(-180deg) skewY(35deg); 
+   }
+   33%{
+     
+      transform: rotateY(-180deg) skewY(20deg) skewX(40deg) translateY(10px) rotateX(-110deg) rotateZ(10deg) ;
+      right:-30px;
+   }
+   93%{
+      transform:rotateY(-180deg) skewY(35deg);
+   }
+   96%{
+       
+      transform: rotateY(-180deg) skewY(20deg) skewX(40deg) translateY(10px) rotateX(-110deg) rotateZ(10deg) ;
+      right:-30px;
+   }
+}
+@-moz-keyframes rightWingFlap{
+     10%{   /* wing up */
+      transform: rotateY(-180deg) skewY(20deg) skewX(40deg) translateY(10px) rotateX(-110deg) rotateZ(10deg) ;
+      right:-30px;
+   }
+   15%{
+   
+      transform:rotateY(-180deg) skewY(35deg);  /* wing down */ 
+   }
+   20%{
+  
+      transform: rotateY(-180deg) skewY(20deg) skewX(40deg) translateY(10px) rotateX(-110deg) rotateZ(10deg) ;
+      right:-30px;
+   }
+   25%{
+
+      transform:rotateY(-180deg) skewY(35deg); 
+   }
+   33%{
+     
+      transform: rotateY(-180deg) skewY(20deg) skewX(40deg) translateY(10px) rotateX(-110deg) rotateZ(10deg) ;
+      right:-30px;
+   }
+   93%{
+      transform:rotateY(-180deg) skewY(35deg);
+   }
+   96%{
+       
+      transform: rotateY(-180deg) skewY(20deg) skewX(40deg) translateY(10px) rotateX(-110deg) rotateZ(10deg) ;
+      right:-30px;
+   }
+}
+@-o-keyframes rightWingFlap{
      10%{   /* wing up */
       transform: rotateY(-180deg) skewY(20deg) skewX(40deg) translateY(10px) rotateX(-110deg) rotateZ(10deg) ;
       right:-30px;
@@ -176,12 +380,46 @@ body{
      line-height:1.3em;
    }
 }
+@-webkit-keyframes tuckWing{ 
+   100%{
+     line-height:1.3em;
+   }
+}
+@-moz-keyframes tuckWing{ 
+   100%{
+     line-height:1.3em;
+   }
+}
+@-o-keyframes tuckWing{ 
+   100%{
+     line-height:1.3em;
+   }
+}
+
 
 @keyframes pageGlide{
   0%{
      transform: translate(-40px,150px) scale(0.8);
   }
 }
+@-webkit-keyframes pageGlide{
+  0%{
+     transform: translate(-40px,150px) scale(0.8);
+  }
+}
+@-moz-keyframes pageGlide{
+  0%{
+     transform: translate(-40px,150px) scale(0.8);
+  }
+}
+@-o-keyframes pageGlide{
+  0%{
+     transform: translate(-40px,150px) scale(0.8);
+  }
+}
+
+
+
 
 .owletCont{
    animation-name: pageGlide; /* moving .svg and wings trough the page*/
