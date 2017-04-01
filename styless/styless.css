@@ -71,9 +71,10 @@ body{
   display:inline-block;
   font-family: "DejaVu","DejaVUSerif", serif;
   font-size:6.3em;
-  text-shadow:0 0 10px white;
-  transition: text-shadow 0.4s; /* notice we are defining transition here insted in quoteClick, since quoteClick                                    is just the trigger for the transition  */
-  
+  text-shadow:0px 0px 10px white;
+  -webkit-transition: text-shadow 0.4s; /* notice we are defining transition here insted in quoteClick, 
+                                       since quoteClick is just the trigger for the transition */
+  transition:text-shadow 0.4s;
 }
 
 
@@ -133,7 +134,7 @@ body{
    96%{
        
       transform: skewY(20deg) skewX(40deg) translateY(10px) rotateX(-110deg) rotateZ(10deg) ;
-      left:-30px;
+      left:-32px;
    }
    
 }
@@ -162,7 +163,7 @@ body{
    96%{
        
       transform: skewY(20deg) skewX(40deg) translateY(10px) rotateX(-110deg) rotateZ(10deg) ;
-      left:-30px;
+      left:-32px;
    }
    
 }
@@ -191,7 +192,7 @@ body{
    96%{
        
       transform: skewY(20deg) skewX(40deg) translateY(10px) rotateX(-110deg) rotateZ(10deg) ;
-      left:-30px;
+      left:-32px;
    }
    
 }
@@ -220,7 +221,7 @@ body{
    96%{
        
       transform: skewY(20deg) skewX(40deg) translateY(10px) rotateX(-110deg) rotateZ(10deg) ;
-      left:-30px;
+      left:-32px;
    }
    
 }
@@ -232,13 +233,13 @@ body{
    right:-17px;
    line-height:2em;
 
-   transform-origin: top;
    -ms-transform-origin:top;
    -webkit-transform-origin:top;
+    transform-origin: top;
 
-   transform:rotateY(-180deg) skewY(35deg); 
    -ms-transform:rotateY(-180deg) skewY(35deg); 
    -webkit-transform:rotateY(-180deg) skewY(35deg); 
+   transform:rotateY(-180deg) skewY(35deg); 
    
    animation: rightWingFlap 8s 0s 1 cubic-bezier(.61,-0.3,.71,.71) forwards, 
                      tuckWing 0.9s 7.5s 1 cubic-bezier(.61,-0.3,.71,.71) forwards;
