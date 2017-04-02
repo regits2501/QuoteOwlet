@@ -49,13 +49,13 @@ if(typeof _pS_.modulMgr ==="object" && _pS_.modulMgr !== null){ // checking to s
          if(flg) captOption = true;  
 
          if(target.addEventListener){
-             target.addEventListener(type, handler, captOption ); // flg for setting the capturing event handler
+            target.addEventListener(type, handler, captOption ); // flg for setting the capturing event handler
          }
          else if(target.attachEvent){  // for IE < 9 , events registered with attachEvent are executed in context                                       // of global window object(in them "this = window") insted of target 
                                        // element.
-              
               target.attachEvent("on"+type, function handl(event){
-                        handler.call(target, event);
+                  event = event || window.event;  // for IE < 9
+                  return handler.call(target, event);
               })
  
             return handl ;  // when registering event handler in IE return wrapper handl so it can be removed

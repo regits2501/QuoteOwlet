@@ -108,10 +108,9 @@
                                                                       //to select html element.
   whenPageReady(quoter.setQuoteTrigger); // When page is loaded, set "clicking the button"
                                          // as event that triggers display of quote data on page
-                                                       
 
   
-  
+                                                        
 })()
 
 console.log("main loaded");
