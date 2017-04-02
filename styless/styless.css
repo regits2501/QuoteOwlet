@@ -62,10 +62,10 @@ body{
   z-index:1;
   width:100%;
   height:100%;
-}
-.quoteClick:hover ~ .quoteSign{ /*selecting quoteSignes, that is wings*/
+} 
+.quoteClick:hover ~ .quoteSign{   
   text-shadow: 0px 2px 25px white;   
-}
+}   
 
 .quoteSign{
   display:inline-block;
@@ -97,7 +97,7 @@ body{
                  tuckWing 0.7s 7.5s 1 cubic-bezier(.61,-0.3,.71,.71) forwards;
 
    -webkit-animation: leftWingFlap 8s 0s 1 cubic-bezier(.61,-0.3,.71,.71) forwards, 
-                 tuckWing 0.7s 7.5s 1 cubic-bezier(.61,-0.3,.71,.71) forwards;
+               tuckWing 0.7s 7.5s 1 cubic-bezier(.61,-0.3,.71,.71) forwards;  
 
    -moz-animation: leftWingFlap 8s 0s 1 cubic-bezier(.61,-0.3,.71,.71) forwards, 
                  tuckWing 0.7s 7.5s 1 cubic-bezier(.61,-0.3,.71,.71) forwards;
@@ -112,7 +112,7 @@ body{
 @keyframes leftWingFlap{
      10%{ /* wing up*/
       transform:skewY(20deg) skewX(40deg) translateY(10px) rotateX(-110deg) rotateZ(10deg); 
-      left:-32px;
+      left:-33px;
    }
    15%{
       transform: skewY(35deg); /* wing down */
@@ -141,7 +141,7 @@ body{
 @-webkit-keyframes leftWingFlap{
      10%{ /* wing up*/
       transform:skewY(20deg) skewX(40deg) translateY(10px) rotateX(-110deg) rotateZ(10deg); 
-      left:-32px;
+      left:-34px;
    }
    15%{
       transform: skewY(35deg); /* wing down */
@@ -244,8 +244,9 @@ body{
    animation: rightWingFlap 8s 0s 1 cubic-bezier(.61,-0.3,.71,.71) forwards, 
                      tuckWing 0.9s 7.5s 1 cubic-bezier(.61,-0.3,.71,.71) forwards;
    
-  -webkit-animation: rightWingFlap 8s 0s 1 cubic-bezier(.61,-0.3,.71,.71) forwards, 
-                            tuckWing 0.9s 7.5s 1 cubic-bezier(.61,-0.3,.71,.71) forwards;
+   -webkit-animation: rightWingFlap 8s 0s 1 cubic-bezier(.61,-0.3,.71,.71) forwards, 
+                            tuckWing 0.9s 7.5s 1 cubic-bezier(.61,-0.3,.71,.71) forwards; 
+    
   
    -moz-animation: rightWingFlap 8s 0s 1 cubic-bezier(.61,-0.3,.71,.71) forwards, 
                           tuckWing 0.9s 7.5s 1 cubic-bezier(.61,-0.3,.71,.71) forwards;
@@ -256,9 +257,11 @@ body{
 
 
 /* put webkit prefix for other browsers*/
+
+
 @keyframes rightWingFlap{
      10%{   /* wing up */
-      transform: rotateY(-180deg) skewY(20deg) skewX(40deg) translateY(10px) rotateX(-110deg) rotateZ(10deg) ;
+      transform: rotateY(-180deg) skewY(20deg) skewX(40deg) translateY(10px) rotateX(110deg) rotateZ(10deg) ;
       right:-30px;
    }
    15%{
@@ -267,7 +270,7 @@ body{
    }
    20%{
   
-      transform: rotateY(-180deg) skewY(20deg) skewX(40deg) translateY(10px) rotateX(-110deg) rotateZ(10deg) ;
+      transform: rotateY(-180deg) skewY(20deg) skewX(40deg) translateY(10px) rotateX(110deg) rotateZ(10deg) ;
       right:-30px;
    }
    25%{
@@ -276,7 +279,7 @@ body{
    }
    33%{
      
-      transform: rotateY(-180deg) skewY(20deg) skewX(40deg) translateY(10px) rotateX(-110deg) rotateZ(10deg) ;
+      transform: rotateY(-180deg) skewY(20deg) skewX(40deg) translateY(10px) rotateX(110deg) rotateZ(10deg) ;
       right:-30px;
    }
    93%{
@@ -284,14 +287,15 @@ body{
    }
    96%{
        
-      transform: rotateY(-180deg) skewY(20deg) skewX(40deg) translateY(10px) rotateX(-110deg) rotateZ(10deg) ;
+      transform: rotateY(-180deg) skewY(20deg) skewX(40deg) translateY(10px) rotateX( 110deg) rotateZ(10deg) ;
       right:-30px;
    }
-}
+}  
+
 @-webkit-keyframes rightWingFlap{
      10%{   /* wing up */
-      transform: rotateY(-180deg) skewY(20deg) skewX(40deg) translateY(10px) rotateX(-110deg) rotateZ(10deg) ;
-      right:-30px;
+      transform: rotateY(-180deg) skewY(20deg) skewX(40deg) translateY(10px) rotateX(110deg) rotateZ(10deg) ;
+      right:-32px;
    }
    15%{
    
@@ -299,7 +303,7 @@ body{
    }
    20%{
   
-      transform: rotateY(-180deg) skewY(20deg) skewX(40deg) translateY(10px) rotateX(-110deg) rotateZ(10deg) ;
+      transform: rotateY(-180deg) skewY(20deg) skewX(40deg) translateY(10px) rotateX(110deg) rotateZ(10deg) ;
       right:-30px;
    }
    25%{
@@ -308,7 +312,7 @@ body{
    }
    33%{
      
-      transform: rotateY(-180deg) skewY(20deg) skewX(40deg) translateY(10px) rotateX(-110deg) rotateZ(10deg) ;
+      transform: rotateY(-180deg) skewY(20deg) skewX(40deg) translateY(10px) rotateX(110deg) rotateZ(10deg) ;
       right:-30px;
    }
    93%{
@@ -316,7 +320,7 @@ body{
    }
    96%{
        
-      transform: rotateY(-180deg) skewY(20deg) skewX(40deg) translateY(10px) rotateX(-110deg) rotateZ(10deg) ;
+      transform: rotateY(-180deg) skewY(20deg) skewX(40deg) translateY(10px) rotateX(110deg) rotateZ(10deg) ;
       right:-30px;
    }
 }
@@ -432,9 +436,10 @@ body{
 
 
 .owletCont{
-   animation-name: pageGlide; /* moving .svg and wings trough the page*/
-   animation-timing-function: cubic-bezier(.61,-0.3,.71,.71);
-   animation-duration: 8.1s;
+   -webkit-animation: pageGlide 8.1s cubic-bezier(.61,-0.3,.71,.71); 
+   -moz-animation: pageGlide 8.1s cubic-bezier(.61,-0.3,.71,.71); 
+   -o-animation: pageGlide 8.1s cubic-bezier(.61,-0.3,.71,.71); 
+   animation: pageGlide 8.1s cubic-bezier(.61,-0.3,.71,.71); 
 }
 
 @media (max-width:569px){
