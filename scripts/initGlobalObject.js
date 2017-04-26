@@ -36,8 +36,8 @@ if(!this._pS_ && !this.hasOwnProperty("_pS_")){  // checking to see if window ob
           console.log(this.messages.notDefined + dep )
         },
         markNotDefined: function markNotDefined(deps, idx){
-             deps[idx] = this.messages.prefix + deps[idx];//put prefix "notDefined" in front of name of 
-                                                          // missing dependancy
+             deps[idx] = this.messages.prefix + deps[idx]; // put prefix "notDefined" in front of name of 
+                                                           // missing dependency
         },
         unmarkNotDefined: function unmarkNotDefined(marked){ //remove (unmark) prefix "notDefined"
                var nomark = marked.substr(this.messages.prefix.length); 
@@ -51,7 +51,7 @@ if(!this._pS_ && !this.hasOwnProperty("_pS_")){  // checking to see if window ob
              if(this.isDefined(deps[i])) loaded.push(modules[[deps[i]]] ); 
              else if(!skipMissing){         // if we are not skipping any missing dependency  
                      this.showNotDefined(deps[i]); // emit which one is not defined(missing).
-                     return false;            
+                     return false;           
                   }
                   else {  // if we are skipping them, then just mark them
                      this.markNotDefined(deps, i);

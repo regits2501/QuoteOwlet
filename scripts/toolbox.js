@@ -99,7 +99,185 @@ if(typeof _pS_.modulMgr ==="object" && _pS_.modulMgr !== null){ // checking to s
 
       return pairs.join("&");
 }, true)
-// write function removeEvent();
+
+ mgr.define("classList",[], function classList(){ // function that simulates HTML5 classList property of Element
+                                                   // It uses behaviour delegation pattern with private vars as
+  // explained here -> https://stackoverflow.com/questions/32748078/variable-privacy-in-javascripts-behaviour-delegation-pattern/43476020#43476020
+    
+      var cssClassList = {};
+      cssClassList.messages = {
+          invalidClsName:"Class name invalid ",
+          existClsName: "Class name already exist ",
+          doesntExistClsname: "Class name doesn't exists "
+      };
+      cssClassList.init = function(e){      
+        this.e = e; 
+        
+      };
+      cssClassList.contains = function(clsName, pocket){ // Checks of for existance of class name,
+                                                        // returns true or false
+        if(clsName.length === 0 || clsName.indexOf(" ") != -1){// Throw error if its illegal css class name
+                throw new Error(this.messages.invalidClsName + " " + clsName);
+        }
+        if(this.e.className === clsName) return true; // Return true if its exact match
+        
+        pocket.regexpS = new RegExp("\\b" + clsName + "\\b", "g"); // Search whole words only
+        return pocket.regexpS.test(this.e.className);
+      };   
+
+      cssClassList.add = function(clsName){
+        if(this.contains(clsName)){
+               console.log(this.messages.existClsName);
+               return;
+        }
+         
+        var clss = this.e.className;
+        if(clss && clss[clss.lenght-1] !== " "){ // If there is any class name and last sign is not a space,
+             clsName = " " + clsName;   // append it in front of one we want to add.
+             
+        }
+       
+        this.e.className += clsName;      
+         
+      };
+     
+      cssClassList.remove = function(clsName, pocket){
+          
+          pocket.regexpRm = new RegExp("\\b" + clsName + "\\b\\s*", "g") // For removal, whole words plus any
+                                                                         //  trailing white space.
+          console.log("to Remove: "+clsName); 
+          if(this.contains(clsName)){ // on false this.contains() throws an error.
+                this.e.className = this.e.className.replace(pocket.regexpRm, "");
+               console.log(this.e.className);
+          }
+          else console.log(this.messages.desntExistClsName + " " + clsName)
+      };
+      cssClassList.toggle = function(clsName){ // on-off switch
+          if(this.contains(clsName)){ // if exists remove it
+             this.remove(clsName);
+             return false; // false is to notify "turn of"   
+          }
+          else {
+             this.add(clsName);  // doesn't exists so add it.
+             return true;
+          }
+      };
+
+      cssClassList.toString = function(){
+            return this.e.className;
+      };
+
+    /*   cssClassList.toArray = function(pocket){   // HTML5 classList property doesn't have this method.  
+            pocket.regexpMch = new RegExp("\\b\\w+\\b\\s*", "g"); 
+            return this.e.className.match(pocket.regexpMch)
+         };
+    
+    */
+
+  
+ 
+   return function(e){
+     if(e.classList) return e.classList; // If there already is HTML5 classList support, just return it. 
+         console.log("e from classList: "+ e);
+      function attachPocket(cList){  
+
+        var funcsForPocket = Array.prototype.slice.call(arguments,1); // take arguments after cList
+        var len = funcsForPocket.length;
+      
+        var pocket = {}; // object for placing private properties (not exposed directly to outside scopes)
+        var instance = Object.create(cList);
+
+        for (var i = 0; i < len; i++){
+           (function(){
+                var func = funcsForPocket[i];
+              
+                instance[func] = function(){
+                     var args = Array.prototype.slice.call(arguments);
+                     args = args.concat([pocket]); // append pocket to arguments
+
+                     return cList[func].apply(this, args);
+                }
+            })()
+        }
+ 
+         instance.init(e);
+         return instance;
+      }
+     
+  
+     return attachPocket(cssClassList,"contains","remove");
+      
+   }
+ })
+
+ mgr.define("styleRulesMgr",[], function(){
+        
+        var styleRulesUtils = {};  // object use css selector syntax to find rules
+        styleRulesUtils.findRule = function(ruleName){ // returns rule object or undefined
+              var len = this.rules.length; console.log("rules .length = "+ len,this.rules)
+              for(var i = 0; i < len; i++){
+                 if (this.rules[i].selectorText === ruleName) return this.rules[i];
+                 
+              }
+              
+         }
+
+        var styleRules = Object.create(styleRulesUtils);
+         styleRules.messages = {
+              provideRuleName: "You must provide a rule name when calling this function.",
+              invalidRuleName : "Rule name is invalid",
+              ruleDoesntExist: "Rule doesn't exist" 
+         };
+         styleRules.returnRuleOrPrintMsg = function(ruleName,msg){ // prints message if rule doesnt exist or 
+                                                                   // returns rule.
+               var rule = this.contains(ruleName);
+               if(!rule){
+                console.log(msg + ": " + ruleName);
+                return;
+               }
+
+               return rule;
+         }
+         styleRules.initStyleSheet = function(styleSheet){
+             this.styleSheet = styleSheet || document.styleSheets[0]; // Use passed or first stylesheet in doc.
+              console.log("this.sheet = "+this.styleSheet); console.log("sheetRules = "+this.styleSheet.cssRules)
+             this.rules = this.styleSheet.cssRules ? this.styleSheet.cssRules : this.styleSheet.rules; // IE has
+                                                                                                      // "rules" 
+         }
+         styleRules.contains = function (ruleName){ 
+            if(ruleName.length === 0){
+                throw new Error(this.messages.provideRuleName);
+            }
+            return this.findRule(ruleName); // returns style object or undefined
+         }
+         styleRules.addStyle = function(ruleName, cssPropName, propValue){
+            var rule = this.returnRuleOrPrintMsg(ruleName, this.messages.ruleDoesntExist);
+            if(rule) rule.style[cssPropName] = propValue;  // set provided css property and value for that rule  
+         }
+         styleRules.removeStyle = function(ruleName, cssPropName){
+                var rule = this.returnRuleOrPrintMsg(ruleName, this.messages.ruleDoesntExist);
+                if(rule) rule.style[cssPropName] = "";                 
+                console.log(""+rule.selectorText+"["+ cssPropName+"]="+ rule[cssPropName])
+         }
+
+
+        
+       return function(){
+          return Object.create(styleRules);
+       }
+
+ }) 
+ 
+
+ mgr.define("PrefixedAnimationEvents",[], function(){
+
+      var animationEvents = {};
+
+      animationEvents.prefixes = ["","moz","webkit",""];
+
+ }) 
 
 }
+
+
 
