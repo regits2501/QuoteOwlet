@@ -148,7 +148,7 @@
   var owletCssClass = Object.create(cssClassMgr); // Instance of an object that manipulets with elements
                                                   // css class names.
 
-  function changeOwletsCssOnClick(){
+  function changeOwletsCssOnClick(){  // for mobile we defined touch events, just like for clicking.
       
       owletCssClass.initClass("owlet"); // setting element that has css class name owlet
       addEvent(owletCssClass.el, "mousedown", owletCssClass.addClass.bind(owletCssClass, "quoteClickRadiate"));
@@ -156,8 +156,12 @@
       addEvent(owletCssClass.el,"mouseup", function(){ console.log("in remove cpowletClass 500");
            setTimeout(function(){ owletCssClass.toggleClass.call(owletCssClass, "quoteClickRadiate") }, 350) 
        });
-      
-      console.log("OwletCssClass: " + owletCssClass.toString());
+        
+      addEvent(owletCssClass.el, "touchstart", owletCssClass.addClass.bind(owletCssClass, "quoteClickRadiate"));
+     
+      addEvent(owletCssClass.el,"touchend", function(){ 
+           setTimeout(function(){ owletCssClass.toggleClass.call(owletCssClass, "quoteClickRadiate") }, 350) 
+       });
   }
 
   whenPageReady(changeOwletsCssOnClick); // when dom ready set click event handler on element with class "owlet".
