@@ -19,7 +19,7 @@
       noQuoteInArray: "There is no quote in array."
   }                 /* https://thingproxy.freeboard.io/fetch/ is the forward proxy we use to avoid 
                        "mixed content" loading since api.forismatic.com doesnt support https */
-  quoter.url = "http://api.forismatic.com/api/1.0/"; // server url
+  quoter.url = "https://thingproxy.freeboard.io/fetch/http://api.forismatic.com/api/1.0/"; // server url
   quoter.queryData = {                     // making data object specific to JSONP server we are connnecting to. 
       method: 'getQuote',
       format: 'jsonp',
@@ -160,7 +160,7 @@
       addEvent(owletCssClass.el, "touchstart", owletCssClass.addClass.bind(owletCssClass, "quoteClickRadiate"));
      
       addEvent(owletCssClass.el,"touchend", function(){ 
-           setTimeout(function(){ owletCssClass.toggleClass.call(owletCssClass, "quoteClickRadiate") }, 350) 
+           setTimeout(function(){ owletCssClass.toggleClass.call(owletCssClass, "quoteClickRadiate") }, 10) 
        });
   }
 

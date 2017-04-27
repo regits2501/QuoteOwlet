@@ -214,7 +214,7 @@ if(typeof _pS_.modulMgr ==="object" && _pS_.modulMgr !== null){ // checking to s
         
         var styleRulesUtils = {};  // object use css selector syntax to find rules
         styleRulesUtils.findRule = function(ruleName){ // returns rule object or undefined
-              var len = this.rules.length; console.log("rules .length = "+ len,this.rules)
+              var len = this.rules.length; 
               for(var i = 0; i < len; i++){
                  if (this.rules[i].selectorText === ruleName) return this.rules[i];
                  
