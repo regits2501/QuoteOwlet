@@ -11,8 +11,10 @@
   var addEvent = _pS_.modulMgr.require(["addEvent"]).addEvent;
   var classList = _pS_.modulMgr.require(["classList"]).classList;  
   var styleRulesMgr = _pS_.modulMgr.require(["styleRulesMgr"]).styleRulesMgr;
+  var addPrefAnimEvent = _pS_.modulMgr.require(["addPrefixedAnimationEvent"]).addPrefixedAnimationEvent;
 
- 
+
+
   var quoter = {}; // Object that handles getting data from server and showing it on page
 
   quoter.messages = {
@@ -105,7 +107,7 @@
  // 
  var cssClassMgr =  {}; // manipulates with css class names of an element
 
- cssClassMgr.initClass = function(name){ 
+ cssClassMgr.initClass = function(name){  
    this.el = document.getElementsByClassName(name)[0];
      console.log("this.el = "+this.el.className); 
 
@@ -169,17 +171,19 @@
 
  var leftWingClass = Object.create(cssClassMgr);
  var rightWingClass = Object.create(cssClassMgr);
- var mainStyleSheet = styleRulesMgr(); // instance of object that handles  css style rules of particular 
-                                   // css style sheet. It uses css selector sintax to select rules.
- function removeWingAnimationsOnEnd(){ // removes css animations we used for owlets wingsFlap, tuckWing
-                                       // and wingRadiate. After last animation(wingRadiate) in sequence ends.
-    
-     mainStyleSheet.initStyleSheet(); // if no argument it defaults to first stylesheet for document
+ var mainStyleSheet = styleRulesMgr(); // Instance of object that handles  css style rules of particular 
+                                       // css style sheet. It uses css selector sintax to select rules.
 
-     leftWingClass.initClass("left"); // elements that have "left" and "right" class names
+ function removeWingAnimationsOnEnd(){ // Removes css animations we used for owlets wingsFlap, tuckWing
+                                       // and wingRadiate. After last animation(wingRadiate) in sequence ends.
+                                       // All in order to correct animation bugs across browsers.
+    
+     mainStyleSheet.initStyleSheet(); // If no argument it defaults to first stylesheet for document
+
+     leftWingClass.initClass("left"); // Elements that have "left" and "right" class names
      rightWingClass.initClass("right");
 
-     addEvent(leftWingClass.el, "animationend", function(handle){ 
+     addPrefAnimEvent(leftWingClass.el, "AnimationEnd", function(handle){ 
        setTimeout(function(){
          if(handle.animationName === "wingRadiate"){
            mainStyleSheet.addStyle(".left","line-height","1.3em");  
@@ -187,13 +191,13 @@
          }
        },100)                                                              // responcible for all 3 animaitons
      })
-     addEvent(rightWingClass.el, "animationend",function(handle){
+     addEvent(rightWingClass.el, "animationend", function(handle){
          setTimeout(function(){ 
           if(handle.animationName === "wingRadiate"){
             mainStyleSheet.addStyle(".right","line-height","1.3em");  
             rightWingClass.removeClass.call(rightWingClass, "rwAnimation");
           }
-         }, 100)
+         }, 100);
      })
   } 
   whenPageReady(removeWingAnimationsOnEnd);

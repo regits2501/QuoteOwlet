@@ -83,12 +83,14 @@ if(!this._pS_ && !this.hasOwnProperty("_pS_")){  // checking to see if window ob
                                          //function, that's what asFunction() serves for.
 
            if(depsRdy.length > 0)  modules[name] = function(){ // This is esentially func "bind" to itself.
-                                              // So if function has a "this" reference inside own
-                                              // definition then that function should be passed as part of                                               // public API of module pattern. That is, created as a modul.
-                  return func.apply(func, arguments.concat(depsRdy)); // Put deps after any arguments    
+                                                              // So if function has a "this" reference inside own
+              var args = Array.prototype.slice.call(arguments); // definition then that  function should be
+                                                                // passed as part of public API of module 
+                                                                // pattern. That is, created as a modul.
+              return func.apply(func, depsRdy.concat(args)); // Put dependencies first then arguments     
            }
            else if(depsRdy.length === 0) modules[name] = function (){// No deps, then just invoke with args
-                  return func.apply(func, arguments);
+                return func.apply(func, arguments);
            }
            else console.log(this.messages.funcDefinitionFails);        
         },

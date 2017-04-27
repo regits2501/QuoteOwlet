@@ -71,7 +71,8 @@ if(typeof _pS_.modulMgr ==="object" && _pS_.modulMgr !== null){ // checking to s
         if(text !== undefined) return text;
         else return element.innerText;   // then it must mean that its an IE < 9, so return the innerText prop'.
     }
-    else{
+    else
+    {
          if(text !== undefined){
          element.textContent = value;
          }
@@ -269,13 +270,22 @@ if(typeof _pS_.modulMgr ==="object" && _pS_.modulMgr !== null){ // checking to s
  }) 
  
 
- mgr.define("PrefixedAnimationEvents",[], function(){
+ mgr.define("addPrefixedAnimationEvent",["addEvent"], function(addEvent, element, type, handler, flg){ 
+                                                            // this function expects camelCased animation type 
+                                                            // values like: "AnimationStart".
+        console.log("addEvent: --> "+ addEvent);                                          
+      var pref = ["","moz","webkit","o","MS"]; // prefixes
+      var len = pref.length;
+      console.log("len: "+ len);
+      for(var i = 0; i < len; i++){
+           if(!pref[i]) type = type.toLowerCase(); // when prefix is "" toLowerCase the event type.
+    
+          console.log("type: --> "+ type);
+             addEvent(element, type, handler,flg);
+            
+      }
 
-      var animationEvents = {};
-
-      animationEvents.prefixes = ["","moz","webkit",""];
-
- }) 
+ }, true) 
 
 }
 
