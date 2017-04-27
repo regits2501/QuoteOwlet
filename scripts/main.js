@@ -159,9 +159,10 @@
         
       addEvent(owletCssClass.el, "touchstart", owletCssClass.addClass.bind(owletCssClass, "quoteClickRadiate"));
      
-      addEvent(owletCssClass.el,"touchend", function(){ 
+     /* addEvent(owletCssClass.el,"touchend", function(){ 
            setTimeout(function(){ owletCssClass.toggleClass.call(owletCssClass, "quoteClickRadiate") }, 10) 
        });
+    */
   }
 
   whenPageReady(changeOwletsCssOnClick); // when dom ready set click event handler on element with class "owlet".
