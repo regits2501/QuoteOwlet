@@ -103,28 +103,49 @@
                                                                   // event handler function, to triggerElement
                                                                   // we chose.
   }.bind(quoter);
+ ////
  
- // 
+var formEncode = _pS_.modulMgr.require(["formEncode"]).formEncode;
+
+var query = "?method=getQuote&format=JSON&lang=en";
+var url = "https://thingproxy.freeboard.io/fetch/http://api.forismatic.com/api/1.0/"
+function getJSON(){
+   console.log("in get json") 
+   var request = new XMLHttpRequest();
+   request.open("GET", url+query);
+   request.onreadystatechange = function(){
+       console.log("readyState:"+request.readyState)
+      if(request.readyState === 4 && request.status === 200){
+         var type = request.getResponseHeader("Content-Type");
+        console.log("content-type: " + type);
+        if(type === "text/html; charset=UTF-8"){
+                // quoter.callback(JSON.parse(request.responseText)) //
+                 console.log("responseText:" + request.responseText)
+        }
+      }
+   }
+  request.send(null); 
+}
+getJSON();
+ //// 
  var cssClassMgr =  {}; // manipulates with css class names of an element
 
  cssClassMgr.initClass = function(name){  
    this.el = document.getElementsByClassName(name)[0];
-     console.log("this.el = "+this.el.className); 
 
    this.owletCssList = classList(this.el); // Using classList, module that emulates HTML5 classList property
                            
  }
  cssClassMgr.addClass = function(clsName){
     this.owletCssList.add(clsName);  // adding css class name to the owlet html element
-    console.log("in cssClass ADD")
     
  }
  cssClassMgr.removeClass = function(clsName){
    
-    this.owletCssList.remove(clsName); console.log("in cssclass REMOVE");
+    this.owletCssList.remove(clsName); 
  } 
  cssClassMgr.toggleClass = function(clsName){
-    this.owletCssList.toggle(clsName); console.log("in cssclass TOGGLE");
+    this.owletCssList.toggle(clsName);
  }
  cssClassMgr.toString = function(){
     return this.owletCssList.toString();
@@ -155,16 +176,11 @@
       owletCssClass.initClass("owlet"); // setting element that has css class name owlet
       addEvent(owletCssClass.el, "mousedown", owletCssClass.addClass.bind(owletCssClass, "quoteClickRadiate"));
        
-      addEvent(owletCssClass.el,"mouseup", function(){ console.log("in remove cpowletClass 500");
+      addEvent(owletCssClass.el,"mouseup", function(){ 
            setTimeout(function(){ owletCssClass.toggleClass.call(owletCssClass, "quoteClickRadiate") }, 350) 
        });
         
       addEvent(owletCssClass.el, "touchstart", owletCssClass.addClass.bind(owletCssClass, "quoteClickRadiate"));
-     
-     /* addEvent(owletCssClass.el,"touchend", function(){ 
-           setTimeout(function(){ owletCssClass.toggleClass.call(owletCssClass, "quoteClickRadiate") }, 10) 
-       });
-    */
   }
 
   whenPageReady(changeOwletsCssOnClick); // when dom ready set click event handler on element with class "owlet".
@@ -191,7 +207,7 @@
          }
        },100)                                                              // responcible for all 3 animaitons
      })
-     addEvent(rightWingClass.el, "animationend", function(handle){
+     addPrefAnimEvent(rightWingClass.el, "animationend", function(handle){
          setTimeout(function(){ 
           if(handle.animationName === "wingRadiate"){
             mainStyleSheet.addStyle(".right","line-height","1.3em");  

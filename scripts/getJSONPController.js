@@ -177,7 +177,7 @@ if(typeof _pS_.modulMgr === "object" && _pS_.modulMgr !== null){
  Every function we want to be private we bind it to top of prototype chain (getJSONP)
  in this case. So when we return public API object it is not connected to prototype chain. Not directly.
  Indirectly it is conected by closures that binded function form to prototype chain of this two objects 
- (getJSONP and getJSONPutils). In this way we have the benefits of modeling software with "behavior delegat ion"
+ (getJSONP and getJSONPutils). In this way we have the benefits of modeling software with "behaviuor delegation"
  and setting private properties/functions. Because we bind fucntions of publicAPI to top of prototype chain that is where properties are created.
  In this way publicAPI is like a "phantom head":
 
