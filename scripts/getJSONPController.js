@@ -20,8 +20,8 @@ if(typeof _pS_.modulMgr === "object" && _pS_.modulMgr !== null){
    },
    setCallback: function (callbackSuccess, callbackFailure) {
      getJSONP.onSuccess = callbackSuccess;
-     getJSONP.onFailure = callbackFailure || this.onNoSuccess; // users callback for failure case or built in.
-     getJSONP.context = arguments.callee.caller || document; // context of
+     getJSONP.onFailure = callbackFailure || getJSONP.onNoSuccess;// users callback for failure case or built in.
+     getJSONP.context = arguments.callee.caller || document; 
    },
    setScriptPlace: function (elmt, flg) { // Element to place script into (as lastChild).    
      this.scriptPlace = elmt;
@@ -133,7 +133,8 @@ if(typeof _pS_.modulMgr === "object" && _pS_.modulMgr !== null){
    makeCallbackName: function(){
       return this.partName + (this.scriptCount - 1); // subtracting 1 form scriptCount since it was added                                                       // in  checkJSONPinQueryData().
    },
-   makeCallbackWrapper: function (){
+   makeCallbackWrapper: function (){ // REWRITE THIS FUNCTION with .bind(this) on async fucntion definition.!!! 
+
     var o = {                           // Since all subsequent calls of same instance share variables 
                                         // like "this.scriptCount" and "this.alreadyCalled", each reqest 
                                         // could change them. In order to make that each call of user 

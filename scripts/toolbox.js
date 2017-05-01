@@ -99,7 +99,117 @@ if(typeof _pS_.modulMgr ==="object" && _pS_.modulMgr !== null){ // checking to s
         }
 
       return pairs.join("&");
-}, true)
+ }, true);
+
+ mgr.define("getJSONcontroller", ["formEncode"], function(formEncode){
+
+    var getJSON = {};
+    getJSON.messages = {
+      cbAlreadyCalled: "Callback function has already been called."
+    };
+    getJSON.initRequest = function(url, queryParams, callback, httpMethod, logFlg){
+      this.request = this.createRequest();
+      
+      this.method = httpMethod || "GET"; // defaults to get
+      this.setUrl(url);
+      this.setQuery(queryParams); // Makes query string for url
+      this.addListener(callback); // add listener for succesful data retrieval and invokes callback 
+      this.log = logFlg || false;  // Setting flag for loging reqest state or not, defaults to not/false;
+      this.sendRequest(); // sends the request
+    };
+    getJSON.createRequest = function(){
+        try{
+            return new XMLHttpRequest(); // standard
+        }
+        catch(e){  console.log(e);
+            try{ 
+                return new ActiveXObject("Microsoft.XMLHTTP");  // IE specific ...
+            }
+            catch(e){
+                return new ActiveXObject("Msxml12.XMLHTTP");
+            }
+        }
+    }
+    getJSON.setUrl = function(url){
+      this.url = url;  
+      if(this.url.indexOf("?") === -1) this.url+="?"; // if doesnt have query delimiter add it. 
+      
+    };
+
+    getJSON.setQuery = function(queryParams){
+      this.queryString = formEncode(queryParams); // Function uses form-url-encoded scheme to return query string
+      this.url+= this.queryString; // Adds query string to url 
+    };
+   
+    getJSON.addListener = function(callback) {
+      var alreadyCalled = false;
+      
+                              
+      this.request.onreadystatechange = function(){
+          
+         if(this.request.readyState === 4 && this.request.status === 200){
+              if(alreadyCalled){
+                  console.log(this.messages.cbAlreadyCalled);
+                  return;
+              }
+              else alreadyCalled = true;
+              
+              if(this.log) this.logRequestState(request.readyState, request.status); // Log if requested so
+              
+              var type = this.request.getResponseHeader("Content-type"); // Sniff the response content
+              var data = this.request.responseText;
+               console.log("Data: "+ data); 
+              if(type === "application/json"){ // If it's json parse it
+                  try{
+                     callback(JSON.parse(data))
+                  }
+                  catch(e){
+                     callback(JSON.parse(data))
+                  }
+              }
+              else if(type === "text/xml") callback(this.request.responseXML); // responseXML is parsed DOM obj.
+              else callback(data); // text/html , text/css and others just pass as argument.
+                      
+              
+              
+         }   
+      }.bind(this); // Async functions lose -this- context because they start executing when functions that 
+                    // invoked them already finished their execution. Here we pass whater "this" is referencing 
+                    // in the moment addListener() is invoked. Meaning, "this" will repesent each 
+                    // instance of getJSON (see return function below). 
+    }
+    
+    getJSON.logRequestState = function(readyState, statusCode){ // REWRITE log so that 
+      this.requestLog = "";
+      this.requestLog += "readyState: " + readyState + " ; statusCode: " + statusCode + "\n"; 
+         
+    }
+    getJSON.printLog = function(){
+       console.log("[Request log]:\n" + this.requestLog)
+    }
+    getJSON.sendRequest = function(){
+      this.request.open(this.method, this.url);
+      if(this.method === "GET") this.request.send(null); 
+        
+    }    
+   
+    return function(url, qparams, cb, method, flg ){
+       var r = Object.create(getJSON); 
+       
+       r.initRequest(url, qparams, cb, method, flg); // initialise api
+       
+       publicApi = {  // phantom head method , provide link for description (create post on stackOverflow)
+         printLog: r.printLog.bind(r)  
+       }
+      
+
+       return publicAPI;
+
+    }
+
+  
+    
+})
 
  mgr.define("classList",[], function classList(){ // function that simulates HTML5 classList property of Element
                                                    // It uses behaviour delegation pattern with private vars as
@@ -241,7 +351,6 @@ if(typeof _pS_.modulMgr ==="object" && _pS_.modulMgr !== null){ // checking to s
          }
          styleRules.initStyleSheet = function(styleSheet){
              this.styleSheet = styleSheet || document.styleSheets[0]; // Use passed or first stylesheet in doc.
-              console.log("this.sheet = "+this.styleSheet); console.log("sheetRules = "+this.styleSheet.cssRules)
              this.rules = this.styleSheet.cssRules ? this.styleSheet.cssRules : this.styleSheet.rules; // IE has
                                                                                                       // "rules" 
          }
@@ -273,14 +382,12 @@ if(typeof _pS_.modulMgr ==="object" && _pS_.modulMgr !== null){ // checking to s
  mgr.define("addPrefixedAnimationEvent",["addEvent"], function(addEvent, element, type, handler, flg){ 
                                                             // this function expects camelCased animation type 
                                                             // values like: "AnimationStart".
-        console.log("addEvent: --> "+ addEvent);                                          
       var pref = ["","moz","webkit","o","MS"]; // prefixes
       var len = pref.length;
-      console.log("len: "+ len);
+
       for(var i = 0; i < len; i++){
            if(!pref[i]) type = type.toLowerCase(); // when prefix is "" toLowerCase the event type.
     
-          console.log("type: --> "+ type);
              addEvent(element, type, handler,flg);
             
       }
