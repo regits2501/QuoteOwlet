@@ -30,6 +30,7 @@ html{
 body{
    margin:0px; 
    background-color:#193f41 ; /*#1b2527;*/ /* #393f4d */
+   min-height:100%;
 }
 .showQuote{
     font-size:3em;
