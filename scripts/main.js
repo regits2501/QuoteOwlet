@@ -2,16 +2,16 @@
 (function(){
   if(typeof _pS_ === "object" && _pS_ !== null) _pS_.quotes = [];
 
-
+  var require = _pS_.modulMgr.require;
      
-  var getJSON = _pS_.modulMgr.require(["getJSONcontroller"]).getJSONcontroller; // importing getJSON API
-  var textContent = _pS_.modulMgr.require(["textContent"]).textContent;
-  var whenPageReady = _pS_.modulMgr.require(["whenReady"]).whenReady;
-  var addEvent = _pS_.modulMgr.require(["addEvent"]).addEvent;
-  var classList = _pS_.modulMgr.require(["classList"]).classList;  
-  var styleRulesMgr = _pS_.modulMgr.require(["styleRulesMgr"]).styleRulesMgr;
-  var addPrefAnimEvent = _pS_.modulMgr.require(["addPrefixedAnimationEvent"]).addPrefixedAnimationEvent;
-
+  var getJSON = require(["getJSONcontroller"]).getJSONcontroller; // importing getJSON API
+  var textContent = require(["textContent"]).textContent;
+  var whenPageReady = require(["whenReady"]).whenReady;
+  var addEvent = require(["addEvent"]).addEvent;
+  var classList = require(["classList"]).classList;  
+  var styleRulesMgr = require(["styleRulesMgr"]).styleRulesMgr;
+  var addPrefAnimEvent = require(["addPrefixedAnimationEvent"]).addPrefixedAnimationEvent;
+  var byteLength = require(["byteLength"]).byteLength;
 
   var quoter = {}; // Object that handles getting data from server and showing it on page
 
@@ -22,18 +22,17 @@
   quoter.url = "https://thingproxy.freeboard.io/fetch/http://api.forismatic.com/api/1.0/"; // server url
   quoter.queryParams = {                   // making data object specific to JSONP server we are connnecting to. 
       method: 'getQuote',
-      format: 'json',
+      format: 'text',
+      key: 0,
       lang: 'en'
   };   
   quoter.callback = function (data) { // Setting  callback function which will be invoked with server data               
        _pS_.quotes.push(data);  // We are putting server data into quotes array
                                 // which is a propertie of _pS_ global var.
-     
-        for(var i = 0; i < _pS_.quotes.length; i++)
-        console.log(_pS_.quotes[i]);
   }
   quoter.getQuote = function(thisMany){ // Gets data from server and initiates callback function which puts that 
-                                        // data in "quotes" array. 
+                                       // data in "quotes" array. 
+      this.setQuoteKey(); // Generates random quote key
       thisMany = thisMany || 1 ; // Defaults to 1, if it's negative it doesnt get any quote, see loop.
 
       for( thisMany; thisMany > 0; thisMany--){ 
@@ -47,22 +46,36 @@
  }
 
  quoter.showQuote = function(){ // inserts quote data into paragraphs elements, shows quote data on page.
-       
+                                        
       if(_pS_.quotes.length !== 0){
-         var q = _pS_.quotes.splice(0,1)[0] // take (remove) first element from quotes 
-         var quoteText = q.quoteText;   // get text
-         var quoteAuthor = q.quoteAuthor;   // get author
+         var q = _pS_.quotes.splice(0,1)[0] // Take (remove) first element from quotes. 
+                                            // Server response for text format is like bellow:
+                                            // This is the quote string. (Here goes the author)  
+
+         var quoteEnd = (q.indexOf("(") === -1) ? q.length : (q.indexOf("(") - 1); // Get index of the "(" - 1. 
+                                                                                   // Emty space before "(" .
+         var quoteText = q.substring(0,quoteEnd);   // Get quote string up to dot(including).
+        
+         var authorEnd = q.indexOf(")");
+         if(authorEnd !== -1) var quoteAuthor = q.substring(quoteEnd+2, authorEnd);// Get author string, 
+                                                                                   //up to ")" . If there is one.
       }
-      else console.log(this.messages.noQuoteInArray);  
-      
+      else{
+           console.log(this.messages.noQuoteInArray);
+           return;  
+      }
+
       textContent(this.textPlace, quoteText);
       textContent(this.authorPlace, quoteAuthor);
 
         
   }.bind(quoter);
+  quoter.setQuoteKey = function(){ // sets random quote key that server is using to generates data.
+     var value = Math.round( Math.random() * 100000); 
+     this.queryParams.key = value ;
 
+  }.bind(quoter);
   quoter.showAndGetQuote = function(){
-       
       this.showQuote(); // show quote data on page
       if(_pS_.quotes.length == 0)this.getQuote();// preloads one more quote in quotes array for eventual next
                                                      // invocation, if there is none in quotes array. There could

@@ -158,7 +158,7 @@ if(typeof _pS_.modulMgr ==="object" && _pS_.modulMgr !== null){ // checking to s
               
               var type = this.request.getResponseHeader("Content-type"); // Sniff the response content
               var data = this.request.responseText;
-               console.log("Data: "+ data); 
+               
               if(type === "application/json"){ // If it's json parse it
                   try{
                      callback(JSON.parse(data))
@@ -393,6 +393,7 @@ if(typeof _pS_.modulMgr ==="object" && _pS_.modulMgr !== null){ // checking to s
       }
 
  }, true) 
+
 
 }
 
