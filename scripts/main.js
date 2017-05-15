@@ -57,7 +57,8 @@
          var quoteText = q.substring(0,quoteEnd);   // Get quote string up to dot(including).
         
          var authorEnd = q.indexOf(")");
-         if(authorEnd !== -1) var quoteAuthor = q.substring(quoteEnd+2, authorEnd);// Get author string, 
+         var quoteAuthor = "";
+         if(authorEnd !== -1) quoteAuthor = q.substring(quoteEnd+2, authorEnd);// Get author string, 
                                                                                    //up to ")" . If there is one.
       }
       else{
@@ -139,7 +140,6 @@
 
  ////////////////////////////////////////////
  
-
 ////////////////////////////////////////////
 
   
