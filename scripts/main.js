@@ -98,8 +98,8 @@
 
   quoter.setQuoteTrigger = function(eventType, handler){ 
       addEvent(this.triggerElement, eventType, handler); // adds showQuoteData as onclick 
-                                                                  // event handler function, to triggerElement
-                                                                  // we chose.
+                                                         // event handler function, to triggerElement
+                                                         // we chose.
   }.bind(quoter);
  ////
 
@@ -123,7 +123,7 @@
                            
  }
  cssClassMgr.addClass = function(clsName){
-    this.owletCssList.add(clsName);  // adding css class name to the owlet html element
+    this.owletCssList.add(clsName);        // Adding css class name to the owlet html element
     
  }
  cssClassMgr.removeClass = function(clsName){
@@ -146,7 +146,7 @@
   var owletCssClass = Object.create(cssClassMgr); // Instance of an object that manipulets with elements
                                                   // css class names.
 
-  function changeOwletsCssOnClick(){  // for mobile we defined touch events, just like for clicking.
+  function changeOwletsCssOnClick(){    // for mobile we defined touch events, just like for clicking.
       
       owletCssClass.initClass("owlet"); // setting element that has css class name owlet
       addEvent(owletCssClass.el, "mousedown", owletCssClass.addClass.bind(owletCssClass, "quoteClickRadiate"));
@@ -169,16 +169,16 @@
                                        // and wingRadiate. After last animation(wingRadiate) in sequence ends.
                                        // All in order to correct animation bugs across browsers.
     
-     mainStyleSheet.initStyleSheet(); // If no argument it defaults to first stylesheet for document
+     mainStyleSheet.initStyleSheet();  // If no argument it defaults to first stylesheet for document
 
-     leftWingClass.initClass("left"); // Elements that have "left" and "right" class names
+     leftWingClass.initClass("left");  // Elements that have "left" and "right" class names
      rightWingClass.initClass("right");
 
      addPrefAnimEvent(leftWingClass.el, "AnimationEnd", function(handle){ 
        setTimeout(function(){
          if(handle.animationName === "wingRadiate"){
            mainStyleSheet.addStyle(".left","line-height","1.3em");  
-           leftWingClass.removeClass.call(leftWingClass,"lwAnimation"); // "lwAnimation" is css class name (rule)
+           leftWingClass.removeClass.call(leftWingClass,"lwAnimation"); // "lwAnimation" is css class name 
          }
        },100)                                                              // responcible for all 3 animaitons
      })
@@ -200,11 +200,17 @@
   
   window.printHeight = function (){ console.log("in print height");
      var textEl = document.getElementsByClassName("height")[0];
-console.log(textEl);
-     var text = window.innerHeight; console.log(text);
+     var text = window.innerHeight; 
      textContent(textEl, text);  
   }
-   
+  window.changeHeight = function (){
+    var height = window.innerHeight.toString()+"px";
+    mainStyleSheet.addStyle("html","min-height",height);
+     console.log("in change height")
+     var textEl = document.getElementsByClassName("height")[0];
+     var text = window.innerHeight; 
+     textContent(textEl, text);  
+  } 
  })()
 
 console.log("main loaded");

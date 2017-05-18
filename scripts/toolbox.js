@@ -176,7 +176,7 @@ if(typeof _pS_.modulMgr ==="object" && _pS_.modulMgr !== null){ // checking to s
       }.bind(this); // Async functions lose -this- context because they start executing when functions that 
                     // invoked them already finished their execution. Here we pass whater "this" is referencing 
                     // in the moment addListener() is invoked. Meaning, "this" will repesent each 
-                    // instance of getJSON (see return function below). 
+                    // instance of getJSON see return function below). 
     }
     
     getJSON.logRequestState = function(readyState, statusCode){ // REWRITE log so that 
@@ -380,7 +380,7 @@ if(typeof _pS_.modulMgr ==="object" && _pS_.modulMgr !== null){ // checking to s
  
 
  mgr.define("addPrefixedAnimationEvent",["addEvent"], function(addEvent, element, type, handler, flg){ 
-                                                            // this function expects camelCased animation type 
+                                                            // this function expects CamelCased animation type 
                                                             // values like: "AnimationStart".
       var pref = ["","moz","webkit","o","MS"]; // prefixes
       var len = pref.length;
