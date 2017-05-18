@@ -195,6 +195,16 @@
                                     
   var sheetRules = styleRulesMgr();
   sheetRules.initStyleSheet(); // initialize style sheet of this document;
+
+  ///////////////
+  
+  window.printHeight = function (){ console.log("in print height");
+     var textEl = document.getElementsByClassName("height")[0];
+console.log(textEl);
+     var text = window.innerHeight; console.log(text);
+     textContent(textEl, text);  
+  }
+   
  })()
 
 console.log("main loaded");

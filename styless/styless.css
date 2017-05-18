@@ -534,13 +534,4 @@ body{
    }
 }
 
-@media screen and (orientation: portrait) {
-        
-  html{
-  
-    border:2px solid white;
-    min-height:100%;
-    padding:5px;
-    
-}
 
