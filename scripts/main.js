@@ -213,9 +213,9 @@
      console.log("in change height")
      var textEl = document.getElementsByClassName("height")[0];
      var text = window.innerHeight; 
-     textContent(textEl, text);  
+     textContent(textEl, text+ " "+ navigator.userAgent);  
   } 
-
+  
   function chromeCssbugFix(){
     var htmlEl = document.getElementsByTagName("html");
     var running = false;
@@ -234,6 +234,7 @@
     addEvent(window, "resize", adjustHeight)
   }
   whenPageReady(chromeCssbugFix)
+  
   
  })()
 

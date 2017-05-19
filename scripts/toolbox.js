@@ -174,9 +174,9 @@ if(typeof _pS_.modulMgr ==="object" && _pS_.modulMgr !== null){ // checking to s
               
          }   
       }.bind(this); // Async functions lose -this- context because they start executing when functions that 
-                    // invoked them already finished their execution. Here we pass whater "this" is referencing 
-                    // in the moment addListener() is invoked. Meaning, "this" will repesent each 
-                    // instance of getJSON see return function below). 
+                    // invoked them already finished their execution. Here we pass whater "this" that 
+                    // is referenced in the moment addListener() is invoked. Meaning, "this" will repesent each 
+                    // instance of getJSON, see return function below. 
     }
     
     getJSON.logRequestState = function(readyState, statusCode){ // REWRITE log so that 
