@@ -191,6 +191,7 @@
          }, 100);
      })
   } 
+
   whenPageReady(removeWingAnimationsOnEnd);
                                     
   var sheetRules = styleRulesMgr();
@@ -202,6 +203,9 @@
      var textEl = document.getElementsByClassName("height")[0];
      var text = window.innerHeight; 
      textContent(textEl, text);  
+     var htmlEl = document.getElementsByTagName("html")[0];
+     
+     console.log(htmlEl.style);
   }
   window.changeHeight = function (){
     var height = window.innerHeight.toString()+"px";
@@ -211,6 +215,26 @@
      var text = window.innerHeight; 
      textContent(textEl, text);  
   } 
+
+  function chromeCssbugFix(){
+    var htmlEl = document.getElementsByTagName("html");
+    var running = false;
+
+    function adjustHeight(){ console.log("ok")
+        if(running) return;
+      
+        running = true;
+        setTimeout(function(){ requestAnimationFrame(function(){
+             mainStyleSheet.addStyle("html","min-height", window.innerHeight.toString() + "px")
+             running = false; console.log("end")
+           }) 
+        },200);
+    }
+    
+    addEvent(window, "resize", adjustHeight)
+  }
+  whenPageReady(chromeCssbugFix)
+  
  })()
 
 console.log("main loaded");
