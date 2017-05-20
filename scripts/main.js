@@ -206,9 +206,12 @@
      this.chrome = /Chrome/g.test(browser); 
      this.mobile = /Mobi/g.test(browser);
   }
-  chromeCssBugFix.fixIt = function(){
-     if(!this.chrome && !this.mobile) return;
+  chromeCssBugFix.fixIt = function(){ 
+     this.checkChromeMob(); // checking for chrome for mobile
+     if(!this.chrome && !this.mobile) return; // dont apply fix if it's other browser
      
+     var chroMobEl = document.getElementsByClassName("chroMob")[0]; 
+     textContent(chroMobEl, this.chrome +" "+ this.mobile); 
      this.dispatchFix();
      
      
@@ -217,7 +220,7 @@
   chromeCssBugFix.dispatchFix =  function (){
     var htmlEl = document.getElementsByTagName("html"); 
     var running = false;
-
+    
     function adjustHeight(){
         if(running) return;
       
@@ -226,7 +229,7 @@
              mainStyleSheet.addStyle("html","min-height", window.innerHeight.toString() + "px")
              running = false; 
            }) 
-        },200);
+        }, 200);
     }
     
     addEvent(window, "resize", adjustHeight)
