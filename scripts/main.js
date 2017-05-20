@@ -208,10 +208,9 @@
   }
   chromeCssBugFix.fixIt = function(){ 
      this.checkChromeMob(); // checking for chrome for mobile
-     if(!this.chrome && !this.mobile) return; // dont apply fix if it's other browser
+     if(!this.chrome || !this.mobile) return; // dont apply fix if it's other browser
      
      var chroMobEl = document.getElementsByClassName("chroMob")[0]; 
-     textContent(chroMobEl, this.chrome +" "+ this.mobile); 
      this.dispatchFix();
      
      
@@ -229,7 +228,7 @@
              mainStyleSheet.addStyle("html","min-height", window.innerHeight.toString() + "px")
              running = false; 
            }) 
-        }, 200);
+        }, 160);
     }
     
     addEvent(window, "resize", adjustHeight)
