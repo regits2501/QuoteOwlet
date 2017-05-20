@@ -80,7 +80,7 @@ body{
   font-size:6.3em;
   text-shadow:0px 2px 10px white;
   -webkit-transition: text-shadow 1s ; /* notice we are defining transition here insted in quoteClick, 
-                                       since quoteClick is just the trigger for the transition */
+                                          since quoteClick is just the trigger for the transition     */
   transition:text-shadow 1s ; 
 }
 

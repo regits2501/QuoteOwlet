@@ -197,45 +197,45 @@
   var sheetRules = styleRulesMgr();
   sheetRules.initStyleSheet(); // initialize style sheet of this document;
 
-  ///////////////
   
-  window.printHeight = function (){ console.log("in print height");
-     var textEl = document.getElementsByClassName("height")[0];
-     var text = window.innerHeight; 
-     textContent(textEl, text);  
-     var htmlEl = document.getElementsByTagName("html")[0];
-     
-     console.log(htmlEl.style);
+  
+
+  var chromeCssBugFix = {};    // fix the css bug on chrome mobile
+  chromeCssBugFix.checkChromeMob = function(){  // sniff chrome mobile
+     var browser = window.navigator.userAgent 
+     this.chrome = /Chrome/g.test(browser); 
+     this.mobile = /Mobi/g.test(browser);
   }
-  window.changeHeight = function (){
-    var height = window.innerHeight.toString()+"px";
-    mainStyleSheet.addStyle("html","min-height",height);
-     console.log("in change height")
-     var textEl = document.getElementsByClassName("height")[0];
-     var text = window.innerHeight; 
-     textContent(textEl, text+ " "+ navigator.userAgent);  
-  } 
+  chromeCssBugFix.fixIt = function(){
+     if(!this.chrome && !this.mobile) return;
+     
+     this.dispatchFix();
+     
+     
+  }.bind(chromeCssBugFix);
   
-  function chromeCssbugFix(){
-    var htmlEl = document.getElementsByTagName("html");
+  chromeCssBugFix.dispatchFix =  function (){
+    var htmlEl = document.getElementsByTagName("html"); 
     var running = false;
 
-    function adjustHeight(){ console.log("ok")
+    function adjustHeight(){
         if(running) return;
       
         running = true;
         setTimeout(function(){ requestAnimationFrame(function(){
              mainStyleSheet.addStyle("html","min-height", window.innerHeight.toString() + "px")
-             running = false; console.log("end")
+             running = false; 
            }) 
         },200);
     }
     
     addEvent(window, "resize", adjustHeight)
   }
-  whenPageReady(chromeCssbugFix)
   
-  
+    
+  whenPageReady(chromeCssBugFix.fixIt);
+
+
  })()
 
 console.log("main loaded");
