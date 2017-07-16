@@ -1340,7 +1340,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
        this.requestToken = data;
    }
    twtOAuth.prototype.setAuthorizationHeader = function(request,vault){
-        request.setRequestHeader("Authorizaton", this.genHeaderString(vault));
+        request.setRequestHeader("Authorization", this.genHeaderString(vault));
    }
    twtOAuth.prototype.genHeaderString = function(vault){
       var a = [];
