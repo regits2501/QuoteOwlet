@@ -2,23 +2,24 @@
 (function(){
   if(typeof _pS_ === "object" && _pS_ !== null) _pS_.quotes = [];
 
-  var require = _pS_.modulMgr.require;
+  var require = _pS_.modulMgr.require; // getting the "require" function so we can use it to add modules we need
      
-  var getJSON = require(["getJSONcontroller"]).getJSONcontroller; // importing getJSON API
-  var textContent = require(["textContent"]).textContent;
+  var request = require(["request"]).request; // importing xmlhttp request API
+  var textContent = require(["textContent"]).textContent; 
   var whenPageReady = require(["whenReady"]).whenReady;
   var addEvent = require(["addEvent"]).addEvent;
   var classList = require(["classList"]).classList;  
   var styleRulesMgr = require(["styleRulesMgr"]).styleRulesMgr;
   var addPrefAnimEvent = require(["addPrefixedAnimationEvent"]).addPrefixedAnimationEvent;
   var byteLength = require(["byteLength"]).byteLength;
-
+  var twtOAuth = require(["twtOAuth"]).twtOAuth; 
   var quoter = {}; // Object that handles getting data from server and showing it on page
 
   quoter.messages = {
       noQuoteInArray: "There is no quote in array."
-  }                 /* https://thingproxy.freeboard.io/fetch/ is the forward proxy we use to avoid 
-                       "mixed content" loading since api.forismatic.com doesnt support https */
+  }                 
+                    /* https://thingproxy.freeboard.io/fetch/ is the forward proxy we use to avoid 
+                       "mixed content" loading since api.forismatic.com doesnt support https       */
   quoter.url = "https://thingproxy.freeboard.io/fetch/http://api.forismatic.com/api/1.0/"; // server url
   quoter.queryParams = {                   // making data object specific to JSONP server we are connnecting to. 
       method: 'getQuote',
@@ -35,8 +36,9 @@
       this.setQuoteKey(); // Generates random quote key
       thisMany = thisMany || 1 ; // Defaults to 1, if it's negative it doesnt get any quote, see loop.
 
-      for( thisMany; thisMany > 0; thisMany--){ 
-          getJSON(this.url, this.queryParams, this.callback); // new instance od getJSON API
+      for(thisMany; thisMany > 0; thisMany--){ 
+          request({ "url": this.url, "queryParams": this.queryParams, "callback": this.callback });// uses
+                                                                                                   // request API
       }
   }.bind(quoter)
   quoter.setQuotePlace = function(){
@@ -59,7 +61,7 @@
          var authorEnd = q.indexOf(")");
          var quoteAuthor = "";
          if(authorEnd !== -1) quoteAuthor = q.substring(quoteEnd+2, authorEnd);// Get author string, 
-                                                                                   //up to ")" . If there is one.
+                                                                               // up to ")" . If there is one.
       }
       else{
            console.log(this.messages.noQuoteInArray);
@@ -166,7 +168,7 @@
                                        // css style sheet. It uses css selector sintax to select rules.
 
  function removeWingAnimationsOnEnd(){ // Removes css animations we used for owlets wingsFlap, tuckWing
-                                       // and wingRadiate. After last animation(wingRadiate) in sequence ends.
+                                       // and wingRadiate, after last animation(wingRadiate) in sequence ends.
                                        // All in order to correct animation bugs across browsers.
     
      mainStyleSheet.initStyleSheet();  // If no argument it defaults to first stylesheet for document
@@ -187,7 +189,7 @@
           if(handle.animationName === "wingRadiate"){
             mainStyleSheet.addStyle(".right","line-height","1.3em");  
             rightWingClass.removeClass.call(rightWingClass, "rwAnimation");
-          }
+  	        }
          }, 100);
      })
   } 
@@ -217,15 +219,18 @@
   }.bind(chromeCssBugFix);
   
   chromeCssBugFix.dispatchFix =  function (){
-    var htmlEl = document.getElementsByTagName("html"); 
+    var htmlEl = document.getElementsByTagName("html"); // get html element
     var running = false;
     
     function adjustHeight(){
-        if(running) return;
+        if(running) return; // if we've already called abjustHeight and it didnt finish executing, then return
       
         running = true;
-        setTimeout(function(){ requestAnimationFrame(function(){
-             mainStyleSheet.addStyle("html","min-height", window.innerHeight.toString() + "px")
+        setTimeout(function(){ requestAnimationFrame(function(){ // reqAnimFrame func is called but not before 
+                                                                 // 160 ms has passed
+             mainStyleSheet.addStyle("html","min-height", window.innerHeight.toString() + "px") // adjust height
+                                                                                 // of element. "html" has white
+                                                                                 // border, it requires repaint.
              running = false; 
            }) 
         }, 160);
@@ -236,8 +241,12 @@
   
     
   whenPageReady(chromeCssBugFix.fixIt);
-
-
- })()
+  
+  function twt(){
+    var twty = twtOAuth(); console.log(twty.hasOwnProperty("getRequestToken"));
+    twty.getRequestToken({"callback":"https://gits2501.github.io/QuoteOwlet/index.html", "csec": "KvRGGZePhNn7hcnBOwzZvmram"});
+  }
+ whenPageReady(twt);
+})()
 
 console.log("main loaded");

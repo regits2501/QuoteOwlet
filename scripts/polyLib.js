@@ -17,4 +17,7 @@ if((typeof Object.size) !== "function"){
   }
 }
 
+if (!Date.now) { // for < IE9
+    Date.now = function() { return new Date().getTime(); }
+}
 console.log("polyLib.js loaded");
