@@ -1361,7 +1361,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
      //var requestObject = this.getRequestObject(leg])
       request({                                 // seting params for http request
          "httpMethod": this.httpMethods[this.leg[0]], // [this.leg] should go
-         "url": 'http://localhost:4000', // was  this.absoluteUrls["request_token"],
+         "url": 'https://quoteowlet.herokuapp.com', // was  this.absoluteUrls["request_token"],
          "queryParams": { 
             "host": this.twtUrl.domain,
             "path": this.twtUrl.path + this.leg[0],
