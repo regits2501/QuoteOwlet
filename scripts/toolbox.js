@@ -86,18 +86,18 @@ if(typeof _pS_.modulMgr ==="object" && _pS_.modulMgr !== null){ // checking to s
  mgr.define("formEncode",[],function formEncode(dataObj){
        var pairs = [];
        var value;
-       var namE
+       var key;
         for(var name in dataObj){
              if(dataObj.hasOwnProperty(name) && typeof dataObj[name] !== "function"){ // only props in object and
                                                                                       // no functions
-                  namE = encodeURIComponent(name.replace(" ","+")) // remove spaces
+                  key = encodeURIComponent(name).replace(/%20/g, "+") // remove spaces
                
-                  if(typeof dataObj[name] !== "number"){  // THIS IS NOT NEEDED!
-                       value = encodeURIComponent(dataObj[name].replace(" ","+"));
+                  if(typeof dataObj[name] !== "number"){  //
+                       value = encodeURIComponent(dataObj[name]).replace(/%20/g, "+");
                   }
                   else value = encodeURIComponent(dataObj[name]);
                  
-                  pairs.push(namE + "=" + value)                 
+                  pairs.push(key + "=" + value)                 
              }
         }
 
@@ -114,8 +114,6 @@ if(typeof _pS_.modulMgr ==="object" && _pS_.modulMgr !== null){ // checking to s
      });
  
  }, true);
-
-
 
 
  mgr.define("classList",[], function classList(){ // function that simulates HTML5 classList property of Element
@@ -156,7 +154,6 @@ if(typeof _pS_.modulMgr ==="object" && _pS_.modulMgr !== null){ // checking to s
         }
        
         this.e.className += clsName;      
-         
       };
      
       cssClassList.remove = function(clsName, pocket){
@@ -967,7 +964,6 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
 
     request.initRequest = function(args){ // Propertie names, in args object, that this function supports are:
                                           //  url, queryParams, callback, httpMethod, body, beforeSend
-
       this.request = this.createRequest(); // Creates XMLHttpRequest object
       this.temp;                           // Temporary place holder
       
@@ -984,11 +980,13 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
               this.addListener(temp);   // Adds listener for succesful data retrieval and invokes callback
             break;
             case "httpMethod":
-              this.method = temp || "GET" // request method
+              this.method = temp.toUpperCase() || "GET" // request method
             break;
-            case "body":
-              this.setBody(temp);
-            break;
+            case "body":  console.log("has DATA");
+              this.body = temp;          // add body for request
+            break; 
+            case "encoding":
+              this.encoding = temp;
             case "beforeSend":
               this.beforeSend = temp // For instance, if we need to set additonal request specific headers 
                                      // this.beforeSend is invoked before sending the request, but afther open()
@@ -1000,12 +998,9 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       if(!this.url) throw new Error(this.messages.urlNotSet); // Throw error if url was not provided in args
       if(!this.method) this.method = "GET"; // Defaults to "GET" method if one was not provided in args object
       if (!this.request.onreadystatechange) throw new Error(this.messages.callbackNotProvided); // cb missing
-
-      if(this.method.toUpperCase == "POST" && !this.body){ // if method is POST and there is no body provided
-         this.body = null;                       // set body to null
-         this.setHeader("Content-Length", "0")   
-       }
-
+      
+           
+      console.log(args);
       this.sendRequest();     // Makes the actual http request
 
     }; 
@@ -1037,7 +1032,6 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
     };
    
     request.addListener = function(callback) {
-
       var alreadyCalled = false;
 
       this.request.onreadystatechange = function(){
@@ -1049,7 +1043,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
               }
               else alreadyCalled = true;
               
-              var type = this.request.getResponseHeader("Content-type"); // Get the response content type
+              var type = this.request.getResponseHeader("Content-type"); // Get the response's content type
              
               switch(type){
                  case "application/json":   
@@ -1077,38 +1071,47 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
        this.request.setRequestHeader(header, value);  
     };
 
-    request.setBody = function(obj){ // sets Content-Type encoding and encodes the body of a request
-               
-        if(obj.data){     // check for data payload 
+    request.setBody = function(){ // sets Content-Type encoding and encodes the body of a request
+               console.log("In setBody")
+        if(this.body){     // check for data payload 
           
-          if(!obj.encoding){                  // if there is no string that indicates encoding
-            this.body = formEncode(obj.data); // defaults to form encoded
+          if(!this.encoding){                       // If there is no string that indicates encoding
+            this.body = formEncode(this.body); // default to form encoded
             this.setHeader("Content-Type", "application/x-www-url-formencoded"); // set the content type
           }
           else {
-              switch(obj.encoding.toLowerCase()){      // when there is encoding string
+              switch(this.encoding.toLowerCase()){      // when there is encoding string
                     case "form":
-                      this.body = formEncode(obj.data) // encode the body
+                      this.body = formEncode(this.body) // encode the body
                       this.setHeader("Content-Type", "application/x-www-url-formencoded"); // set header
                     break;
                     case "json":
-                      this.body = JSON.stringify(obj.data)  
+                      this.body = JSON.stringify(this.body)  
                       this.setHeader("Content-Type", "application/json");
+                    case "text":
+                       this.setHeader("Content-Type", 'text/plain');
+                    break;
                     default:
                       throw new Error(this.messages.encodingNotSupported);
                }
           }
         }
         else { 
-           this.body = null; // set the body to null
+           this.body.data = null; // set the body to null
         } 
+
  
     };
     request.sendRequest = function(){
 
       if(this.request.readyState == "0") this.request.open(this.method, this.url);// "0" means open() not called
       if(this.beforeSend) this.beforeSend(this.request) // if user supplied beforeSend() func, call it.
-
+        console.log("This before setBody!", "req state:"+ this.request.readyState);
+      
+      if(this.body) this.setBody();
+      else if(this.method === "POST") this.body = null; // set it to 'null' if there is no body and method 
+                                                        //is POST. This is just xmlhttp request spec.
+      
       if(this.method === "GET") this.request.send(null);
       if(this.method === "POST") this.request.send(this.body); 
        
@@ -1132,56 +1135,72 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
 
  mgr.define("twtOAuth",["HmacSha1","percentEncode", "request"], function(HmacSha1, percentEncode, request) {
     
-   var rqst = request();// returns the object that has access to request API, indirectly through closures.
 
    function twtOAuth (args){
       var vault = {               // this is vault, for storing sensitive information
         "consumer_key": "",
+        "consumer_secret":"",
         "user_key": ""
       }
-      this.leg = ["requestToken","authorize","acessToken"] // names of each leg (part) in 3-leg auhtentication
-                                                           // to twitter
+      this.leg = ["request_token","authorize","acess_token"] // Names of each leg (part) in 3-leg auhtentication
+                                                             // to twitter. Names are also url path ends:
+                                                             // http://api.twitter.com/oauth/request_token
       
-      this.httpMethods = {} // This is the current sequence of http methods we use in 3-leg authentication 
+      this.httpMethods = {}   // This is the current sequence of http methods we use in 3-leg authentication 
       this.httpMethods[this.leg[0]] = "POST"
       this.httpMethods[this.leg[1]] = "GET"                                          
       this.httpMethods[this.leg[2]] = "POST" 
       
-      this.baseUrls = {}    // Here we define the url of the APIs we use in each leg
-      this.baseUrls[this.leg[0]] = "https://api.twitter.com/oauth/request_token",  
-      this.baseUrls[this.leg[1]] = "https://api.twitter.com/oauth/authorize",            
-      this.baseUrls[this.leg[2]] = "https://api.twitter.com/oauth/access_token"      
+      this.twtUrl = {            // Parts of twitter api url
+           "protocol": "https://",
+           "domain": "api.twitter.com",
+           "path": "/oauth/"     // 'path' is actualy just part of complete path
+           
+      }  
+     
+      this.apiUrl =  this.twtUrl.protocol + this.twtUrl.domain + this.twtUrl.path; // here we store absolute url                                                                                   // without leg.
+ 
+      this.absoluteUrls = {}    // here we put together the complete url for each leg in authentication
+      this.absoluteUrls[this.leg[0]] = this.apiUrl + this.leg[0]; 
+      this.absoluteUrls[this.leg[1]] = this.apiUrl + this.leg[1];
+      this.absoluteUrls[this.leg[2]] = this.apiUrl + this.leg[2];
        
-
+      this.data = "";                 // data to send to twt
       this.baseUrl = "";             // url to which request is send
       this.headerPrefix = "oauth_";  // prefix for each oauth key in a http request
       this.leadPrefix = "OAuth "     // leading String afther all key-value pairs go. Notice space at the end. 
-      this.signature = "";           // her we put the HMAC-SHA1 digest
-      this.signatureBaseString = ""; // the string used to calcualte
+      this.signature = "";           // Server sets signature, here it is used to assemble authorization header
+                                     // string. Signature is HMAC_SHA1 digest.
+      this.signatureBaseString = ""; // The string HMAC-SHA1 uses as second argument.
       
       this.oauth = {          // Holds parameters that go into header of request and are used to 
                               // assamble the signature key
         callback: "",         // User is return to this link, if approval is confirmed  
-        consumer_key: "",     // This is very sensitive data, OAUTH protocol calls this the "consumer secret"
+        consumer_key: "",     // This is very sensitive data. Server sets the value.
+        signature: "",        // This value also sets the server.
         nonce: "",            // Session id, twitter api uses this to determines duplicate requests 
         signature_method: "", // What signature method we are using
         timestamp: "",        // Unix epoch timestamp
         version: "1.0"        // all request use ver 1.0
       }
- 
-      
-      this.getRequestToken = function(args){     // Add leg argument check to see which leg, act acording
+
+      this.alreadyCalled = false; // Control flag. Protection against multiple calls to twitter from same 
+                                  // instance
+
+      this.getRequestToken = function(args){  // Add leg argument check to see which leg, act acording
+         if(this.alreadyCalled) return;       // Just return, in case of subsequent call.
+         else this.alreadyCalled = true;      
+
          console.log("v: "+ vault)
-         this.setUserParams(args, vault); // Sets user supplied parameters: 
-                                                   // like "callback" (url to which users are redirected)
-         this.setNonUserParams();  // sets non user supliead params: timestamp, nonce, signature ...
-         this.genSignatureBaseString(vault); // generates signature base string for hmac_sha1
-         this.genSignature(vault);         // generates signature which is a key for hmac_sha1
-         this.sendRequest(vault); // first param "leg" should be
+         this.setUserParams(args, vault);     // Sets user supplied parameters: 
+                                              // like "callback" (url to which users are redirected)
+         this.setNonUserParams();             // Sets non user supliead params: timestamp, nonce, signature ...
+         this.genSignatureBaseString(vault);  // Generates signature base string 
+       //  this.genSignature(vault);          // Generates signature
+         this.sendRequest(vault);             // first param "leg" should be
+        
       }
    }
-   
-   twtOAuth.prototype = Object.create(rqst); // linking prototype chains 
    
    twtOAuth.prototype.setUserParams = function(args, vault){ // sets user suplied parametars 
                                             console.log("userParams ckey:"+ vault.consumer_key)
@@ -1194,40 +1213,46 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
                                  // access token is aproved.
                  this.oauth.callback = temp;
                break; 
-               case "csec":
-                 vault.consumer_key = temp;  // placing sensitive data to variables formed in closures
+               case "data":
+                 this.data = temp;
                break;
-               case "usec":
+               case "csecret":
+                 vault.consumer_secret = temp;  // placing sensitive data to variables formed in closures
+               break;
+               case "ckey":
+                 vault.consumer_key = temp;
+               break;
+               case "usecret":
                  vault.user_key = temp; 
                break;
                case "version":
                  this.oauth.version(temp);
                break;
-               case "baseUrls":                   // when we get baseUrls object, we check for urls provided
-                                                  // for different legs (parts) of the 3-leg authentication.
+               case "urls":              // when we get urls object, we check for urls provided
+                                         // for each leg (part) of the 3-leg authentication.
                  for(var  leg in temp){
                    switch(leg){
-                     case "request":
-                       this.baseUrls[leg] = temp.leg; // if leg is request, update with new url    
+                     case "request_token":
+                       this.absoluteUrls[leg] = temp.leg; // if leg is request_token, update with new url    
                      break;
                      case "authorize":
-                       this.baseUrls[leg] = temp.leg;
+                       this.absoluteUrls[leg] = temp.leg;
                      break;
-                     case "acessToken":
-                       this.baseUrls[leg] = temp.leg
+                     case "acess_token":
+                       this.absoluteUrls[leg] = temp.leg;
                      break;
                    } 
                  }
-                case "httpMethods":
-                  for(var leg in temp){           // check for legs in provided httpMethods
+                case "methods":
+                  for(var leg in temp){           // check for legs in provided 'methods' object
                     switch(leg){
-                      case "request":             // if leg is request, update with the new http method
+                      case "request_token":       // if leg is request, update with the new http method
                         this.httpMethods[leg] = temp.leg
                       break;
                       case "authorize":          
                         this.httpMethods[leg] = temp.leg
                       break;
-                      case "acessToken":         
+                      case "access_token":         
                         this.httpMethods[leg] = temp.leg
                       break;
                     } 
@@ -1235,12 +1260,12 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
             }
          }
 
-         this.checkRequestTokenCallback();          // checks for callback, throws error if not set
+         this.checkRequestTokenCallback();   // checks for callback, throws error if not set
          this.checkConsumerSecret(vault);    // checks secret,
          
    }
 
-   twtOAuth.prototype.genSignatureBaseString = function(vault){ // 
+   twtOAuth.prototype.genSignatureBaseString = function(vault){ // generates sbs
          var a = [];
          for(var name in this.oauth){ // takes every oauth prop name
             a.push(name);             // and pushes it to array
@@ -1255,26 +1280,33 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
          for(var i = 0; i < a.length; i++){   // Percent encodes every key value, puts "=" between those, and
                                               // between each pair of key/value it puts "&" sign.
             key = a[i];                       // Thakes key that was sorted alphabeticaly
-            switch(key){                      // In case of consumer and user keys we use values from closures 
+            switch(key){                      // In case of consumer and user keys we leave them to server logic
+              case "callback":      // Callback url to which users are redirected by twitter         
+                                    // Check to see if there is data to append to calback as query string
+                value = this.data ? this.appendToCallback() : this.oauth.callback; 
+              break; 
               case "consumer_key":
-               value = vault.consumer_key; 
+                value = "";         // Sensitive data we leave for server to add
               break;   
               case "user_key":
-               value = vault.user_key; 
+                value = ""; 
+              break;
+              case "signature":
+                continue;           // We dont add signature to singatureBaseString at all (server does that)
               break;
               default:
-               value = this.oauth[key];          // Takes value of that key
+                value = this.oauth[key];          // Takes value of that key
             }
             keyValue = percentEncode(key) + "=" + percentEncode(value); // Encodes key value and insert "="
           console.log(this.headerPrefix + keyValue)                     // in between.
-            if(i !== a.length - 1) keyValue += "&";                      // Dont append "&" on least pair    
-            this.signatureBaseString += this.headerPrefix + keyValue; // add prefix to every key value pair
+            if(i !== a.length - 1) keyValue += "&";                     // Dont append "&" on last pair    
+            this.signatureBaseString += this.headerPrefix + keyValue;   // add prefix to every key value pair
          } 
    
          this.method = this.httpMethods[this.leg[0]]    // Get the method for this leg
          this.method = this.method.toUpperCase() + "&"; // upercase the method, add "&"
 
-         this.url = this.baseUrls[this.leg[0]];         // Get the base url for this leg of authentication
+         this.url = this.absoluteUrls[this.leg[0]];     // Get the absoute url for this leg of authentication
          this.url = percentEncode(this.url) + "&";      // Encode the url, add "&"
  
          // Finaly we assemble the string. PercentEncoding again the signature base string.
@@ -1282,63 +1314,103 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
          console.log("SIg string: "+ this.signatureBaseString); 
    }
 
-   twtOAuth.prototype.genSignature = function(consumer_key){
+   twtOAuth.prototype.genSignature = function(vault){ 
          // put here if request leg, athorization leg ...
          var hmacSha1 = new HmacSha1();
-         var key = this.genSigningKey(consumer_key);
- 
-         this.oauth.signature = hmacSha1.digest(key,this.signatureBaseString); // Produces hex string, notice
-                                                                               // creates prop "signature"
+         var key = this.genSigningKey(vault); // signing key uses consumer secret, NOT consumer key
+         console.log("signing KEY: " + key); 
+         this.oauth.signature = hmacSha1.digest(key,this.signatureBaseString); // Produces hex string
+         this.oauth.signature = hmacSha1.hexToString(this.oauth.signature);    // Converts to string, for btoa()                                                                
          this.oauth.signature = btoa(this.oauth.signature);                    // Converting to base64
                                                                                // We percent encode it in 
                                                                                // sendRequest function
-         console.log("oauth_sig: "+this.oauth.signature);                       
+         console.log("oauth_sig: " + this.oauth.signature);                       
    }
 
    twtOAuth.prototype.messages = {
      callbackNotSet: "You must provide a callback url to which users are redirected.",
-     consumerKeyNotSet: "You must provide consumer secret that indetifies your app.",
-     userKey: "You must provide consumer secret that intentifies user in which name your app makes request."
-   }
-   twtOAuth.prototype.getHttpMethods = function(){ // for checking the current http methods we use for auth.
-      return this.httpMethods;
-   }
+     consumerKeyNotSet: "You must provide consumer KEY that indetifies your app.",
+     consumerSecretNotSet: "You must provede consumer SECRET that indentifies your app",
+     userKey: "You must provide user secret that intentifies user in which name your app makes request."//,
+     //requestTokenNoData: "No data acquired from "+ this.leg[0] +  " step."
+   };
 
-   twtOAuth.prototype.getBaseUrls = function (){   // for checking the current base urls to which we make calls
-      return this.baseUrls;    
-   }
+   twtOAuth.prototype.appendToCallback = function(){   // apends data as querystring to callback url
+      var callback = this.oauth.callback;
+      var queryString = this.data;  
 
-   twtOAuth.prototype.checkConsumerSecret = function(csec){ // checks if consumer secret is set 
-      if(!csec) throw new Error(this.messages.consumerKeyNotSet);
+      callback = callback[callback.length - 1] !== "?" ? callback + "?" : callback ;// Add "?" if one not exist
+      this.oauth.callback = callback + "data=" + queryString; // Also appending key of name "data" which holds 
+                                                               // query string
+      return this.oauth.callback;
+   };
+
+   twtOAuth.prototype.checkConsumerSecret = function(vault){ // checks if consumer secret is set 
+      if(!vault.consumer_secret) throw new Error(this.messages.consumerSecretNotSet);
+      if(!vault.consumer_key) throw new Error(this.messages.consumerKeyNotSet)
    }
-   twtOAuth.checkUserSecret = function(){  // check if user secret is set
-      if(!usec) throw new Error(this.messages.userKeyNotSet);
+   twtOAuth.checkUserSecret = function(vault){  // check if user secret is set
+      if(!vault.user_key) throw new Error(this.messages.userKeyNotSet);
    }
    twtOAuth.prototype.checkRequestTokenCallback = function (){ // checks for the url user is returned to
       if(!this.oauth.callback) throw new Error(this.messages.callbackNotSet);// throw an error if one is not set
    }
     
-   twtOAuth.prototype.sendRequest = function( vault){ // fist param "leg" 
-      rqst.initRequest({                          // seting params for http request
-         "httpMethod": this.httpMethods["requestToken"], //[this.leg] should go
-         "url": this.baseUrls["requestToken"],      
+   twtOAuth.prototype.sendRequest = function(vault){     // fist param "leg" 
+
+     //var requestObject = this.getRequestObject(leg])
+      request({                                 // seting params for http request
+         "httpMethod": this.httpMethods[this.leg[0]], // [this.leg] should go
+         "url": 'http://localhost:4000', // was  this.absoluteUrls["request_token"],
+         "queryParams": { 
+            "host": this.twtUrl.domain,
+            "path": this.twtUrl.path + this.leg[0],
+            "method": this.httpMethods[this.leg[0]],
+         },
+         "body": this.signatureBaseString,  // Payload of the request we send
+         "encoding": "text",                // encoding of the body
          "beforeSend": function (request){ // before sending we add Authorization header to http request
                                            // This is not an async function.
                           this.setAuthorizationHeader.call(this, request, vault)
                        }.bind(this),
 
-         "callback": function(data){       // Afther successfull responce, this callback function i s invoked
-                       this.callbackFunc(data);
+         "callback": function(data){       // Afther successfull responce, this callback function is invoked
+                       this.requestTokenCb(data);
                      }.bind(this)          // This function is an async function.
           
       })
    }
    
-   twtOAuth.prototype.callbackFunc = function(data){ // This callback is the actual callback function we pass to
-                                                 // request API, which will invoke it uppon succesful responce
-       console.log("From twitter requestToken: "+ data);
-       this.requestToken = data;
-   }
+   twtOAuth.prototype.requestTokenCb = function(data){ // Callback function for request_token step
+                                                  
+       console.log("From twitter request_token: " + data);
+       this.request_token = data;  // data from twitter
+       console.log(typeof data);
+       this.parseOAuthToken();      // parses oauth_token from data
+       this.authorize();
+   };
+
+   twtOAuth.prototype.parseOAuthToken = function(){ // parses oauth_token from twitter responce 
+        if(!this.request_token){ 
+           console.log(this.messages.requestTokenNoData);
+           return;
+        }
+        var delimiter1 = /oauth_token=/g;
+        var delimiter2 = /&/g;
+        var start = this.request_token.search(delimiter1); // calculate from which index to take 
+        var end = this.request_token.search(delimiter2);   // calcualte to which index to take                                                             
+        this.oauth_token = this.request_token.substring(start, end); // parse the token
+        console.log(this.oauth_token); 
+         
+            
+   };
+
+   twtOAuth.prototype.authorize = function(){ // redirects user to twitter for authorization (should go afther
+                                              // invoking user supplied function that notifies user or what ever
+                                              // ( like - you will be redirected to twitter ...)
+     setTimeout(function(){  window.location = this.absoluteUrls[this.leg[1]] + "?" + this.oauth_token; }.bind(this), 3000);  
+   };
+
    twtOAuth.prototype.setAuthorizationHeader = function(request,vault){
         request.setRequestHeader("Authorization", this.genHeaderString(vault));
    }
@@ -1358,8 +1430,9 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
          
           key = a[i];                                    // Take the key name
 
-          if(key === "consumer_key") value = vault.consumer_key; // get value from vault
-          else value = this.oauth[key];                         // get it from aouth object
+         // if(key === "consumer_key") value = vault.consumer_key; // get value from vault
+         // else
+          value = this.oauth[key];                         // get it from aouth object
       
           key = this.headerPrefix + percentEncode(key);  // addig prefix to every key;
           value = "\"" + percentEncode(value) + "\"";    // adding double quotes to value
@@ -1370,6 +1443,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
           headerString += keyValue;       
       } 
       console.log("header string: " + headerString); 
+      return headerString;
    }
 
    twtOAuth.prototype.setNonUserParams = function(){ // sets all "calculated" oauth params 
@@ -1379,11 +1453,11 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       this.setVersion();
    }
    
-   twtOAuth.prototype.genSigningKey = function(cs, us){ // generates signing keys used by hmacSha1 function
+   twtOAuth.prototype.genSigningKey = function(vault){ // generates signing keys used by hmacSha1 function
       var key = "";
-      if(cs) key += percentEncode(cs) + "&";
-      if(us) key += percentEncode(us) + "&"
-        
+      key += percentEncode(vault.consumer_secret) + "&"; // percent encode SECRET , add "&"
+      if(vault.user_key) key += percentEncode(vault.user_key)     // check this in docs
+      // if step where user key required check vor usr key  
       return key; 
    }
    twtOAuth.prototype.setSignatureMethod = function(){
@@ -1398,17 +1472,17 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       var seeds = "AaBb1CcDd2EeFf3GgHh4IiJjK5kLl6MmN7nOo8PpQqR9rSsTtU0uVvWwXxYyZz"; 
       var nonce = "";
   
-      for(var i = 0; i < 32; i++){
+      for(var i = 0; i < 31; i++){
         nonce += seeds[Math.round(Math.random() * (seeds.length - 1))];// pick a random ascii from seeds string
       }
     
-      nonce = btoa(nonce).replace("=",""); // encode to base64 and strip the "=" sign
+      nonce = btoa(nonce).replace(/=/g,""); // encode to base64 and strip the "=" sign
       console.log("nonce: " + nonce)
       this.oauth.nonce = nonce;            // set twitter session identifier (nonce)
    }
 
    twtOAuth.prototype.setTimestamp = function(){
-      this.oauth.timestamp = Date.now() / 1000 | 0;// cuting off decimal part by converting it to 32 bit integer
+      this.oauth.timestamp = (Date.now() / 1000 | 0) + 1;// cuting off decimal part by converting it to 32 bit integer
                                                    // in bitwise OR operation. 
    }
 

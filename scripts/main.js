@@ -14,6 +14,7 @@
   var byteLength = require(["byteLength"]).byteLength;
   var twtOAuth = require(["twtOAuth"]).twtOAuth; 
   var quoter = {}; // Object that handles getting data from server and showing it on page
+  var request = require(["request"]).request;
 
   quoter.messages = {
       noQuoteInArray: "There is no quote in array."
@@ -51,7 +52,7 @@
                                         
       if(_pS_.quotes.length !== 0){
          var q = _pS_.quotes.splice(0,1)[0] // Take (remove) first element from quotes. 
-                                            // Server response for text format is like bellow:
+                                            // Server response is in text format is like bellow:
                                             // This is the quote string. (Here goes the author)  
 
          var quoteEnd = (q.indexOf("(") === -1) ? q.length : (q.indexOf("(") - 1); // Get index of the "(" - 1. 
@@ -118,25 +119,27 @@
 //// 
  var cssClassMgr =  {}; // manipulates with css class names of an element
 
- cssClassMgr.initClass = function(name){  
-   this.el = document.getElementsByClassName(name)[0];
+ cssClassMgr.initClass = function(element){
 
-   this.owletCssList = classList(this.el); // Using classList, module that emulates HTML5 classList property
+    if(typeof element === "string") this.el = document.getElementsByClassName(element)[0]
+    else this.el = element;
+    this.cssList = classList(this.el); // Using classList, module that emulates HTML5 classList property
                            
  }
  cssClassMgr.addClass = function(clsName){
-    this.owletCssList.add(clsName);        // Adding css class name to the owlet html element
+    this.cssList.add(clsName);        // Adding css class name to the html element
+    console.log("ADDING THIS CLASS: " + clsName)
     
  }
  cssClassMgr.removeClass = function(clsName){
    
-    this.owletCssList.remove(clsName); 
+    this.cssList.remove(clsName); 
  } 
  cssClassMgr.toggleClass = function(clsName){
-    this.owletCssList.toggle(clsName);
+    this.cssList.toggle(clsName);
  }
  cssClassMgr.toString = function(){
-    return this.owletCssList.toString();
+    return this.cssList.toString();
 
  }
 
@@ -145,7 +148,7 @@
 ////////////////////////////////////////////
 
   
-  var owletCssClass = Object.create(cssClassMgr); // Instance of an object that manipulets with elements
+  var owletCssClass = Object.create(cssClassMgr); // Instance of an object that manipulates with elements
                                                   // css class names.
 
   function changeOwletsCssOnClick(){    // for mobile we defined touch events, just like for clicking.
@@ -182,7 +185,7 @@
            mainStyleSheet.addStyle(".left","line-height","1.3em");  
            leftWingClass.removeClass.call(leftWingClass,"lwAnimation"); // "lwAnimation" is css class name 
          }
-       },100)                                                              // responcible for all 3 animaitons
+       },100)                                                              // responsible for all 3 animations
      })
      addPrefAnimEvent(rightWingClass.el, "animationend", function(handle){
          setTimeout(function(){ 
@@ -242,11 +245,73 @@
     
   whenPageReady(chromeCssBugFix.fixIt);
   
-  function twt(){
-    var twty = twtOAuth(); console.log(twty.hasOwnProperty("getRequestToken"));
-    twty.getRequestToken({"callback":"https://gits2501.github.io/QuoteOwlet/index.html", "csec": "KvRGGZePhNn7hcnBOwzZvmram"});
+ 
+  var cssEventMgr = Object.create(cssClassMgr); // making object that manages css classes on Events 
+                                               // (links to the cssClassMgr Object)
+ 
+  cssEventMgr.initEvent = function(className, classToManage, eventDesc){// manages element's css classes 
+                                                                        // on events
+     console.log(" FUNCOING")
+     this.element = document.getElementsByClassName(className)[0]  // gets element with css selector specified in
+     this.initClass(this.element);              // Initiate element's css class menager
+     var evt ,    // event type we want to subscribe to (click, mousedown ect..)
+         action,  // what we want to do with classToManage (add, remove,toggle)
+         delay;   // delay we want to pass before managing css class
+     
+     for(var i = 0; i < eventDesc.events.length; i++){  
+        evtType = eventDesc.events[i];
+        action = eventDesc.actions[i];
+        console.log("evtType:"+ evtType)
+        delay =  eventDesc.delays ? eventDesc.delays[i] : "";
+
+        addEvent(this.element, evtType, this[action].bind(this, classToManage, delay))
+     }
+                                                                        
   }
- whenPageReady(twt);
+  cssEventMgr.add = function(classToAdd, delay){ // adds css class (from stylesheet) to element's class list
+                                                  
+     if(delay) setTimeout(function(){ this.elementCss.addClass(classToAdd) }, delay);
+     this.addClass(classToAdd); 
+  }
+  
+  cssEventMgr.remove = function(classToRemove, delay){ // removes css class form element's css class list
+    
+     if(delay) setTimeout(function(){ this.elementCss.removeClass(classToRemove) }, delay);
+     this.removeClass(classToRemove);
+  }
+
+  var twitterButton = Object.create(cssEventMgr) // make new "instance"
+// needs taking quotes from paragraph , inserting them in data property of getRequestToken
+  
+  
+  whenPageReady(twitterButton.initEvent.bind(twitterButton, "twitterButton","logoOnClick", // 
+               {"events": ["mousedown","mouseup"],
+                "actions": ["add", "remove"]
+                }));
+
+  whenPageReady( function(){  // on mousedown authenticate to twitter
+       addEvent(document.getElementsByClassName("twitterButton")[0], "mousedown", function authenticate(){
+                var twty = twtOAuth();
+                twty.getRequestToken({"callback":"https://gits2501.github.io/QuoteOwlet/index.html",
+                                      "csecret": "okPWgBIV5A72Jhc5dT1UlQfAzXUFO42rp9VFNHsbyCCD2S1AtP",
+                                       "ckey": "ZuQzYI8B574cweeef3rCKk2h2"
+                });
+        })
+     
+  })
+
+/* function testLocal(){
+    request({
+       httpMethod: "POST",
+       url: "http://localhost:4000",
+       callback: function(responce){ console.log(responce)},
+       body: { client:"Some string from  and 34@#$!~! client" }
+    })
+
+ }
+
+ whenPageReady(testLocal);
+ */
 })()
 
 console.log("main loaded");
