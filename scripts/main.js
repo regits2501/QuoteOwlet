@@ -283,8 +283,8 @@
   
   
   whenPageReady(twitterButton.initEvent.bind(twitterButton, "twitterButton","logoOnClick",  
-               {"events": ["mousedown","mouseup","touchstart"],
-                "actions": ["add", "remove","add"]
+               {"events": ["mousedown","mouseup","touchstart","touchmove"],
+                "actions": ["add", "remove","add", "remove"]
                 
   }));
 
