@@ -128,7 +128,6 @@
  }
  cssClassMgr.addClass = function(clsName){
     this.cssList.add(clsName);        // Adding css class name to the html element
-    console.log("ADDING THIS CLASS: " + clsName)
     
  }
  cssClassMgr.removeClass = function(clsName){
@@ -251,7 +250,7 @@
  
   cssEventMgr.initEvent = function(className, classToManage, eventDesc){// manages element's css classes 
                                                                         // on events
-     console.log(" FUNCOING")
+     
      this.element = document.getElementsByClassName(className)[0]  // gets element with css selector specified in
      this.initClass(this.element);              // Initiate element's css class menager
      var evt ,    // event type we want to subscribe to (click, mousedown ect..)
@@ -281,15 +280,15 @@
   }
 
   var twitterButton = Object.create(cssEventMgr) // make new "instance"
-// needs taking quotes from paragraph , inserting them in data property of getRequestToken
   
   
-  whenPageReady(twitterButton.initEvent.bind(twitterButton, "twitterButton","logoOnClick", // 
+  whenPageReady(twitterButton.initEvent.bind(twitterButton, "twitterButton","logoOnClick",  
                {"events": ["mousedown","mouseup"],
                 "actions": ["add", "remove"]
-                }));
+                
+  }));
 
-  whenPageReady( function(){  // on mousedown authenticate to twitter
+ /* whenPageReady( function(){  // on mousedown authenticate to twitter
        addEvent(document.getElementsByClassName("twitterButton")[0], "mousedown", function authenticate(){
                 var twty = twtOAuth();
                 twty.getRequestToken({"callback":"https://gits2501.github.io/QuoteOwlet/index.html",
@@ -299,19 +298,8 @@
         })
      
   })
-
-/* function testLocal(){
-    request({
-       httpMethod: "POST",
-       url: "http://localhost:4000",
-       callback: function(responce){ console.log(responce)},
-       body: { client:"Some string from  and 34@#$!~! client" }
-    })
-
- }
-
- whenPageReady(testLocal);
  */
+
 })()
 
 console.log("main loaded");
