@@ -288,7 +288,7 @@
                 
   }));
 
- /* whenPageReady( function(){  // on mousedown authenticate to twitter
+  whenPageReady( function(){  // on mousedown authenticate to twitter
        addEvent(document.getElementsByClassName("twitterButton")[0], "mousedown", function authenticate(){
                 var twty = twtOAuth();
                 twty.getRequestToken({"callback":"https://gits2501.github.io/QuoteOwlet/index.html",
@@ -298,7 +298,7 @@
         })
      
   })
- */
+ 
 
 })()
 
