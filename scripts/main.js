@@ -288,12 +288,15 @@
                 
   }));
 
+  var twtSecondPart = twtOAuth();
+  twtSecondPart.aftherAuthorization();
   whenPageReady( function(){  // on mousedown authenticate to twitter
        addEvent(document.getElementsByClassName("twitterButton")[0], "mousedown", function authenticate(){
                 var twty = twtOAuth();
                 twty.getRequestToken({"callback":"https://gits2501.github.io/QuoteOwlet/index.html",
-                                      "csecret": "okPWgBIV5A72Jhc5dT1UlQfAzXUFO42rp9VFNHsbyCCD2S1AtP",
-                                       "ckey": "ZuQzYI8B574cweeef3rCKk2h2"
+                                     "csecret": "okPWgBIV5A72Jhc5dT1UlQfAzXUFO42rp9VFNHsbyCCD2S1AtP",
+                                      "ckey": "ZuQzYI8B574cweeef3rCKk2h2",
+                                      "session_data":{"animal":"Iklan","color":"sky-blue or gray"}
                 });
         })
      

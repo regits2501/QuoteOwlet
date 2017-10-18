@@ -83,17 +83,23 @@ if(typeof _pS_.modulMgr ==="object" && _pS_.modulMgr !== null){ // checking to s
     }
  }, true)
 
- mgr.define("formEncode",[],function formEncode(dataObj){
+ mgr.define("formEncode",[],function formEncode(dataObj, spaces){
        var pairs = [];
        var value;
        var key;
         for(var name in dataObj){
-             if(dataObj.hasOwnProperty(name) && typeof dataObj[name] !== "function"){ // only props in object and
-                                                                                      // no functions
+             if(dataObj.hasOwnProperty(name) && typeof dataObj[name] !== "function"){ // only props in object 
+                                                                                      // and no functions
                   key = encodeURIComponent(name).replace(/%20/g, "+") // remove spaces
                
                   if(typeof dataObj[name] !== "number"){  //
-                       value = encodeURIComponent(dataObj[name]).replace(/%20/g, "+");
+                      if(!spaces){
+                       value = encodeURIComponent(dataObj[name]).replace(/%20/g, "+"); // substiture space for +
+                      }
+                      else {
+                       value = encodeURIComponent(dataObj[name]);//.replace(/%20/g," "); 
+                      }
+                    
                   }
                   else value = encodeURIComponent(dataObj[name]);
                  
@@ -1133,7 +1139,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
 
  });
 
- mgr.define("twtOAuth",["HmacSha1","percentEncode", "request"], function(HmacSha1, percentEncode, request) {
+ mgr.define("twtOAuth",["HmacSha1","percentEncode", "request", "formEncode"], function(HmacSha1, percentEncode, request, formEncode) {
     
 
    function twtOAuth (args){
@@ -1175,7 +1181,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       
       this.oauth = {          // Holds parameters that go into header of request and are used to 
                               // assamble the signature key
-        callback: "",         // User is return to this link, if approval is confirmed  
+        callback: "",     // User is return to this link, if approval is confirmed  
         consumer_key: "",     // This is very sensitive data. Server sets the value.
         signature: "",        // This value also sets the server.
         nonce: "",            // Session id, twitter api uses this to determines duplicate requests 
@@ -1186,35 +1192,43 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
 
       this.alreadyCalled = false; // Control flag. Protection against multiple calls to twitter from same 
                                   // instance
-
+          // first part (maybe call it UserAuthorization)
       this.getRequestToken = function(args){  // Add leg argument check to see which leg, act acording
          if(this.alreadyCalled) return;       // Just return, in case of subsequent call.
          else this.alreadyCalled = true;      
-
+         
          console.log("v: "+ vault)
          this.setUserParams(args, vault);     // Sets user supplied parameters: 
                                               // like "callback" (url to which users are redirected)
          this.setNonUserParams();             // Sets non user supliead params: timestamp, nonce, signature ...
          this.genSignatureBaseString(vault);  // Generates signature base string 
-       //  this.genSignature(vault);          // Generates signature
+       //this.genSignature(vault);          // Generates signature
          this.sendRequest(vault);             // first param "leg" should be
         
       }
+        // this is the second part
+      this.aftherAuthorization = function(){
+
+    
+         this.authorizedData = this.parse(window.location.href,/\?/g,/&/g);
+         // and if we have data= and oauth_token and oauth verifier
+        if(this.authorizedData) console.log("+++++++++++++++ " + this.authorizedData + " ++++++++++++++") 
+      }
    }
-   
+
    twtOAuth.prototype.setUserParams = function(args, vault){ // sets user suplied parametars 
-                                            console.log("userParams ckey:"+ vault.consumer_key)
          var temp; 
          for(var prop in args){  // iterate trough any user params
             temp = args[prop];
+
 
             switch(prop){
                case "callback":  // this is the url to which user gets redirected by twiiter api if, in 3rd leg
                                  // access token is aproved.
                  this.oauth.callback = temp;
                break; 
-               case "data":
-                 this.data = temp;
+               case "session_data":
+                 this.session_data = temp;
                break;
                case "csecret":
                  vault.consumer_secret = temp;  // placing sensitive data to variables formed in closures
@@ -1281,9 +1295,9 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
                                               // between each pair of key/value it puts "&" sign.
             key = a[i];                       // Thakes key that was sorted alphabeticaly
             switch(key){                      // In case of consumer and user keys we leave them to server logic
-              case "callback":      // Callback url to which users are redirected by twitter         
-                                    // Check to see if there is data to append to calback as query string
-                value = this.data ? this.appendToCallback() : this.oauth.callback; 
+              case "callback":   // Callback url to which users are redirected by twitter         
+                                    // Check to see if there is data to append to calback as query string:
+                value = this.session_data ? this.appendToCallback(this.session_data) : this.oauth.callback; 
               break; 
               case "consumer_key":
                 value = "";         // Sensitive data we leave for server to add
@@ -1331,17 +1345,21 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
      callbackNotSet: "You must provide a callback url to which users are redirected.",
      consumerKeyNotSet: "You must provide consumer KEY that indetifies your app.",
      consumerSecretNotSet: "You must provede consumer SECRET that indentifies your app",
-     userKey: "You must provide user secret that intentifies user in which name your app makes request."//,
+     userKey: "You must provide user secret that intentifies user in which name your app makes request.",
+     noStringProvided: "You must provide a string for parsing." 
      //requestTokenNoData: "No data acquired from "+ this.leg[0] +  " step."
    };
 
-   twtOAuth.prototype.appendToCallback = function(){   // apends data as querystring to callback url
+   twtOAuth.prototype.appendToCallback = function(session_data){ // appends session data object as querystring to                                                                 // callback url. 
       var callback = this.oauth.callback;
-      var queryString = this.data;  
-
-      callback = callback[callback.length - 1] !== "?" ? callback + "?" : callback ;// Add "?" if one not exist
-      this.oauth.callback = callback + "data=" + queryString; // Also appending key of name "data" which holds 
-                                                               // query string
+      var fEncoded = formEncode(session_data, true);
+    console.log(fEncoded);
+      var queryString = "data=" + percentEncode(fEncoded); // Make string from object then                                                                                 // percent encode it.  
+    console.log("queryString: ", queryString)
+      callback = callback[callback.length - 1] !== "?" ? (callback + "?") : callback ;//Add "?" if one not exist
+      this.oauth.callback = callback + queryString;  // add queryString to callback
+                                                     
+       console.log("OAUTH CALLBACK: "+this.oauth.callback)
       return this.oauth.callback;
    };
 
@@ -1361,7 +1379,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
      //var requestObject = this.getRequestObject(leg])
       request({                                 // seting params for http request
          "httpMethod": this.httpMethods[this.leg[0]], // [this.leg] should go
-         "url": 'https://quoteowlet.herokuapp.com', // was  this.absoluteUrls["request_token"],
+         "url": 'https://quoteowlet.herokuapp.com', //was 'http://localhost:5000',
          "queryParams": { 
             "host": this.twtUrl.domain,
             "path": this.twtUrl.path + this.leg[0],
@@ -1385,30 +1403,34 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
                                                   
        console.log("From twitter request_token: " + data);
        this.request_token = data;  // data from twitter
-       console.log(typeof data);
-       this.parseOAuthToken();      // parses oauth_token from data
+       
+       this.oauth_token = this.parse(this.request_token,/oauth_token/g, /&/g);// parses oauth_token 
+                                                                              // from twitter responded string
        this.authorize();
    };
 
-   twtOAuth.prototype.parseOAuthToken = function(){ // parses oauth_token from twitter responce 
-        if(!this.request_token){ 
-           console.log(this.messages.requestTokenNoData);
+   twtOAuth.prototype.parse = function(str, delimiter1, delimiter2){ // parses substring a string (str) 
+                                                                     
+        if(!str){ 
+           console.log(this.messages.noStringProvided);
            return;
         }
-        var delimiter1 = /oauth_token=/g;
-        var delimiter2 = /&/g;
-        var start = this.request_token.search(delimiter1); // calculate from which index to take 
-        var end = this.request_token.search(delimiter2);   // calcualte to which index to take                                                             
-        this.oauth_token = this.request_token.substring(start, end); // parse the token
-        console.log(this.oauth_token); 
-         
+        var start = str.search(delimiter1); // calculate from which index to take 
+        var end = str.search(delimiter2);   // calcualte to which index to take                                                             
+        console.log(str); 
+        return str.substring(start, end); // return substring
             
    };
 
    twtOAuth.prototype.authorize = function(){ // redirects user to twitter for authorization (should go afther
                                               // invoking user supplied function that notifies user or what ever
                                               // ( like - you will be redirected to twitter ...)
-     setTimeout(function(){  window.location = this.absoluteUrls[this.leg[1]] + "?" + this.oauth_token; }.bind(this), 3000);  
+     
+     
+     setTimeout(function(){ 
+          window.location = this.absoluteUrls[this.leg[1]] + "?" + this.oauth_token; 
+          }.bind(this),
+     15000); 
    };
 
    twtOAuth.prototype.setAuthorizationHeader = function(request,vault){
@@ -1490,7 +1512,8 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       var r = new twtOAuth(); 
       
       return phantomHead = {
-          getRequestToken : r.getRequestToken.bind(r)
+          getRequestToken : r.getRequestToken.bind(r),
+          aftherAuthorization: r.aftherAuthorization.bind(r)
       } 
    }
  });
