@@ -1208,11 +1208,11 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       }
         // this is the second part
       this.aftherAuthorization = function(){
-
+                                              // here could go user callback
     
-         this.authorizedData = this.parse(window.location.href,/\?/g,/&/g);
-         // and if we have data= and oauth_token and oauth verifier
-        if(this.authorizedData) console.log("+++++++++++++++ " + this.authorizedData + " ++++++++++++++") 
+         this.queryString = this.parse(window.location.href,/\?/g);
+         this.data = this.parse(this.queryString, /data=/g,/&/g) // continue
+         if(this.data) console.log("+++++++++++++++ " + this.data + " ++++++++++++++") 
       }
    }
 
@@ -1415,8 +1415,8 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
            console.log(this.messages.noStringProvided);
            return;
         }
-        var start = str.search(delimiter1); // calculate from which index to take 
-        var end = str.search(delimiter2);   // calcualte to which index to take                                                             
+        var start = str.search(delimiter1);                        // calculate from which index to take 
+        var end = delimiter2 ? str.search(delimiter2): str.length; // calcualte to which index to take                                                             
         console.log(str); 
         return str.substring(start, end); // return substring
             
