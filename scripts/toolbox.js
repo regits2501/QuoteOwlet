@@ -1210,12 +1210,58 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       this.aftherAuthorization = function(){
                                               // here could go user callback
     
-         this.queryString = this.parse(window.location.href,/\?/g);
-         this.data = this.parse(this.queryString, /data=/g,/&/g) // continue
-         if(this.data) console.log("+++++++++++++++ " + this.data + " ++++++++++++++") 
+         this.authorized = this.getAuthorizationData(this.queryString);
+         if(this.authorized) console.log(this.authorized);        
       }
    }
+   twtOAuth.prototype.getAuthorizationData = function(str){
+        if(!str) str = this.parse(window.location.href,/\?/g, /#/g); // parse query string
+        var parsed = this.parseDataAndTokens(str); // parse data and tokens from query string
+        var authorized = this.objectify(parsed);   // makes an object from array of query string parametars
+        if(authorized.data && authorized.oauth_token && authorized.oauth_verifier){ // check to see we have
+           return authorized;                                                        // everything
+        }
+        
+        
+   }
+   twtOAuth.prototype.parseDataAndTokens = function parseDataAndTokens(str){
+      var arr  = [];
+      if(!str){
+         console.log(this.messages.noStringProvided);
+         return;
+      }  
 
+      if(str[0] === "?") str = str.substring(1); // remove "?" if we have one at beggining
+
+      arr = str.split('&')                       // make new array element on each "&" 
+            .map( function(el, i){ 
+                 var arr2 =  el.split("=");      // for each element make new array element on each "=" 
+                 return arr2;   
+
+             });
+     
+      console.log(arr);
+      return arr;   // arr is now array of arrays
+   }
+
+   twtOAuth.prototype.objectify = function(array){ // makes new object with props and values from array's 
+                                                   // elements
+      var data = {}
+      var len = array.length;
+      
+      for(var i = 0; i < len; i++){
+            var arr = array[i];
+            for(var j = 0; j < arr.length; j++){   // iterating though each of arrays in parsed
+               if(j == 0) data[arr[j]] = arr[j+1]; // if we are at element that holds name of property, 
+                                                   // make property with that name in data object, set it's
+                                                   //  value of next element (j+1)
+          }
+      } 
+      
+      //console.log(data);   
+      return data;
+   
+   } 
    twtOAuth.prototype.setUserParams = function(args, vault){ // sets user suplied parametars 
          var temp; 
          for(var prop in args){  // iterate trough any user params
@@ -1278,7 +1324,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
          this.checkConsumerSecret(vault);    // checks secret,
          
    }
-
+   
    twtOAuth.prototype.genSignatureBaseString = function(vault){ // generates sbs
          var a = [];
          for(var name in this.oauth){ // takes every oauth prop name
@@ -1416,7 +1462,11 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
            return;
         }
         var start = str.search(delimiter1);                        // calculate from which index to take 
-        var end = delimiter2 ? str.search(delimiter2): str.length; // calcualte to which index to take                                                             
+        var end ; 
+        if(!delimiter2 || str.search(delimiter2) === -1) end = str.length;// if del2 was not passed as argument
+                                                                          // or we didnt find it, then end index
+                                                                          // is length of the string.
+        else end = str.search(delimiter2);                        // calcualte to which index to take                                                             
         console.log(str); 
         return str.substring(start, end); // return substring
             
