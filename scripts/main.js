@@ -292,7 +292,8 @@
 
   quoteData.getQuoteElements = function(){
      this.quoteEl = document.querySelectorAll('.showQuote')[0]; // get element
-     this.autorEl = document.querySelectorAll('.showAuthor')[0];
+     this.authorEl = document.querySelectorAll('.showAuthor')[0];
+     console.log
   }
 
   whenPageReady(quoteData.getQuoteElements.bind(quoteData))     // when page is ready sellect the quote elements
