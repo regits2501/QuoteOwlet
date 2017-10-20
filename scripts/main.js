@@ -288,20 +288,44 @@
                 
   }));
 
-  var twtSecondPart = twtOAuth();
-  twtSecondPart.aftherAuthorization();
+  var quoteData = {};
+
+  quoteData.getQuoteElements = function(){
+     this.quoteEl = document.querySelectorAll('.showQuote')[0]; // get element
+     this.autorEl = document.querySelectorAll('.showAuthor')[0];
+  }
+
+  whenPageReady(quoteData.getQuoteElements.bind(quoteData))     // when page is ready sellect the quote elements
+ 
+  quoteData.setQuoteData = function(sessionData){                
+     this.quoteEl = sessionData.quote;
+     this.authorEl = sessionData.author;
+  }
+
   whenPageReady( function(){  // on mousedown authenticate to twitter
-       addEvent(document.getElementsByClassName("twitterButton")[0], "mousedown", function authenticate(){
+      addEvent(document.getElementsByClassName("twitterButton")[0], "mousedown", function authenticate(){
+                
+
                 var twty = twtOAuth();
                 twty.getRequestToken({"callback":"https://gits2501.github.io/QuoteOwlet/index.html",
                                      "csecret": "okPWgBIV5A72Jhc5dT1UlQfAzXUFO42rp9VFNHsbyCCD2S1AtP",
                                       "ckey": "ZuQzYI8B574cweeef3rCKk2h2",
-                                      "session_data":{"animal":"Iklan","color":"sky-blue or gray"}
+                                      "session_data":{
+                                         "quote":textContent(quoteData.quoteEl),
+                                         "author":textContent(quoteData.authorEl)
+                                       }
                 });
-        })
+       })
      
   })
- 
+  
+  whenPageReady(function(){
+     var twtSecondPart = twtOAuth();
+     twtSecondPart.aftherAuthorization(quoteData.setQuoteData.bind(quoteData));
+     
+     
+  })
+
 
 })()
 

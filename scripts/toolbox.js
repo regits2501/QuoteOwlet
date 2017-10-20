@@ -1207,14 +1207,15 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
         
       }
         // this is the second part
-      this.aftherAuthorization = function(){
+      this.aftherAuthorization = function(cb){
                                               // here could go user callback
     
          this.authorized = this.parseAuthorizationData();
          if(this.authorized){ 
               console.log(this.authorized)
             this.sessionData = this.parseSessionData(this.authorized.data) // further parsing of session data
-             console.log(this.sessionData);                                          // from authorization data
+              console.log(this.sessionData);                               // from authorization data
+            cb(this.sessionData);  // invoking user callback with sessionData                                         
          }        
       }
    }
@@ -1234,9 +1235,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
        if(/%[0-9][0-9]/g.test(str))                       // See if there are percent encoded chars
        str = decodeURIComponent(decodeURIComponent(str)); // Decoding twice, since it was encoded twice
                                                           // (by OAuth 1.0a specification). See SBS function.
-       
        var parsed = this.parseKeyValuePairs(str);         // 
-         
        return this.objectify(parsed); 
    }
   
