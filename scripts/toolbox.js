@@ -1210,21 +1210,37 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       this.aftherAuthorization = function(){
                                               // here could go user callback
     
-         this.authorized = this.getAuthorizationData(this.queryString);
-         if(this.authorized) console.log(this.authorized);        
+         this.authorized = this.parseAuthorizationData();
+         if(this.authorized){ 
+              console.log(this.authorized)
+            this.sessionData = this.parseSessionData(this.authorized.data) // further parsing of session data
+             console.log(this.sessionData);                                          // from authorization data
+         }        
       }
    }
-   twtOAuth.prototype.getAuthorizationData = function(str){
-        if(!str) str = this.parse(window.location.href,/\?/g, /#/g); // parse query string
-        var parsed = this.parseDataAndTokens(str); // parse data and tokens from query string
-        var authorized = this.objectify(parsed);   // makes an object from array of query string parametars
-        if(authorized.data && authorized.oauth_token && authorized.oauth_verifier){ // check to see we have
-           return authorized;                                                        // everything
-        }
-        
+   twtOAuth.prototype.parseAuthorizationData = function(str){
+
+      if(!str) str = this.parse(window.location.href,/\?/g, /#/g); // parse query string
+      var parsed = this.parseKeyValuePairs(str); // parse parameters from query string
+      var authorized = this.objectify(parsed);   // makes an object from array of query string parametars
+
+      if(authorized.data && authorized.oauth_token && authorized.oauth_verifier){ // check to see we have
+         return authorized;                                                        // everything
+      }
         
    }
-   twtOAuth.prototype.parseDataAndTokens = function parseDataAndTokens(str){
+  
+   twtOAuth.prototype.parseSessionData = function(str){
+       if(/%[0-9][0-9]/g.test(str))                       // See if there are percent encoded chars
+       str = decodeURIComponent(decodeURIComponent(str)); // Decoding twice, since it was encoded twice
+                                                          // (by OAuth 1.0a specification). See SBS function.
+       
+       var parsed = this.parseKeyValuePairs(str);         // 
+         
+       return this.objectify(parsed); 
+   }
+  
+   twtOAuth.prototype.parseKeyValuePairs = function (str){
       var arr  = [];
       if(!str){
          console.log(this.messages.noStringProvided);
@@ -1258,10 +1274,9 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
           }
       } 
       
-      //console.log(data);   
       return data;
-   
    } 
+
    twtOAuth.prototype.setUserParams = function(args, vault){ // sets user suplied parametars 
          var temp; 
          for(var prop in args){  // iterate trough any user params
@@ -1325,7 +1340,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
          
    }
    
-   twtOAuth.prototype.genSignatureBaseString = function(vault){ // generates sbs
+   twtOAuth.prototype.genSignatureBaseString = function(vault){ // generates SBS (signature base string) 
          var a = [];
          for(var name in this.oauth){ // takes every oauth prop name
             a.push(name);             // and pushes it to array
