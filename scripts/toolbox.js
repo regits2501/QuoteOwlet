@@ -1410,7 +1410,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
      //requestTokenNoData: "No data acquired from "+ this.leg[0] +  " step."
    };
 
-   twtOAuth.prototype.appendToCallback = function(session_data){ // appends session data object as querystring to                                                                 // callback url. 
+   twtOAuth.prototype.appendToCallback = function(session_data){// appends session data object as querystring to                                                                 // callback url. 
       var callback = this.oauth.callback;
       var fEncoded = formEncode(session_data, true);
     console.log(fEncoded);

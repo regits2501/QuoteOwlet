@@ -293,12 +293,12 @@
   quoteData.getQuoteElements = function(){
      this.quoteEl = document.querySelectorAll('.showQuote')[0]; // get element
      this.authorEl = document.querySelectorAll('.showAuthor')[0];
-     console.log
+     
   }
 
   whenPageReady(quoteData.getQuoteElements.bind(quoteData))     // when page is ready sellect the quote elements
  
-  quoteData.setQuoteData = function(sessionData){                
+  quoteData.setQuoteData = function(sessionData){   console.log("sessionData ====== " + sessionData)             
      this.quoteEl = sessionData.quote;
      this.authorEl = sessionData.author;
   }
@@ -306,7 +306,7 @@
   whenPageReady( function(){  // on mousedown authenticate to twitter
       addEvent(document.getElementsByClassName("twitterButton")[0], "mousedown", function authenticate(){
                 
-
+           console.log("Taking this data: ====",textContent(quoteData.quoteEl), textContent(quoteData.authorEl))
                 var twty = twtOAuth();
                 twty.getRequestToken({"callback":"https://gits2501.github.io/QuoteOwlet/index.html",
                                      "csecret": "okPWgBIV5A72Jhc5dT1UlQfAzXUFO42rp9VFNHsbyCCD2S1AtP",
@@ -323,7 +323,6 @@
   whenPageReady(function(){
      var twtSecondPart = twtOAuth();
      twtSecondPart.aftherAuthorization(quoteData.setQuoteData.bind(quoteData));
-     
      
   })
 
