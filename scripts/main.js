@@ -300,9 +300,9 @@
  
   quoteData.setQuoteData = function(sessionData){  
         console.log("sessionData ====== ", sessionData),
-        console.log("this.quoteEl: ", this.quoteEl);           
-     this.quoteEl = sessionData.quote;
-     this.authorEl = sessionData.author;
+        console.log("this.quoteEl: ", this.quoteEl);            
+     textContent(this.quoteEl, sessionData.quote);
+     textContent(this.authorEl, sessionData.author);
   }
 
   whenPageReady( function(){  // on mousedown authenticate to twitter
