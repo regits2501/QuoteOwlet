@@ -298,7 +298,9 @@
 
   whenPageReady(quoteData.getQuoteElements.bind(quoteData))     // when page is ready sellect the quote elements
  
-  quoteData.setQuoteData = function(sessionData){   console.log("sessionData ====== " + sessionData)             
+  quoteData.setQuoteData = function(sessionData){  
+        console.log("sessionData ====== ", sessionData),
+        console.log("this.quoteEl: ", this.quoteEl);           
      this.quoteEl = sessionData.quote;
      this.authorEl = sessionData.author;
   }
