@@ -1497,7 +1497,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
      15000);
      */
      setTimeout(function(){   // pop-up
-         window.open(this.absoluteUrúls[this.leg[1]] + "?" + this.oauth_token,"width=350,height=400, status=yes, resizable=yes")
+         window.open(this.absoluteUrls[this.leg[1]] + "?" + this.oauth_token,"width=350,height=400, status=yes, resizable=yes")
      }.bind(this), 15000); 
    };
 
