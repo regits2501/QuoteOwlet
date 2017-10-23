@@ -1171,7 +1171,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       this.absoluteUrls[this.leg[1]] = this.apiUrl + this.leg[1];
       this.absoluteUrls[this.leg[2]] = this.apiUrl + this.leg[2];
        
-      this.data = "";                 // data to send to twt
+      this.data = "";                // data to send to twt
       this.baseUrl = "";             // url to which request is send
       this.headerPrefix = "oauth_";  // prefix for each oauth key in a http request
       this.leadPrefix = "OAuth "     // leading String afther all key-value pairs go. Notice space at the end. 
@@ -1181,7 +1181,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       
       this.oauth = {          // Holds parameters that go into header of request and are used to 
                               // assamble the signature key
-        callback: "",     // User is return to this link, if approval is confirmed  
+        callback: "",         // User is return to this link, if approval is confirmed  
         consumer_key: "",     // This is very sensitive data. Server sets the value.
         signature: "",        // This value also sets the server.
         nonce: "",            // Session id, twitter api uses this to determines duplicate requests 
@@ -1202,7 +1202,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
                                               // like "callback" (url to which users are redirected)
          this.setNonUserParams();             // Sets non user supliead params: timestamp, nonce, signature ...
          this.genSignatureBaseString(vault);  // Generates signature base string 
-       //this.genSignature(vault);          // Generates signature
+       //this.genSignature(vault);            // Generates signature
          this.sendRequest(vault);             // first param "leg" should be
         
       }
@@ -1221,7 +1221,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
    }
    twtOAuth.prototype.parseAuthorizationData = function(str){
 
-      if(!str) str = this.parse(window.location.href,/\?/g, /#/g); // parse query string
+      if(!str) str = this.parse(window.location.href,/\?/g, /#/g); // parses query string
       var parsed = this.parseKeyValuePairs(str); // parse parameters from query string
       var authorized = this.objectify(parsed);   // makes an object from array of query string parametars
 
@@ -1235,8 +1235,8 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
        if(/%[0-9][0-9]/g.test(str))                       // See if there are percent encoded chars
        str = decodeURIComponent(decodeURIComponent(str)); // Decoding twice, since it was encoded twice
                                                           // (by OAuth 1.0a specification). See SBS function.
-       var parsed = this.parseKeyValuePairs(str);         // 
-       return this.objectify(parsed); 
+       var parsed = this.parseKeyValuePairs(str);         // Parsing 
+       return this.objectify(parsed);                     // Making an object from parsed key/values.
    }
   
    twtOAuth.prototype.parseKeyValuePairs = function (str){
@@ -1491,10 +1491,14 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
                                               // ( like - you will be redirected to twitter ...)
      
      
-     setTimeout(function(){ 
+     /*setTimeout(function(){ 
           window.location = this.absoluteUrls[this.leg[1]] + "?" + this.oauth_token; 
           }.bind(this),
-     15000); 
+     15000);
+     */
+     setTimeout(function(){   // pop-up
+         window.open(this.absoluteUls[this.leg[1]] + "?" + this.oauth.token,"width=350,height=400, status=yes, resizable=yes")
+     }, 15000); 
    };
 
    twtOAuth.prototype.setAuthorizationHeader = function(request,vault){
