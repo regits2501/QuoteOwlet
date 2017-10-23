@@ -1283,8 +1283,8 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
 
 
             switch(prop){
-               case "callback":  // this is the url to which user gets redirected by twiiter api if, in 3rd leg
-                                 // access token is aproved.
+               case "callback_url":// this is the url to which user gets redirected by twiiter api if, in 3rdLeg
+                                    // access token is aproved.
                  this.oauth.callback = temp;
                break; 
                case "session_data":
@@ -1497,7 +1497,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
      15000);
      */
      setTimeout(function(){   // pop-up
-         window.open(this.absoluteUrls[this.leg[1]] + "?" + this.oauth_token,"width=350,height=400, status=yes, resizable=yes")
+         window.open(this.absoluteUrls[this.leg[1]] + "?" + this.oauth_token, "redirection","width=350,height=400, status=yes, resizable=yes")
      }.bind(this), 15000); 
    };
 
