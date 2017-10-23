@@ -1498,7 +1498,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
      */
      setTimeout(function(){   // pop-up
          window.open(this.absoluteUls[this.leg[1]] + "?" + this.oauth.token,"width=350,height=400, status=yes, resizable=yes")
-     }, 15000); 
+     }.bind(this), 15000); 
    };
 
    twtOAuth.prototype.setAuthorizationHeader = function(request,vault){
