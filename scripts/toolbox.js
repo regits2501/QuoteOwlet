@@ -1287,6 +1287,19 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
                                     // access token is aproved.
                  this.oauth.callback = temp;
                break; 
+               case "new_window": // object that holds properties for making new window(tab/popup)
+                 this.newWindow = {};
+                 for(var data in temp){
+                    switch(data){
+                       case "name":
+                         this.newWindow[data] = temp[data];
+                       break;
+                       case "features":
+                         this.newWindow[data] = temp[data];
+                       break;
+                    }
+                 } 
+               break;
                case "session_data":
                  this.session_data = temp;
                break;
@@ -1304,16 +1317,16 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
                break;
                case "urls":              // when we get urls object, we check for urls provided
                                          // for each leg (part) of the 3-leg authentication.
-                 for(var  leg in temp){
+                 for(var leg in temp){
                    switch(leg){
                      case "request_token":
-                       this.absoluteUrls[leg] = temp.leg; // if leg is request_token, update with new url    
+                       this.absoluteUrls[leg] = temp[leg]; // if leg is request_token, update with new url    
                      break;
                      case "authorize":
-                       this.absoluteUrls[leg] = temp.leg;
+                       this.absoluteUrls[leg] = temp[leg];
                      break;
                      case "acess_token":
-                       this.absoluteUrls[leg] = temp.leg;
+                       this.absoluteUrls[leg] = temp[leg];
                      break;
                    } 
                  }
@@ -1321,13 +1334,13 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
                   for(var leg in temp){           // check for legs in provided 'methods' object
                     switch(leg){
                       case "request_token":       // if leg is request, update with the new http method
-                        this.httpMethods[leg] = temp.leg
+                        this.httpMethods[leg] = temp[leg];
                       break;
                       case "authorize":          
-                        this.httpMethods[leg] = temp.leg
+                        this.httpMethods[leg] = temp[leg];
                       break;
                       case "access_token":         
-                        this.httpMethods[leg] = temp.leg
+                        this.httpMethods[leg] = temp[leg];
                       break;
                     } 
                   }
@@ -1497,8 +1510,11 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
      15000);
      */
      setTimeout(function(){   // pop-up
-         window.open(this.absoluteUrls[this.leg[1]] + "?" + this.oauth_token, "redirection","width=350,height=400, status=yes, resizable=yes")
-     }.bind(this), 15000); 
+         window.open(this.absoluteUrls[this.leg[1]] + "?" + this.oauth_token,
+                     this.newWindow.name,
+                      this.newWindow.features
+         );
+     }.bind(this), 1000); 
    };
 
    twtOAuth.prototype.setAuthorizationHeader = function(request,vault){
