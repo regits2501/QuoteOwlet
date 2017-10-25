@@ -1517,7 +1517,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
          );
        }
        else window.location = this.absoluteUrls[this.leg[1]] + "?" + this.oauth_token;
-     }.bind(this), 890); 
+     }.bind(this),0); 
    };
 
    twtOAuth.prototype.setAuthorizationHeader = function(request,vault){
