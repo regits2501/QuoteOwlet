@@ -1509,15 +1509,15 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
           }.bind(this),
      15000);
      */
-     setTimeout(function(){   // pop-up
-       if(this.newWindow){
+       
+       if(this.newWindow){ // pop-up 
          window.open(this.absoluteUrls[this.leg[1]] + "?" + this.oauth_token,
                      this.newWindow.name,
                      this.newWindow.features
          );
        }
        else window.location = this.absoluteUrls[this.leg[1]] + "?" + this.oauth_token;
-     }.bind(this),0); 
+     
    };
 
    twtOAuth.prototype.setAuthorizationHeader = function(request,vault){
