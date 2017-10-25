@@ -1460,14 +1460,14 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
          },
          "body": this.signatureBaseString,  // Payload of the request we send
          "encoding": "text",                // encoding of the body
-         "beforeSend": function (request){ // before sending we add Authorization header to http request
-                                           // This is not an async function.
+         "beforeSend": function (request){  // before sending we add Authorization header to http request
+                                            // This is not an async function.
                           this.setAuthorizationHeader.call(this, request, vault)
                        }.bind(this),
 
-         "callback": function(data){       // Afther successfull responce, this callback function is invoked
+         "callback": function(data){        // Afther successfull responce, this callback function is invoked
                        this.requestTokenCb(data);
-                     }.bind(this)          // This function is an async function.
+                     }.bind(this)           // This function is an async function.
           
       })
    }
@@ -1488,14 +1488,14 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
            console.log(this.messages.noStringProvided);
            return;
         }
-        var start = str.search(delimiter1);                        // calculate from which index to take 
+        var start = str.search(delimiter1);   // calculate from which index to take 
         var end ; 
         if(!delimiter2 || str.search(delimiter2) === -1) end = str.length;// if del2 was not passed as argument
                                                                           // or we didnt find it, then end index
                                                                           // is length of the string.
-        else end = str.search(delimiter2);                        // calcualte to which index to take                                                             
+        else end = str.search(delimiter2);    // calcualte to which index to take                                                             
         console.log(str); 
-        return str.substring(start, end); // return substring
+        return str.substring(start, end);     // return substring
             
    };
 
@@ -1510,11 +1510,14 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
      15000);
      */
      setTimeout(function(){   // pop-up
+       if(this.newWindow){
          window.open(this.absoluteUrls[this.leg[1]] + "?" + this.oauth_token,
                      this.newWindow.name,
-                      this.newWindow.features
+                     this.newWindow.features
          );
-     }.bind(this), 1000); 
+       }
+       else window.location = this.absoluteUrls[this.leg[1]] + "?" + this.oauth_token;
+     }.bind(this), 890); 
    };
 
    twtOAuth.prototype.setAuthorizationHeader = function(request,vault){
