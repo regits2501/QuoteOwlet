@@ -1196,13 +1196,13 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       this.getRequestToken = function(args){  // Add leg argument check to see which leg, act acording
          if(this.alreadyCalled) return;       // Just return, in case of subsequent call.
          else this.alreadyCalled = true;      
-         
          console.log("v: "+ vault)
-         this.setUserParams(args, vault);     // Sets user supplied parameters: 
-                                              // like "callback" (url to which users are redirected)
-         this.setNonUserParams();             // Sets non user supliead params: timestamp, nonce, signature ...
-         this.genSignatureBaseString(vault);  // Generates signature base string 
-       //this.genSignature(vault);            // Generates signature
+         this.setUserParams(args, vault);       // Sets user supplied parameters: 
+                                                // like "callback" (url to which users are redirected)
+         this.setNonUserParams();               // Sets non user supliead params: timestamp, nonce, signature ..
+         this.genSignatureBaseString(vault);    // Generates signature base string
+         if(this.newWindow) this.openPopUnder();// opens new window if user required so.  
+         //this.genSignature(vault);            // Generates signature
          this.sendRequest(vault);             // first param "leg" should be
         
       }
@@ -1400,30 +1400,34 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
          this.signatureBaseString = this.method + this.url + percentEncode(this.signatureBaseString);
          console.log("SIg string: "+ this.signatureBaseString); 
    }
-
+   twtOAuth.prototype.openPopUnder = function(){ // opens pop-up and puts in under current window
+        console.log("==== POP-UNDER =====");
+      this.newWindow.window = window.open("", this.newWindow.name, this.newWindow.features);
+      console.log("this.newWindow: ", this.newWindow.window ); 
+   }
    twtOAuth.prototype.genSignature = function(vault){ 
          // put here if request leg, athorization leg ...
-         var hmacSha1 = new HmacSha1();
-         var key = this.genSigningKey(vault); // signing key uses consumer secret, NOT consumer key
-         console.log("signing KEY: " + key); 
-         this.oauth.signature = hmacSha1.digest(key,this.signatureBaseString); // Produces hex string
-         this.oauth.signature = hmacSha1.hexToString(this.oauth.signature);    // Converts to string, for btoa()                                                                
-         this.oauth.signature = btoa(this.oauth.signature);                    // Converting to base64
-                                                                               // We percent encode it in 
-                                                                               // sendRequest function
-         console.log("oauth_sig: " + this.oauth.signature);                       
+      var hmacSha1 = new HmacSha1();
+      var key = this.genSigningKey(vault); // signing key uses consumer secret, NOT consumer key
+      console.log("signing KEY: " + key); 
+      this.oauth.signature = hmacSha1.digest(key,this.signatureBaseString); // Produces hex string
+      this.oauth.signature = hmacSha1.hexToString(this.oauth.signature);    // Converts to string, for btoa()                                                                
+      this.oauth.signature = btoa(this.oauth.signature);                    // Converting to base64
+                                                                            // We percent encode it in 
+                                                                            // sendRequest function
+      console.log("oauth_sig: " + this.oauth.signature);                       
    }
 
    twtOAuth.prototype.messages = {
-     callbackNotSet: "You must provide a callback url to which users are redirected.",
-     consumerKeyNotSet: "You must provide consumer KEY that indetifies your app.",
-     consumerSecretNotSet: "You must provede consumer SECRET that indentifies your app",
-     userKey: "You must provide user secret that intentifies user in which name your app makes request.",
-     noStringProvided: "You must provide a string for parsing." 
-     //requestTokenNoData: "No data acquired from "+ this.leg[0] +  " step."
+      callbackNotSet: "You must provide a callback url to which users are redirected.",
+      consumerKeyNotSet: "You must provide consumer KEY that indetifies your app.",
+      consumerSecretNotSet: "You must provede consumer SECRET that indentifies your app",
+      userKey: "You must provide user secret that intentifies user in which name your app makes request.",
+      noStringProvided: "You must provide a string for parsing." 
+      //requestTokenNoData: "No data acquired from "+ this.leg[0] +  " step."
    };
 
-   twtOAuth.prototype.appendToCallback = function(session_data){// appends session data object as querystring to                                                                 // callback url. 
+   twtOAuth.prototype.appendToCallback = function(session_data){// appends session data object as querystring to                                                                // callback url. 
       var callback = this.oauth.callback;
       var fEncoded = formEncode(session_data, true);
     console.log(fEncoded);
@@ -1510,12 +1514,9 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
      15000);
      */
        
-       if(this.newWindow){ // pop-up 
-         window.open(this.absoluteUrls[this.leg[1]] + "?" + this.oauth_token,
-                     this.newWindow.name,
-                     this.newWindow.features
-         );
-       }
+      if(this.newWindow.window){ // pop-up 
+         this.newWindow.window.location = this.absoluteUrls[this.leg[1]] + "?" + this.oauth_token;
+      }
        else window.location = this.absoluteUrls[this.leg[1]] + "?" + this.oauth_token;
      
    };

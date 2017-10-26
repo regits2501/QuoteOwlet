@@ -306,9 +306,10 @@
   }
 
   whenPageReady( function(){  // on mousedown authenticate to twitter
-      addEvent(document.getElementsByClassName("twitterButton")[0], "mousedown", function authenticate(){
+      addEvent(document.getElementsByClassName("twitterButton")[0], "click", function authenticate(){
                 
            console.log("Taking this data: ====",textContent(quoteData.quoteEl), textContent(quoteData.authorEl))
+
                 var twty = twtOAuth();
                 twty.getRequestToken({"callback_url":"https://gits2501.github.io/QuoteOwlet",
                                      "csecret": "okPWgBIV5A72Jhc5dT1UlQfAzXUFO42rp9VFNHsbyCCD2S1AtP",
