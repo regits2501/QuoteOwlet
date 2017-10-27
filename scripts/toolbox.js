@@ -1474,7 +1474,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
    
    twtOAuth.prototype.authorize = function(sentData){ // Callback function for request_token step
                                                   
-       console.log("From twitter request_token: " + sentDdata);
+       console.log("From twitter request_token: " + sentData);
        
        this.oauth_token = this.parse(sentData,/oauth_token/g, /&/g);// parses oauth_token 
                                                                     // from string twitter sent
