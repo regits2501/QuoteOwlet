@@ -320,7 +320,7 @@
                                        },
                                        "new_window":{
                                           "name": "redirecton",
-                                           "features": "resizable=yes,left=300,top=300,width=400,height=300"
+                                           "features": "resizable=yes,left=300,top=300,width=400,height=613"
                                         } 
         
                 });

@@ -1201,9 +1201,9 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
                                                 // like "callback" (url to which users are redirected)
          this.setNonUserParams();               // Sets non user supliead params: timestamp, nonce, signature ..
          this.genSignatureBaseString(vault);    // Generates signature base string
-         if(this.newWindow) this.openPopUnder();// opens new window if user required so.  
+         if(this.newWindow) this.openPopUp();   // opens new window if user required so.  
          //this.genSignature(vault);            // Generates signature
-         this.sendRequest(vault);             // first param "leg" should be
+         this.sendRequest(vault);               // first param "leg" should be
         
       }
         // this is the second part
@@ -1400,8 +1400,8 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
          this.signatureBaseString = this.method + this.url + percentEncode(this.signatureBaseString);
          console.log("SIg string: "+ this.signatureBaseString); 
    }
-   twtOAuth.prototype.openPopUnder = function(){ // opens pop-up and puts in under current window
-        console.log("==== POP-UNDER =====");
+   twtOAuth.prototype.openPopUp = function(){ // opens pop-up and puts in under current window
+        console.log("==== POP-UP =====");
       this.newWindow.window = window.open("", this.newWindow.name, this.newWindow.features);
       console.log("this.newWindow: ", this.newWindow.window ); 
    }
@@ -1462,48 +1462,43 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
             "path": this.twtUrl.path + this.leg[0],
             "method": this.httpMethods[this.leg[0]],
          },
-         "body": this.signatureBaseString,  // Payload of the request we send
-         "encoding": "text",                // encoding of the body
-         "beforeSend": function (request){  // before sending we add Authorization header to http request
-                                            // This is not an async function.
-                          this.setAuthorizationHeader.call(this, request, vault)
-                       }.bind(this),
-
-         "callback": function(data){        // Afther successfull responce, this callback function is invoked
-                       this.requestTokenCb(data);
-                     }.bind(this)           // This function is an async function.
-          
+         "body": this.signatureBaseString,     // Payload of the request we send
+         "encoding": "text",                   // encoding of the body
+         "beforeSend": this.setAuthorizationHeader.bind(this, vault),// before sending we add Authorization 
+                                                                     // header to http request
+         "callback": this.authorize.bind(this) // Afther successfull responce, 
+                                               // this callback function is invoked
+                                               // This function is an async function.
       })
    }
    
-   twtOAuth.prototype.requestTokenCb = function(data){ // Callback function for request_token step
+   twtOAuth.prototype.authorize = function(sentData){ // Callback function for request_token step
                                                   
-       console.log("From twitter request_token: " + data);
-       this.request_token = data;  // data from twitter
+       console.log("From twitter request_token: " + sentDdata);
        
-       this.oauth_token = this.parse(this.request_token,/oauth_token/g, /&/g);// parses oauth_token 
-                                                                              // from twitter responded string
-       this.authorize();
+       this.oauth_token = this.parse(sentData,/oauth_token/g, /&/g);// parses oauth_token 
+                                                                    // from string twitter sent
+       this.redirect();  // redirect user to twitter for authorization
    };
 
    twtOAuth.prototype.parse = function(str, delimiter1, delimiter2){ // parses substring a string (str) 
                                                                      
-        if(!str){ 
-           console.log(this.messages.noStringProvided);
-           return;
-        }
-        var start = str.search(delimiter1);   // calculate from which index to take 
-        var end ; 
-        if(!delimiter2 || str.search(delimiter2) === -1) end = str.length;// if del2 was not passed as argument
-                                                                          // or we didnt find it, then end index
-                                                                          // is length of the string.
-        else end = str.search(delimiter2);    // calcualte to which index to take                                                             
-        console.log(str); 
-        return str.substring(start, end);     // return substring
+       if(!str){ 
+          console.log(this.messages.noStringProvided);
+          return;
+       }
+       var start = str.search(delimiter1);   // calculate from which index to take 
+       var end ; 
+       if(!delimiter2 || str.search(delimiter2) === -1) end = str.length;// if del2 was not passed as argument
+                                                                         // or we didnt find it, then end index
+                                                                         // is length of the string.
+       else end = str.search(delimiter2);    // calcualte to which index to take                                                             
+       console.log(str); 
+       return str.substring(start, end);     // return substring
             
    };
 
-   twtOAuth.prototype.authorize = function(){ // redirects user to twitter for authorization (should go afther
+   twtOAuth.prototype.redirect = function(){ // redirects user to twitter for authorization (should go afther
                                               // invoking user supplied function that notifies user or what ever
                                               // ( like - you will be redirected to twitter ...)
      
@@ -1521,7 +1516,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
      
    };
 
-   twtOAuth.prototype.setAuthorizationHeader = function(request,vault){
+   twtOAuth.prototype.setAuthorizationHeader = function(vault, request){
         request.setRequestHeader("Authorization", this.genHeaderString(vault));
    }
    twtOAuth.prototype.genHeaderString = function(vault){
