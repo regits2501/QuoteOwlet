@@ -1478,7 +1478,8 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
        
        this.oauth_token = this.parse(sentData,/oauth_token/g, /&/g);// parses oauth_token 
                                                                     // from string twitter sent
-       this.redirect();  // redirect user to twitter for authorization
+       this.redirect();  // redirect user to twitter for authorization 
+       console.log('++ afther redirection ++');
    };
 
    twtOAuth.prototype.parse = function(str, delimiter1, delimiter2){ // parses substring a string (str) 
