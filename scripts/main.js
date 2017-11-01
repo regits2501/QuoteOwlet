@@ -321,10 +321,12 @@
                                        "new_window":{
                                           "name": "redirecton",
                                            "features": "resizable=yes,left=300,top=300,width=400,height=613"
-                                        } 
+                                        },
+                                        'callback_func': function usr(w){ console.log("User supplied func: ", w)} 
         
               });
-              p.then(function onFulfilled(w){console.log("Promised: ", w)})
+              if(p) p.then(function onFulfilled(w){console.log("Promised: ", w)})
+              else console.log('NO Promise available')
        })
      
   })

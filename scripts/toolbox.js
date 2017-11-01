@@ -1201,7 +1201,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
          var resolve;
          var promised;
          
-         if(Promise) promised = new Promise(function(rslv, rjt){  resolve = rslv; }) // if can, make a Promise
+       //  if(Promise) promised = new Promise(function(rslv, rjt){  resolve = rslv; }) // if can, make a Promise
                                                                                      // remember it's resolve
          console.log("v: "+ vault)
          this.setUserParams(args, vault);       // Sets user supplied parameters: 
@@ -1268,7 +1268,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
 
    twtOAuth.prototype.objectify = function(array){ // makes new object with props and values from array's 
                                                    // elements
-      var data = {}
+      var data = {};
       var len = array.length;
       
       for(var i = 0; i < len; i++){
@@ -1335,7 +1335,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
                      case "authorize":
                        this.absoluteUrls[leg] = temp[leg];
                      break;
-                     case "acess_token":
+                     case "access_token":
                        this.absoluteUrls[leg] = temp[leg];
                      break;
                    } 
@@ -1446,7 +1446,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       callback = callback[callback.length - 1] !== "?" ? (callback + "?") : callback ;//Add "?" if one not exist
       this.oauth.callback = callback + queryString;  // add queryString to callback
                                                      
-       console.log("OAUTH CALLBACK: "+this.oauth.callback)
+       console.log("OAUTH CALLBACK: "+this.oauth.callback);
       return this.oauth.callback;
    };
 
@@ -1477,8 +1477,8 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
          "beforeSend": this.setAuthorizationHeader.bind(this, vault),// before sending we add Authorization 
                                                                      // header to http request
          "callback": this.authorize.bind(this, resolve) // Afther successfull responce, 
-                                               // this callback function is invoked
-                                               // This function is an async function.
+                                                        // this callback function is invoked
+                                                        // This function is an async function.
       })
    }
    
@@ -1508,13 +1508,14 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
             
    };
 
-   twtOAuth.prototype.redirect = function(resolve){ // redirects user to twitter for authorization                                             
+   twtOAuth.prototype.redirect = function(resolve){ // redirects user to twitter for authorization   
+     console.log('RESOLVE : ', resolve);
       var openedWindow = this.newWindow.window;      
 
       if(openedWindow){                         // Check for new window/pop-up
          openedWindow.location = this.absoluteUrls[this.leg[1]] + "?" + this.oauth_token;
          if(resolve) resolve(openedWindow);     // if promise is there, resolve it with window reference
-         else this.callback_func(openedWindow); // if not invoke user callback with window ref
+         else{console.log('before USER CAllback'); this.callback_func(openedWindow); }// if not invoke user callback with window ref
       }
       else window.location = this.absoluteUrls[this.leg[1]] + "?" + this.oauth_token;
    };
