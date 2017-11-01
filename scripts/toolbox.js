@@ -1148,7 +1148,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
         "consumer_secret":"",
         "user_key": ""
       }
-      this.leg = ["request_token","authorize","acess_token"] // Names of each leg (part) in 3-leg auhtentication
+      this.leg = ["request_token","authorize","acess_token"] // Names of each leg (step) in 3-leg authentication
                                                              // to twitter. Names are also url path ends:
                                                              // http://api.twitter.com/oauth/request_token
       
@@ -1174,9 +1174,9 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       this.data = "";                // data to send to twt
       this.baseUrl = "";             // url to which request is send
       this.headerPrefix = "oauth_";  // prefix for each oauth key in a http request
-      this.leadPrefix = "OAuth "     // leading String afther all key-value pairs go. Notice space at the end. 
-      this.signature = "";           // Server sets signature, here it is used to assemble authorization header
-                                     // string. Signature is HMAC_SHA1 digest.
+      this.leadPrefix = "OAuth "     // leading string afther all key-value pairs go. Notice space at the end. 
+     // this.signature = "";         // Server sets signature, here it is used to assemble authorization header
+                                     // string. Signature is a result of the HMAC_SHA1 function.
       this.signatureBaseString = ""; // The string HMAC-SHA1 uses as second argument.
       
       this.oauth = {          // Holds parameters that go into header of request and are used to 
@@ -1194,21 +1194,28 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
                                   // instance
           // first part (maybe call it UserAuthorization)
       this.getRequestToken = function(args){  // Add leg argument check to see which leg, act acording
+         
          if(this.alreadyCalled) return;       // Just return, in case of subsequent call.
          else this.alreadyCalled = true;      
+        
+         var resolve;
+         var promised;
+         
+         if(Promise) promised = new Promise(function(rslv, rjt){  resolve = rslv; }) // if can, make a Promise
+                                                                                     // remember it's resolve
          console.log("v: "+ vault)
          this.setUserParams(args, vault);       // Sets user supplied parameters: 
-                                                // like "callback" (url to which users are redirected)
-         this.setNonUserParams();               // Sets non user supliead params: timestamp, nonce, signature ..
+                                                // like "callback_url" (url to which users are redirected)
+         this.setNonUserParams();               // Sets non user-suppliead params: timestamp, nonce, signature 
          this.genSignatureBaseString(vault);    // Generates signature base string
          if(this.newWindow) this.openPopUp();   // opens new window if user required so.  
          //this.genSignature(vault);            // Generates signature
-         this.sendRequest(vault);               // first param "leg" should be
-        
+         this.sendRequest(vault, resolve);      // Sends request to twitter, resolves promise if one was made 
+         if(promised) return promised;
       }
         // this is the second part
       this.aftherAuthorization = function(cb){
-                                              // here could go user callback
+                                                 // here could go user callback
     
          this.authorized = this.parseAuthorizationData();
          if(this.authorized){ 
@@ -1283,8 +1290,8 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
 
 
             switch(prop){
-               case "callback_url":// this is the url to which user gets redirected by twiiter api if, in 3rdLeg
-                                    // access token is aproved.
+               case "callback_url":// this is the url to which user gets redirected by twiiter api, if in 2ndLeg
+                                   // user authorizes the request.
                  this.oauth.callback = temp;
                break; 
                case "new_window": // object that holds properties for making new window(tab/popup)
@@ -1299,6 +1306,9 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
                        break;
                     }
                  } 
+               break;
+               case 'callback_func':    // user supplied callback function (called if Promise is not available)
+                 this.callback_func = temp;
                break;
                case "session_data":
                  this.session_data = temp;
@@ -1384,17 +1394,17 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
               default:
                 value = this.oauth[key];          // Takes value of that key
             }
-            keyValue = percentEncode(key) + "=" + percentEncode(value); // Encodes key value and insert "="
+            keyValue = percentEncode(key) + "=" + percentEncode(value); // Encodes key value and inserts "="
           console.log(this.headerPrefix + keyValue)                     // in between.
             if(i !== a.length - 1) keyValue += "&";                     // Dont append "&" on last pair    
-            this.signatureBaseString += this.headerPrefix + keyValue;   // add prefix to every key value pair
+            this.signatureBaseString += this.headerPrefix + keyValue;   // Add prefix to every key value pair
          } 
    
          this.method = this.httpMethods[this.leg[0]]    // Get the method for this leg
          this.method = this.method.toUpperCase() + "&"; // upercase the method, add "&"
 
          this.url = this.absoluteUrls[this.leg[0]];     // Get the absoute url for this leg of authentication
-         this.url = percentEncode(this.url) + "&";      // Encode the url, add "&"
+         this.url = percentEncode(this.url) + "&";      // Encode the url, add "&".
  
          // Finaly we assemble the string. PercentEncoding again the signature base string.
          this.signatureBaseString = this.method + this.url + percentEncode(this.signatureBaseString);
@@ -1451,7 +1461,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       if(!this.oauth.callback) throw new Error(this.messages.callbackNotSet);// throw an error if one is not set
    }
     
-   twtOAuth.prototype.sendRequest = function(vault){     // fist param "leg" 
+   twtOAuth.prototype.sendRequest = function(vault, resolve){     // fist param "leg" 
 
      //var requestObject = this.getRequestObject(leg])
       request({                                 // seting params for http request
@@ -1466,20 +1476,19 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
          "encoding": "text",                   // encoding of the body
          "beforeSend": this.setAuthorizationHeader.bind(this, vault),// before sending we add Authorization 
                                                                      // header to http request
-         "callback": this.authorize.bind(this) // Afther successfull responce, 
+         "callback": this.authorize.bind(this, resolve) // Afther successfull responce, 
                                                // this callback function is invoked
                                                // This function is an async function.
       })
    }
    
-   twtOAuth.prototype.authorize = function(sentData){ // Callback function for request_token step
+   twtOAuth.prototype.authorize = function(resolve, sentData){ // Callback function for 2nd step
                                                   
        console.log("From twitter request_token: " + sentData);
        
        this.oauth_token = this.parse(sentData,/oauth_token/g, /&/g);// parses oauth_token 
                                                                     // from string twitter sent
-       this.redirect();  // redirect user to twitter for authorization 
-       console.log('++ afther redirection ++');
+       this.redirect(resolve);  // redirect user to twitter for authorization 
    };
 
    twtOAuth.prototype.parse = function(str, delimiter1, delimiter2){ // parses substring a string (str) 
@@ -1499,26 +1508,19 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
             
    };
 
-   twtOAuth.prototype.redirect = function(){ // redirects user to twitter for authorization (should go afther
-                                              // invoking user supplied function that notifies user or what ever
-                                              // ( like - you will be redirected to twitter ...)
-     
-     
-     /*setTimeout(function(){ 
-          window.location = this.absoluteUrls[this.leg[1]] + "?" + this.oauth_token; 
-          }.bind(this),
-     15000);
-     */
-       
-      if(this.newWindow.window){ // pop-up 
-         this.newWindow.window.location = this.absoluteUrls[this.leg[1]] + "?" + this.oauth_token;
+   twtOAuth.prototype.redirect = function(resolve){ // redirects user to twitter for authorization                                             
+      var openedWindow = this.newWindow.window;      
+
+      if(openedWindow){                         // Check for new window/pop-up
+         openedWindow.location = this.absoluteUrls[this.leg[1]] + "?" + this.oauth_token;
+         if(resolve) resolve(openedWindow);     // if promise is there, resolve it with window reference
+         else this.callback_func(openedWindow); // if not invoke user callback with window ref
       }
-       else window.location = this.absoluteUrls[this.leg[1]] + "?" + this.oauth_token;
-     
+      else window.location = this.absoluteUrls[this.leg[1]] + "?" + this.oauth_token;
    };
 
    twtOAuth.prototype.setAuthorizationHeader = function(vault, request){
-        request.setRequestHeader("Authorization", this.genHeaderString(vault));
+      request.setRequestHeader("Authorization", this.genHeaderString(vault));
    }
    twtOAuth.prototype.genHeaderString = function(vault){
       var a = [];
@@ -1527,24 +1529,26 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
           a.push(name);
       }
       console.log("a; "+ a);
-      a.sort(); // aphabeticaly sort array of property names
-      var headerString = this.leadPrefix; // Addign "OAuth " in front everthing
-      var key;
+      a.sort();                           // Aphabeticaly sort array of property names
+
+      var headerString = this.leadPrefix; // Adding "OAuth " in front everthing
+      var key;                            // Temp vars
       var value;
       var keyValue;
-      for(var i = 0; i < a.length; i++){  // iterate oauth by sorted way 
+    
+      for(var i = 0; i < a.length; i++){  // iterate oauth  
          
-          key = a[i];                                    // Take the key name
+          key = a[i];                                    // Take the key name (sorted in a)
 
          // if(key === "consumer_key") value = vault.consumer_key; // get value from vault
          // else
-          value = this.oauth[key];                         // get it from aouth object
+          value = this.oauth[key];                       // Get it from aouth object
       
-          key = this.headerPrefix + percentEncode(key);  // addig prefix to every key;
-          value = "\"" + percentEncode(value) + "\"";    // adding double quotes to value
+          key = this.headerPrefix + percentEncode(key);  // Addig prefix to every key;
+          value = "\"" + percentEncode(value) + "\"";    // Adding double quotes to value
           
-          keyValue = key + "=" + value;                  // adding "=" between
-          if(i !== (a.length - 1)) keyValue = keyValue + ", " // add trailing comma and space, until end
+          keyValue = key + "=" + value;                  // Adding "=" between
+          if(i !== (a.length - 1)) keyValue = keyValue + ", " // Add trailing comma and space, until end
 
           headerString += keyValue;       
       } 
