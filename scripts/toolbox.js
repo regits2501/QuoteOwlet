@@ -1512,10 +1512,12 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
 
    twtOAuth.prototype.redirect = function(resolve){ // redirects user to twitter for authorization   
      console.log('RESOLVE : ', resolve);
-      var openedWindow = this.newWindow.window;      
+      var openedWindow;      
 
-      if(openedWindow){                         // Check for new window/pop-up
+      if(this.newWindow.window){                         // Check for new window/pop-up
+         openedWindow = this.newWindow.window;           
          openedWindow.location = this.absoluteUrls[this.leg[1]] + "?" + this.oauth_token;
+
          if(resolve) resolve(openedWindow);     // if promise is there, resolve it with a window reference
          else if (this.callback_func) this.callback_func(openedWindow); // if not invoke user callback function
       }
