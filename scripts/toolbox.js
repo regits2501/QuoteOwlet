@@ -1513,15 +1513,16 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
    twtOAuth.prototype.redirect = function(resolve){ // redirects user to twitter for authorization   
      console.log('RESOLVE : ', resolve);
       var openedWindow;      
+      var url =  this.absoluteUrls[this.leg[1]] + "?" + this.oauth_token; // assemble url for this leg
 
       if(this.newWindow){                         // Check for new window/pop-up
          openedWindow = this.newWindow.window;           
-         openedWindow.location = this.absoluteUrls[this.leg[1]] + "?" + this.oauth_token;
+         openedWindow.location = url;
 
-         if(resolve) resolve(openedWindow);     // if promise is there, resolve it with a window reference
+         if(resolve) resolve(openedWindow);       // if promise is there, resolve it with a window reference
          else if (this.callback_func) this.callback_func(openedWindow); // if not invoke user callback function
       }
-      else window.location = this.absoluteUrls[this.leg[1]] + "?" + this.oauth_token;
+      else window.location = url;
    };
 
    twtOAuth.prototype.setAuthorizationHeader = function(vault, request){
