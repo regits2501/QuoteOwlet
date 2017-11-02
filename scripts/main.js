@@ -317,11 +317,7 @@
                                       "session_data":{
                                          "quote":textContent(quoteData.quoteEl),
                                          "author":textContent(quoteData.authorEl)
-                                       },
-                                       "new_window":{
-                                          "name": "redirecton",
-                                           "features": "resizable=yes,left=300,top=300,width=400,height=613"
-                                        }
+                                       }
         
               });
               if(p) p.then(function onFulfilled(w){console.log("Promised: ", w)})
