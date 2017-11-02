@@ -1514,7 +1514,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
      console.log('RESOLVE : ', resolve);
       var openedWindow;      
 
-      if(this.newWindow.window){                         // Check for new window/pop-up
+      if(this.newWindow){                         // Check for new window/pop-up
          openedWindow = this.newWindow.window;           
          openedWindow.location = this.absoluteUrls[this.leg[1]] + "?" + this.oauth_token;
 
