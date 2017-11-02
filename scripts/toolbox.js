@@ -1180,7 +1180,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       this.signatureBaseString = ""; // The string HMAC-SHA1 uses as second argument.
       
       this.oauth = {          // Holds parameters that go into header of request and are used to 
-                              // assamble the signature key
+                              // assemble the signature key
         callback: "",         // User is return to this link, if approval is confirmed  
         consumer_key: "",     // This is very sensitive data. Server sets the value.
         signature: "",        // This value also sets the server.
@@ -1201,17 +1201,19 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
          var resolve;
          var promised;
          
-       //  if(Promise) promised = new Promise(function(rslv, rjt){  resolve = rslv; }) // if can, make a Promise
-                                                                                     // remember it's resolve
          console.log("v: "+ vault)
          this.setUserParams(args, vault);       // Sets user supplied parameters: 
                                                 // like "callback_url" (url to which users are redirected)
          this.setNonUserParams();               // Sets non user-suppliead params: timestamp, nonce, signature 
          this.genSignatureBaseString(vault);    // Generates signature base string
-         if(this.newWindow) this.openPopUp();   // opens new window if user required so.  
+         if(this.newWindow){   // checking for user supplied object
+           this.openWindow();   // opens new window.  
+       //  if(Promise) promised = new Promise(function(rslv, rjt){  resolve = rslv; }) // if can, make a Promise
+                                                                                       // remember it's resolve
+         }
          //this.genSignature(vault);            // Generates signature
          this.sendRequest(vault, resolve);      // Sends request to twitter, resolves promise if one was made 
-         if(promised) return promised;
+         if(promised) return promised;                    
       }
         // this is the second part
       this.aftherAuthorization = function(cb){
@@ -1410,7 +1412,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
          this.signatureBaseString = this.method + this.url + percentEncode(this.signatureBaseString);
          console.log("SIg string: "+ this.signatureBaseString); 
    }
-   twtOAuth.prototype.openPopUp = function(){ // opens pop-up and puts in under current window
+   twtOAuth.prototype.openWindow = function(){ // opens pop-up and puts in under current window
         console.log("==== POP-UP =====");
       this.newWindow.window = window.open("", this.newWindow.name, this.newWindow.features);
       console.log("this.newWindow: ", this.newWindow.window ); 
@@ -1514,8 +1516,8 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
 
       if(openedWindow){                         // Check for new window/pop-up
          openedWindow.location = this.absoluteUrls[this.leg[1]] + "?" + this.oauth_token;
-         if(resolve) resolve(openedWindow);     // if promise is there, resolve it with window reference
-         else{console.log('before USER CAllback'); this.callback_func(openedWindow); }// if not invoke user callback with window ref
+         if(resolve) resolve(openedWindow);     // if promise is there, resolve it with a window reference
+         else if (this.callback_func) this.callback_func(openedWindow); // if not invoke user callback function
       }
       else window.location = this.absoluteUrls[this.leg[1]] + "?" + this.oauth_token;
    };
@@ -1543,7 +1545,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
 
          // if(key === "consumer_key") value = vault.consumer_key; // get value from vault
          // else
-          value = this.oauth[key];                       // Get it from aouth object
+          value = this.oauth[key];                       // Get it from oauth object
       
           key = this.headerPrefix + percentEncode(key);  // Addig prefix to every key;
           value = "\"" + percentEncode(value) + "\"";    // Adding double quotes to value

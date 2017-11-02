@@ -305,7 +305,7 @@
      textContent(this.authorEl, sessionData.author);
   }
 
-  whenPageReady( function(){  // on mousedown authenticate to twitter
+  whenPageReady( function(){  // on click authenticate to twitter
       addEvent(document.getElementsByClassName("twitterButton")[0], "click", function authenticate(){
                 
            console.log("Taking this data: ====",textContent(quoteData.quoteEl), textContent(quoteData.authorEl))
@@ -321,8 +321,7 @@
                                        "new_window":{
                                           "name": "redirecton",
                                            "features": "resizable=yes,left=300,top=300,width=400,height=613"
-                                        },
-                                        'callback_func': function usr(w){ console.log("User supplied func: ", w)} 
+                                        }
         
               });
               if(p) p.then(function onFulfilled(w){console.log("Promised: ", w)})
