@@ -1204,10 +1204,10 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
          console.log("v: "+ vault)
          this.setUserParams(args, vault);       // Sets user supplied parameters: 
                                                 // like "callback_url" (url to which users are redirected)
-         this.setNonUserParams();               // Sets non user-suppliead params: timestamp, nonce, signature 
+         this.setNonUserParams();               // Sets non user-suppliead params: timestamp, nonce, sig. method
          this.genSignatureBaseString(vault);    // Generates signature base string
-         if(this.newWindow){   // checking for user supplied object
-           this.openWindow();   // opens new window.  
+         if(this.newWindow){                    // Checking for user supplied object
+           this.openWindow();                   // Opens new window.  
        //  if(Promise) promised = new Promise(function(rslv, rjt){  resolve = rslv; }) // if can, make a Promise
                                                                                        // remember it's resolve
          }
@@ -1216,26 +1216,38 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
          if(promised) return promised;                    
       }
         // this is the second part
-      this.aftherAuthorization = function(cb){
-                                                 // here could go user callback
-    
-         this.authorized = this.parseAuthorizationData();
-         if(this.authorized){ 
-              console.log(this.authorized)
-            this.sessionData = this.parseSessionData(this.authorized.data) // further parsing of session data
-              console.log(this.sessionData);                               // from authorization data
-            cb(this.sessionData);  // invoking user callback with sessionData                                         
-         }        
+      this.getSessionData = function(cb){
+                                                // here could go user callback
+         
+         this.parseAuthorizationData(window.location.href); // parse returned data
+         if(!this.authorized) return;                       // return if no tokens
+
+         if(!this.authorized.data){                         // return if no session data
+            console.log(this.messages.noSessionData);
+            return; 
+         }                          
+
+         this.sessionData = this.parseSessionData(this.authorized.data) // further parsing of session data
+              console.log(this.sessionData);                            
+         if(Promise){                                                 
+            return Promise.resolve(this.sessionData);                   // return promise if can
+         }
+         else if(cb) cb(this.sessionData);                              // call user callback if present
+      }
+
+      this.accessTwitter = function(){
+
       }
    }
-   twtOAuth.prototype.parseAuthorizationData = function(str){
+   twtOAuth.prototype.parseAuthorizationData = function(url){ // parses data in url 
 
-      if(!str) str = this.parse(window.location.href,/\?/g, /#/g); // parses query string
-      var parsed = this.parseKeyValuePairs(str); // parse parameters from query string
-      var authorized = this.objectify(parsed);   // makes an object from array of query string parametars
+      var str = this.parse(url, /\?/g, /#/g); // parses query string
 
-      if(authorized.data && authorized.oauth_token && authorized.oauth_verifier){ // check to see we have
-         return authorized;                                                        // everything
+      var qp = this.parseQueryParams(str); // parse parameters from query string
+      var obj = this.objectify(qp);        // makes an object from array of query string parametars
+
+      if(obj.oauth_token && obj.oauth_verifier){ // check to see we have needed tokens
+         this.authorized  = obj;                 // make new variable;                     
       }
         
    }
@@ -1244,11 +1256,11 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
        if(/%[0-9][0-9]/g.test(str))                       // See if there are percent encoded chars
        str = decodeURIComponent(decodeURIComponent(str)); // Decoding twice, since it was encoded twice
                                                           // (by OAuth 1.0a specification). See SBS function.
-       var parsed = this.parseKeyValuePairs(str);         // Parsing 
+       var parsed = this.parseQueryParams(str);           // Parse key-value pairs  
        return this.objectify(parsed);                     // Making an object from parsed key/values.
    }
   
-   twtOAuth.prototype.parseKeyValuePairs = function (str){
+   twtOAuth.prototype.parseQueryParams = function (str){
       var arr  = [];
       if(!str){
          console.log(this.messages.noStringProvided);
@@ -1287,7 +1299,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
 
    twtOAuth.prototype.setUserParams = function(args, vault){ // sets user suplied parametars 
          var temp; 
-         for(var prop in args){  // iterate trough any user params
+         for(var prop in args){    // iterate trough any user params
             temp = args[prop];
 
 
@@ -1435,7 +1447,8 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       consumerKeyNotSet: "You must provide consumer KEY that indetifies your app.",
       consumerSecretNotSet: "You must provede consumer SECRET that indentifies your app",
       userKey: "You must provide user secret that intentifies user in which name your app makes request.",
-      noStringProvided: "You must provide a string for parsing." 
+      noStringProvided: "You must provide a string? for parsing." ,
+      noSessionData: "No session data was found."
       //requestTokenNoData: "No data acquired from "+ this.leg[0] +  " step."
    };
 
@@ -1465,10 +1478,10 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
     
    twtOAuth.prototype.sendRequest = function(vault, resolve){     // fist param "leg" 
 
-     //var requestObject = this.getRequestObject(leg])
+     // var requestObject = this.getRequestObject(leg])
       request({                                 // seting params for http request
          "httpMethod": this.httpMethods[this.leg[0]], // [this.leg] should go
-         "url": 'https://quoteowlet.herokuapp.com', //was 'http://localhost:5000',
+         "url": 'https://quoteowlet.herokuapp.com',   // was 'http://localhost:5000',
          "queryParams": { 
             "host": this.twtUrl.domain,
             "path": this.twtUrl.path + this.leg[0],
@@ -1515,14 +1528,18 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       var openedWindow;      
       var url =  this.absoluteUrls[this.leg[1]] + "?" + this.oauth_token; // assemble url for this leg
 
-      if(this.newWindow){                         // Check for new window/pop-up
-         openedWindow = this.newWindow.window;           
-         openedWindow.location = url;
+      if(!this.newWindow){
+         window.location = url; // redirect current window if no newWindow; 
+         return;
+      }                         
+      
+      openedWindow = this.newWindow.window;           
+      openedWindow.location = url;
 
-         if(resolve) resolve(openedWindow);       // if promise is there, resolve it with a window reference
-         else if (this.callback_func) this.callback_func(openedWindow); // if not invoke user callback function
-      }
-      else window.location = url;
+      if(resolve) resolve(openedWindow);       // if promise is there, resolve it with a window reference
+      else if (this.callback_func) this.callback_func(openedWindow); // if not invoke user callback function
+      
+      
    };
 
    twtOAuth.prototype.setAuthorizationHeader = function(vault, request){
@@ -1607,7 +1624,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       
       return phantomHead = {
           getRequestToken : r.getRequestToken.bind(r),
-          aftherAuthorization: r.aftherAuthorization.bind(r)
+          getSessionData: r.getSessionData.bind(r)
       } 
    }
  });
