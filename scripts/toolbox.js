@@ -1453,6 +1453,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
    };
 
    twtOAuth.prototype.appendToCallback = function(data, name){// appends data object as querystring to                                                                        // callback url. 
+    console.log('Data: ==> ', data)
       if(!name) name = "data";
       var callback = this.oauth.callback;
       var fEncoded = formEncode(data, true);
@@ -1460,6 +1461,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       var queryString = name + '=' + percentEncode(fEncoded); // Make string from object then                                                                                 // percent encode it.  
     console.log("queryString: ", queryString)
       if(!/\?/.test(callback)) callback += "?";               // Add "?" if one not exist
+      else queryString =  '&' + queryString                   // other queryString exists, so add '&' to this qs
       this.oauth.callback = callback + queryString;           // Add queryString to callback
                                                      
        console.log("OAUTH CALLBACK: "+this.oauth.callback);
