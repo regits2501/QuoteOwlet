@@ -1172,9 +1172,9 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       this.absoluteUrls[this.leg[2]] = this.apiUrl + this.leg[2];
 
       this.lnkLabel = {  // link label, used to make url sufficiently unique
-          name : 'lance',
+          name : '__lance',
           data : {
-            'id' : ''
+            'id' : 'he who dares '
           }
       } 
        
@@ -1206,12 +1206,12 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
          var promised;
          
          console.log("v: "+ vault)
-         this.setUserParams(args, vault);       // Sets user supplied parameters: 
-                                                // like "callback_url" (url to which users are redirected)
+         this.setUserParams(args, vault);       // Sets user supplied parameters: line 'redirection_url'
          this.setNonUserParams();               // Sets non user-suppliead params: timestamp, nonce, sig. method
+         this.appendToCallback(this.lnkLabel.data, this.lnkLabel.name); // adds uniqueness to url
          this.genSignatureBaseString(vault);    // Generates signature base string
          if(this.newWindow){                    // Checking for user supplied object
-           this.openWindow();                   // Opens new window.  
+            this.openWindow();                   // Opens new window.  
        //  if(Promise) promised = new Promise(function(rslv, rjt){  resolve = rslv; }) // if can, make a Promise
                                                                                        // remember it's resolve
          }
@@ -1230,13 +1230,10 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
             console.log(this.messages.noSessionData);
             return; 
          }                          
-
-         this.sessionData = this.parseSessionData(this.authorized.data) // further parsing of session data
-              console.log(this.sessionData);                            
-         if(Promise){                                                 
-            return Promise.resolve(this.sessionData);                   // return promise if can
-         }
-         else if(cb) cb(this.sessionData);                              // call user callback if present
+          
+          this.sessionData = this.parseSessionData(this.authorized.data) // further parsing of session data
+          console.log(this.sessionData);
+          return this.sessionData;
       }
 
       this.accessTwitter = function(){
@@ -1385,7 +1382,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
             a.push(name);             // and pushes it to array
          } 
      
-         a.sort();  // sorts aphabeticaly
+         a.sort();  // sorts alphabeticaly
 
          var keyValue;
          var key;
@@ -1455,14 +1452,15 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       //requestTokenNoData: "No data acquired from "+ this.leg[0] +  " step."
    };
 
-   twtOAuth.prototype.appendToCallback = function(session_data){// appends session data object as querystring to                                                                // callback url. 
+   twtOAuth.prototype.appendToCallback = function(data, name){// appends data object as querystring to                                                                        // callback url. 
+      if(!name) name = "data";
       var callback = this.oauth.callback;
-      var fEncoded = formEncode(session_data, true);
+      var fEncoded = formEncode(data, true);
     console.log(fEncoded);
-      var queryString = "data=" + percentEncode(fEncoded); // Make string from object then                                                                                 // percent encode it.  
+      var queryString = name + '=' + percentEncode(fEncoded); // Make string from object then                                                                                 // percent encode it.  
     console.log("queryString: ", queryString)
-      if(!/\?/.test(callback)) callback += "?";            // Add "?" if one not exist
-      this.oauth.callback = callback + queryString;        // Add queryString to callback
+      if(!/\?/.test(callback)) callback += "?";               // Add "?" if one not exist
+      this.oauth.callback = callback + queryString;           // Add queryString to callback
                                                      
        console.log("OAUTH CALLBACK: "+this.oauth.callback);
       return this.oauth.callback;
