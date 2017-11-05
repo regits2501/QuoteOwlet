@@ -328,8 +328,7 @@
   
   whenPageReady(function(){
      var twtSecondPart = twtOAuth();
-     var p = twtSecondPart.getSessionData();
-     if(p) p.then(quoteData.setQuoteData.bind(quoteData));
+     quoteData.setQuoteData.bind(quoteData)(twtSecondPart.getSessionData);
      
   })
 
