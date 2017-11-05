@@ -1170,13 +1170,17 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       this.absoluteUrls[this.leg[0]] = this.apiUrl + this.leg[0]; 
       this.absoluteUrls[this.leg[1]] = this.apiUrl + this.leg[1];
       this.absoluteUrls[this.leg[2]] = this.apiUrl + this.leg[2];
+
+      this.lnkLabel = {  // link label, used to make url sufficiently unique
+          name : 'lance',
+          data : {
+            'id' : ''
+          }
+      } 
        
-      this.data = "";                // data to send to twt
       this.baseUrl = "";             // url to which request is send
       this.headerPrefix = "oauth_";  // prefix for each oauth key in a http request
       this.leadPrefix = "OAuth "     // leading string afther all key-value pairs go. Notice space at the end. 
-     // this.signature = "";         // Server sets signature, here it is used to assemble authorization header
-                                     // string. Signature is a result of the HMAC_SHA1 function.
       this.signatureBaseString = ""; // The string HMAC-SHA1 uses as second argument.
       
       this.oauth = {          // Holds parameters that go into header of request and are used to 
@@ -1244,7 +1248,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       var str = this.parse(url, /\?/g, /#/g); // parses query string
 
       var qp = this.parseQueryParams(str); // parse parameters from query string
-      var obj = this.objectify(qp);        // makes an object from array of query string parametars
+      var obj = this.objectify(qp);        // makes an object from query string parametars
 
       if(obj.oauth_token && obj.oauth_verifier){ // check to see we have needed tokens
          this.authorized  = obj;                 // make new variable;                     
@@ -1304,11 +1308,10 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
 
 
             switch(prop){
-               case "callback_url":// this is the url to which user gets redirected by twiiter api, if in 2ndLeg
-                                   // user authorizes the request.
+               case "redirection_url":// this is the url to which user gets redirected by twiiter api, 
                  this.oauth.callback = temp;
                break; 
-               case "new_window": // object that holds properties for making new window(tab/popup)
+               case "new_window":     // object that holds properties for making new window(tab/popup)
                  this.newWindow = {};
                  for(var data in temp){
                     switch(data){
@@ -1458,8 +1461,8 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
     console.log(fEncoded);
       var queryString = "data=" + percentEncode(fEncoded); // Make string from object then                                                                                 // percent encode it.  
     console.log("queryString: ", queryString)
-      callback = callback[callback.length - 1] !== "?" ? (callback + "?") : callback ;//Add "?" if one not exist
-      this.oauth.callback = callback + queryString;  // add queryString to callback
+      if(!/\?/.test(callback)) callback += "?";            // Add "?" if one not exist
+      this.oauth.callback = callback + queryString;        // Add queryString to callback
                                                      
        console.log("OAUTH CALLBACK: "+this.oauth.callback);
       return this.oauth.callback;

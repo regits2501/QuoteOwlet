@@ -311,7 +311,7 @@
            console.log("Taking this data: ====",textContent(quoteData.quoteEl), textContent(quoteData.authorEl))
 
               var twty = twtOAuth();
-              var p =  twty.getRequestToken({"callback_url":"https://gits2501.github.io/QuoteOwlet",
+              var p =  twty.getRequestToken({"redirection_url":"https://gits2501.github.io/QuoteOwlet",
                                      "csecret": "okPWgBIV5A72Jhc5dT1UlQfAzXUFO42rp9VFNHsbyCCD2S1AtP",
                                       "ckey": "ZuQzYI8B574cweeef3rCKk2h2",
                                       "session_data": {
