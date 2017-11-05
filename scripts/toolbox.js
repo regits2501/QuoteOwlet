@@ -1246,8 +1246,8 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
 
       var qp = this.parseQueryParams(str); // parse parameters from query string
       var obj = this.objectify(qp);        // makes an object from query string parametars
-
-      if(obj.oauth_token && obj.oauth_verifier){ // check to see we have needed tokens
+      console.log(obj.__lance);
+      if(obj.oauth_token && obj.oauth_verifier && obj.__lance){ // check to see we have needed tokens
          this.authorized  = obj;                 // make new variable;                     
       }
         
