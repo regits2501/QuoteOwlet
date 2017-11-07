@@ -1262,8 +1262,9 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
        if(/%[0-9][0-9]/g.test(str))                       // See if there are percent encoded chars
        str = decodeURIComponent(decodeURIComponent(str)); // Decoding twice, since it was encoded twice
                                                           // (by OAuth 1.0a specification). See SBS function.
-       var parsed = this.parseQueryParams(str);           // Parse key-value pairs  
-       return this.objectify(parsed);                     // Making an object from parsed key/values.
+       var qp = this.parseQueryParams(str);           // Parse key-value pairs  
+       console.log('parsed: ', qp);
+       return JSON.parse(qp);                     // Making an object from parsed key/values.
    }
   
    twtOAuth.prototype.parseQueryParams = function (str){
@@ -1452,7 +1453,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       consumerKeyNotSet: "You must provide consumer KEY that indetifies your app.",
       consumerSecretNotSet: "You must provede consumer SECRET that indentifies your app",
       userKey: "You must provide user secret that intentifies user in which name your app makes request.",
-      noStringProvided: "You must provide a string? for parsing." ,
+      noStringProvided: "You must provide a string for parsing." ,
       noSessionData: "No session data was found."
       //requestTokenNoData: "No data acquired from "+ this.leg[0] +  " step."
    };
@@ -1461,9 +1462,9 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
     console.log('Data: ==> ', data)
       if(!name) name = "data";
       var callback = this.oauth.callback;
-      var fEncoded = formEncode(data, true);
-    console.log(fEncoded);
-      var queryString = name + '=' + percentEncode(fEncoded); // Make string from object then                                                                                 // percent encode it.  
+     // var fEncoded = formEncode(data, true);
+     // console.log(fEncoded);
+      var queryString = name + '=' + percentEncode(JSON.stringify(data)); // Make string from object then                                                                                 // percent encode it.  
     console.log("queryString: ", queryString)
       if(!/\?/.test(callback)) callback += "?";               // Add "?" if one not exist
       else queryString =  '&' + queryString                   // other queryString exists, so add '&' to this qs
@@ -1509,9 +1510,9 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
                                                   
        console.log("From twitter request_token: " + sentData);
        
-       //this.oauth_token = this.parse(sentData,/oauth_token/g, /&/g);// parses oauth_token 
+       this.oauth_token = this.parse(sentData,/oauth_token/g, /&/g);// parses oauth_token 
                                                                     // from string twitter sent
-       //this.redirect(resolve);  // redirect user to twitter for authorization 
+       this.redirect(resolve);  // redirect user to twitter for authorization 
    };
 
    twtOAuth.prototype.parse = function(str, delimiter1, delimiter2){ // parses substring a string (str) 
@@ -1551,7 +1552,6 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
    };
 
    twtOAuth.prototype.setAuthorizationHeader = function(vault, request){
-      request.setRequestHeader("Accept", "application/json")
       request.setRequestHeader("Authorization", this.genHeaderString(vault));
    }
    twtOAuth.prototype.genHeaderString = function(vault){
