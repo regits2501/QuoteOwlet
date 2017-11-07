@@ -990,6 +990,9 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
             break;
             case "body":  console.log("has DATA");
               this.body = temp;          // add body for request
+            break;
+            case "parse":
+              this.parse = temp;
             break; 
             case "encoding":
               this.encoding = temp;
@@ -1054,7 +1057,8 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
               switch(type){
                  case "application/json":   
                    try{
-                      callback(JSON.parse(data));      // parse json data and send it as argument
+                      if(this.parse) callback(JSON.parse(data)); // parse json data and send it as argument
+                      else callback(data);
                    }
                    catch(e){
                       console.log(this.messages.cbWasNotCalled + " \n"+ e); // if parsing failed note it
@@ -1223,7 +1227,8 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       this.getSessionData = function(cb){
                                                 // here could go user callback
          
-         this.parseAuthorizationData(window.location.href); // parse returned data
+         if(!this.wasParsed) this.parseAuthorizationData(window.location.href); // parse returned data
+         
          if(!this.authorized) return;                       // return if no tokens
 
          if(!this.authorized.data){                         // return if no session data
@@ -1248,9 +1253,9 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       var obj = this.objectify(qp);        // makes an object from query string parametars
       console.log(obj.__lance);
       if(obj.oauth_token && obj.oauth_verifier && obj.__lance){ // check to see we have needed tokens
-         this.authorized  = obj;                 // make new variable;                     
+         this.authorized  = obj;           // make new variable;                     
       }
-        
+      this.wasParsed = true;               // indicate that the url was already parsed  
    }
   
    twtOAuth.prototype.parseSessionData = function(str){
@@ -1504,9 +1509,9 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
                                                   
        console.log("From twitter request_token: " + sentData);
        
-       this.oauth_token = this.parse(sentData,/oauth_token/g, /&/g);// parses oauth_token 
+       // this.oauth_token = this.parse(sentData,/oauth_token/g, /&/g);// parses oauth_token 
                                                                     // from string twitter sent
-       this.redirect(resolve);  // redirect user to twitter for authorization 
+       // this.redirect(resolve);  // redirect user to twitter for authorization 
    };
 
    twtOAuth.prototype.parse = function(str, delimiter1, delimiter2){ // parses substring a string (str) 
