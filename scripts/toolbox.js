@@ -87,17 +87,21 @@ if(typeof _pS_.modulMgr ==="object" && _pS_.modulMgr !== null){ // checking to s
        var pairs = [];
        var value;
        var key;
+       var type;
         for(var name in dataObj){
-             if(dataObj.hasOwnProperty(name) && typeof dataObj[name] !== "function"){ // only props in object 
-                                                                                      // and no functions
-                  key = encodeURIComponent(name).replace(/%20/g, "+") // remove spaces
-               
-                  if(typeof dataObj[name] !== "number"){  //
+            type = typeof dataObj[name];
+             if(dataObj.hasOwnProperty(name) && type !== "function" || type !== "object" ||){ // only props 
+                                                                                              // in object 
+                  key = encodeURIComponent(name);                        
+                  if(!spaces)key = key.replace(/%20/g, "+") // remove spaces
+                  
+
+                  if(typeof dataObj[name] !== "number"){   //
                       if(!spaces){
                        value = encodeURIComponent(dataObj[name]).replace(/%20/g, "+"); // substiture space for +
                       }
                       else {
-                       value = encodeURIComponent(dataObj[name]);//.replace(/%20/g," "); 
+                       value = encodeURIComponent(dataObj[name]); 
                       }
                     
                   }
@@ -1262,9 +1266,8 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
        if(/%[0-9][0-9]/g.test(str))                       // See if there are percent encoded chars
        str = decodeURIComponent(decodeURIComponent(str)); // Decoding twice, since it was encoded twice
                                                           // (by OAuth 1.0a specification). See SBS function.
-       var qp = this.parseQueryParams(str);           // Parse key-value pairs  
-       console.log('parsed: ', qp);
-       return JSON.parse(qp);                     // Making an object from parsed key/values.
+       var parsed = this.parseQueryParams(str);           // Parse key-value pairs  
+       return this.objectify(parsed);                     // Making an object from parsed key/values.
    }
   
    twtOAuth.prototype.parseQueryParams = function (str){
@@ -1462,9 +1465,9 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
     console.log('Data: ==> ', data)
       if(!name) name = "data";
       var callback = this.oauth.callback;
-     // var fEncoded = formEncode(data, true);
-     // console.log(fEncoded);
-      var queryString = name + '=' + percentEncode(JSON.stringify(data)); // Make string from object then                                                                                 // percent encode it.  
+      var fEncoded = formEncode(data, true);
+      console.log(fEncoded);
+      var queryString = name + '=' + percentEncode(fEncoded); // Make string from object then                                                                                 // percent encode it.  
     console.log("queryString: ", queryString)
       if(!/\?/.test(callback)) callback += "?";               // Add "?" if one not exist
       else queryString =  '&' + queryString                   // other queryString exists, so add '&' to this qs

@@ -316,7 +316,11 @@
                                       "ckey": "ZuQzYI8B574cweeef3rCKk2h2",
                                       "session_data": {
                                           'quote': textContent(quoteData.quoteEl), 
-                                          'author': textContent(quoteData.authorEl)
+                                          'author': textContent(quoteData.authorEl),
+                                          'hobbit':{
+                                              'name': 'Peregrin',
+                                              'lastName': 'Tuk'
+                                           }
                                        }
                                              
               });
@@ -335,4 +339,4 @@
 
 })()
 
-console.log("main loaded");
+console.log("main loaded");	
