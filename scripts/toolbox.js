@@ -1495,7 +1495,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
             "path": this.twtUrl.path + this.leg[0],
             "method": this.httpMethods[this.leg[0]],
          },
-         "parse": true;
+         "parse": true,
          "body": this.signatureBaseString,     // Payload of the request we send
          "encoding": "text",                   // encoding of the body
          "beforeSend": this.setAuthorizationHeader.bind(this, vault),// before sending we add Authorization 
