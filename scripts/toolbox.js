@@ -90,7 +90,7 @@ if(typeof _pS_.modulMgr ==="object" && _pS_.modulMgr !== null){ // checking to s
        var type;
         for(var name in dataObj){
             type = typeof dataObj[name];
-             if(dataObj.hasOwnProperty(name) && type !== "function" || type !== "object" ||){ // only props 
+             if(dataObj.hasOwnProperty(name) && type !== "function" || type !== "object"){ // only props 
                                                                                               // in object 
                   key = encodeURIComponent(name);                        
                   if(!spaces)key = key.replace(/%20/g, "+") // remove spaces
