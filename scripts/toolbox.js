@@ -1551,7 +1551,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
    };
 
    twtOAuth.prototype.setAuthorizationHeader = function(vault, request){
-      request.setReqeustHeader("Accept", "application/json")
+      request.setRequestHeader("Accept", "application/json")
       request.setRequestHeader("Authorization", this.genHeaderString(vault));
    }
    twtOAuth.prototype.genHeaderString = function(vault){
