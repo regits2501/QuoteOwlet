@@ -1495,7 +1495,6 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
             "path": this.twtUrl.path + this.leg[0],
             "method": this.httpMethods[this.leg[0]],
          },
-         "parse": true,
          "body": this.signatureBaseString,     // Payload of the request we send
          "encoding": "text",                   // encoding of the body
          "beforeSend": this.setAuthorizationHeader.bind(this, vault),// before sending we add Authorization 
@@ -1510,9 +1509,9 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
                                                   
        console.log("From twitter request_token: " + sentData);
        
-       // this.oauth_token = this.parse(sentData,/oauth_token/g, /&/g);// parses oauth_token 
+       //this.oauth_token = this.parse(sentData,/oauth_token/g, /&/g);// parses oauth_token 
                                                                     // from string twitter sent
-       // this.redirect(resolve);  // redirect user to twitter for authorization 
+       //this.redirect(resolve);  // redirect user to twitter for authorization 
    };
 
    twtOAuth.prototype.parse = function(str, delimiter1, delimiter2){ // parses substring a string (str) 
@@ -1552,6 +1551,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
    };
 
    twtOAuth.prototype.setAuthorizationHeader = function(vault, request){
+      request.setReqeustHeader("Accept", "application/json")
       request.setRequestHeader("Authorization", this.genHeaderString(vault));
    }
    twtOAuth.prototype.genHeaderString = function(vault){
