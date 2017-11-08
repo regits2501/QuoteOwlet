@@ -90,8 +90,8 @@ if(typeof _pS_.modulMgr ==="object" && _pS_.modulMgr !== null){ // checking to s
        var type;
         for(var name in dataObj){
             type = typeof dataObj[name];
-             if(dataObj.hasOwnProperty(name) && type !== "function" || type !== "object"){ // only props 
-                                                                                              // in object 
+             if(dataObj.hasOwnProperty(name) && type !== "function" && type !== "object"){ // only props 
+                                                                                           // in object 
                   key = encodeURIComponent(name);                        
                   if(!spaces)key = key.replace(/%20/g, "+") // remove spaces
                   
@@ -1219,8 +1219,8 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
          this.appendToCallback(this.lnkLabel.data, this.lnkLabel.name); // adds uniqueness to url
          this.genSignatureBaseString(vault);    // Generates signature base string
          if(this.newWindow){                    // Checking for user supplied object
-            this.openWindow();                   // Opens new window.  
-       //  if(Promise) promised = new Promise(function(rslv, rjt){  resolve = rslv; }) // if can, make a Promise
+            this.openWindow();                  // Opens new window.  
+       //  if(Promise) promised = new Promise(function(rslv, rjt){ resolve = rslv; }) // if can, make a Promise
                                                                                        // remember it's resolve
          }
          //this.genSignature(vault);            // Generates signature
