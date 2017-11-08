@@ -92,20 +92,13 @@ if(typeof _pS_.modulMgr ==="object" && _pS_.modulMgr !== null){ // checking to s
             type = typeof dataObj[name];
              if(dataObj.hasOwnProperty(name) && type !== "function" && type !== "object"){ // only props 
                                                                                            // in object 
-                  key = encodeURIComponent(name);                        
-                  if(!spaces)key = key.replace(/%20/g, "+") // remove spaces (in key names)
+                  key = encodeURIComponent(name);
+                  value = encodeURIComponent(dataObj[name]);                        
                   
-
-                  if(typeof dataObj[name] !== "number"){   //
-                      if(!spaces){
-                       value = encodeURIComponent(dataObj[name]).replace(/%20/g, "+"); // substitute space for +
-                      }
-                      else {
-                       value = encodeURIComponent(dataObj[name]); 
-                      }
-                    
+                  if(!spaces){
+                     key = key.replace(/%20/g, "+") 
+                     value = value.replace(/%20/g, "+"); // substitute space encoding for +
                   }
-                  else value = encodeURIComponent(dataObj[name]);
                  
                   pairs.push(key + "=" + value)                 
              }
