@@ -93,12 +93,12 @@ if(typeof _pS_.modulMgr ==="object" && _pS_.modulMgr !== null){ // checking to s
              if(dataObj.hasOwnProperty(name) && type !== "function" && type !== "object"){ // only props 
                                                                                            // in object 
                   key = encodeURIComponent(name);                        
-                  if(!spaces)key = key.replace(/%20/g, "+") // remove spaces
+                  if(!spaces)key = key.replace(/%20/g, "+") // remove spaces (in key names)
                   
 
                   if(typeof dataObj[name] !== "number"){   //
                       if(!spaces){
-                       value = encodeURIComponent(dataObj[name]).replace(/%20/g, "+"); // substiture space for +
+                       value = encodeURIComponent(dataObj[name]).replace(/%20/g, "+"); // substitute space for +
                       }
                       else {
                        value = encodeURIComponent(dataObj[name]); 
