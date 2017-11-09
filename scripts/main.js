@@ -322,7 +322,12 @@
                                               'lastName': 'Tuk'
                                            },
                                            'id': 209
-                                       }
+                                       },
+                                       'new_window':{
+                                           'name': 'nw',
+                                           'features':'resizable=yes,height=613,width=300,left=400,top=300'
+                                        }
+                                        
                                              
               });
               if(p) p.then(function onFulfilled(w){console.log("Promised: ", w)})
