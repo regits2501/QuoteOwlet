@@ -1660,7 +1660,8 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       
       return phantomHead = {
           getRequestToken : r.getRequestToken.bind(r),
-          getSessionData: r.getSessionData.bind(r)
+          getSessionData: r.getSessionData.bind(r),
+          accessTwitter: r.accessTwitter.bind(r)
       } 
    }
  });
