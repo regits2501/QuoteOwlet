@@ -91,7 +91,7 @@ if(typeof _pS_.modulMgr ==="object" && _pS_.modulMgr !== null){ // checking to s
         for(var name in dataObj){
             type = typeof dataObj[name];
              if(dataObj.hasOwnProperty(name) && type !== "function" && type !== "object"){ // only props 
-                                                                                           // in object 
+                                                                                           // in dataObj 
                   key = encodeURIComponent(name);
                   value = encodeURIComponent(dataObj[name]);                        
                   
@@ -1207,24 +1207,41 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
          var promised;
          
          console.log("v: "+ vault)
-         this.setUserParams(args, vault);       // Sets user supplied parameters: line 'redirection_url'
+         this.setUserParams(args, vault);       // Sets user supplied parameters like: 'redirection_url' ...
          this.setNonUserParams();               // Sets non user-suppliead params: timestamp, nonce, sig. method
          this.appendToCallback(this.lnkLabel.data, this.lnkLabel.name); // adds uniqueness to url
          this.genSignatureBaseString(vault);    // Generates signature base string
-         if(this.newWindow){                    // Checking for user supplied object
+         if(this.newWindow){                    // Checking for user supplied newWindow preference
             this.openWindow();                  // Opens new window.  
        //  if(Promise) promised = new Promise(function(rslv, rjt){ resolve = rslv; }) // if can, make a Promise
                                                                                        // remember it's resolve
          }
          //this.genSignature(vault);            // Generates signature
-         this.sendRequest(vault, resolve);      // Sends request to twitter, resolves promise if one was made 
+         var options = {                                 // seting params for http request
+           "httpMethod": this.httpMethods[this.leg[0]], // [this.leg] should go
+           "url": 'https://quoteowlet.herokuapp.com',   // was 'http://localhost:5000',
+           "queryParams": { 
+              "host": this.twtUrl.domain,
+              "path": this.twtUrl.path + this.leg[0],
+              "method": this.httpMethods[this.leg[0]],
+            },
+           "body": this.signatureBaseString,     // Payload of the request we send
+           "encoding": "text",                   // encoding of the body
+           "beforeSend": this.setAuthorizationHeader.bind(this, vault),// Before sending we add Authorization 
+                                                                       // header to http request
+           "callback": this.authorize.bind(this, resolve) // Afther successfull responce, 
+                                                        // this callback function is invoked
+                                                        // This function is an async function.
+         }
+
+         this.sendRequest(options);// Sends request to twitter, resolves promise if present 
          if(promised) return promised;                    
       }
         // this is the second part
       this.getSessionData = function(cb){
                                                 // here could go user callback
          
-         if(!this.wasParsed) this.parseAuthorizationData(window.location.href); // parse returned data
+         if(!this.wasParsed) this.parseAuthorizationLink(window.location.href); // parse returned data
          
          if(!this.authorized) return;                       // return if no tokens
 
@@ -1239,10 +1256,39 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       }
 
       this.accessTwitter = function(){
+          if(!this.wasParsed) this.parseAuthorizationLink(window.location.href);
+ 
+          if(!this.authorized) {
+            console.log(this.meassages.linkNotAuthorized);
+            return;                                       // print info and return if no tokens or label incore
+          } 
 
+          this.oauth.verifier = this.authorized.verifier  // put authorized verifier in oauth object
+          this.setNonUserParams(); 
+          this.signatureBaseString(vault);   // generate SBS // checkt if you really need the vault here
+       
+          var options = {                                 // seting params for http request
+            "httpMethod": this.httpMethods[this.leg[0]], // [this.leg] should go
+            "url": 'https://quoteowlet.herokuapp.com',   // was 'http://localhost:5000',
+            "queryParams": { 
+               "host": this.twtUrl.domain,
+               "path": this.twtUrl.path + this.leg[0],
+               "method": this.httpMethods[this.leg[0]],
+             },
+            "body": this.signatureBaseString,     // Payload of the request we send
+            "encoding": "text",                   // encoding of the body
+            "beforeSend": this.setAuthorizationHeader.bind(this, vault),// Before sending we add Authorization 
+                                                                       // header to http request
+            "callback": function(data){// Afther successfull responce, 
+                                                        // this callback function is invoked
+                console.log('sentAccessToken', data)                  // This function is an async function.
+             }.bind(this)
+          }
+ 
+          this.sendRequest(options);  
       }
    }
-   twtOAuth.prototype.parseAuthorizationData = function(url){ // parses data in url 
+   twtOAuth.prototype.parseAuthorizationLink = function(url){ // parses data in url 
 
       var str = this.parse(url, /\?/g, /#/g); // parses query string
 
@@ -1395,7 +1441,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
             key = a[i];                       // Thakes key that was sorted alphabeticaly
             switch(key){                      // In case of consumer and user keys we leave them to server logic
               case "callback":   // Callback url to which users are redirected by twitter         
-                                    // Check to see if there is data to append to calback as query string:
+                                 // Check to see if there is data to append to calback as query string:
                 value = this.session_data ? this.appendToCallback(this.session_data) : this.oauth.callback; 
               break; 
               case "consumer_key":
@@ -1450,7 +1496,8 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       consumerSecretNotSet: "You must provede consumer SECRET that indentifies your app",
       userKey: "You must provide user secret that intentifies user in which name your app makes request.",
       noStringProvided: "You must provide a string for parsing." ,
-      noSessionData: "No session data was found."
+      noSessionData: "No session data was found.",
+      linkNotAuthorized: "Appears that obtained url doesn't have necessary data."
       //requestTokenNoData: "No data acquired from "+ this.leg[0] +  " step."
    };
 
@@ -1481,25 +1528,9 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       if(!this.oauth.callback) throw new Error(this.messages.callbackNotSet);// throw an error if one is not set
    }
     
-   twtOAuth.prototype.sendRequest = function(vault, resolve){     // fist param "leg" 
+   twtOAuth.prototype.sendRequest = function(options){     // was (vault, resolve, leg) 
 
-     // var requestObject = this.getRequestObject(leg])
-      request({                                 // seting params for http request
-         "httpMethod": this.httpMethods[this.leg[0]], // [this.leg] should go
-         "url": 'https://quoteowlet.herokuapp.com',   // was 'http://localhost:5000',
-         "queryParams": { 
-            "host": this.twtUrl.domain,
-            "path": this.twtUrl.path + this.leg[0],
-            "method": this.httpMethods[this.leg[0]],
-         },
-         "body": this.signatureBaseString,     // Payload of the request we send
-         "encoding": "text",                   // encoding of the body
-         "beforeSend": this.setAuthorizationHeader.bind(this, vault),// before sending we add Authorization 
-                                                                     // header to http request
-         "callback": this.authorize.bind(this, resolve) // Afther successfull responce, 
-                                                        // this callback function is invoked
-                                                        // This function is an async function.
-      })
+      request(options);
    }
    
    twtOAuth.prototype.authorize = function(resolve, sentData){ // Callback function for 2nd step
@@ -1531,7 +1562,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
    twtOAuth.prototype.redirect = function(resolve){ // redirects user to twitter for authorization   
      console.log('RESOLVE : ', resolve);
       var openedWindow;      
-      var url =  this.absoluteUrls[this.leg[1]] + "?" + this.oauth_token; // assemble url for this leg
+      var url =  this.absoluteUrls[this.leg[1]] + "?" + this.oauth_token; // assemble url for second leg
 
       if(!this.newWindow){
          window.location = url; // redirect current window if no newWindow; 
