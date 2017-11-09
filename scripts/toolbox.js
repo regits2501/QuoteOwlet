@@ -1149,7 +1149,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
         "consumer_secret":"",
         "user_key": ""
       }
-      this.leg = ["request_token","authorize","acess_token"] // Names of each leg (step) in 3-leg authentication
+      this.leg = ["request_token","authorize","access_token"] // Names of each leg (step) in 3-leg authentication
                                                              // to twitter. Names are also url path ends:
                                                              // http://api.twitter.com/oauth/request_token
       
