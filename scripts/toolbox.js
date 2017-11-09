@@ -1218,12 +1218,12 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
          }
          //this.genSignature(vault);            // Generates signature
          var options = {                                 // seting params for http request
-           "httpMethod": this.httpMethods[this.leg[0]], // [this.leg] should go
+           "httpMethod": this.httpMethods[this.leg[2]], // [this.leg] should go
            "url": 'https://quoteowlet.herokuapp.com',   // was 'http://localhost:5000',
            "queryParams": { 
               "host": this.twtUrl.domain,
-              "path": this.twtUrl.path + this.leg[0],
-              "method": this.httpMethods[this.leg[0]],
+              "path": this.twtUrl.path + this.leg[2],
+              "method": this.httpMethods[this.leg[2]],
             },
            "body": this.signatureBaseString,     // Payload of the request we send
            "encoding": "text",                   // encoding of the body
