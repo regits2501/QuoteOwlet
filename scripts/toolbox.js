@@ -1265,7 +1265,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
 
           this.oauth.verifier = this.authorized.verifier  // put authorized verifier in oauth object
           this.setNonUserParams(); 
-          this.signatureBaseString(vault);   // generate SBS // checkt if you really need the vault here
+          this.genSignatureBaseString(vault);   // generate SBS // checkt if you really need the vault here
        
           var options = {                                 // seting params for http request
             "httpMethod": this.httpMethods[this.leg[0]], // [this.leg] should go
