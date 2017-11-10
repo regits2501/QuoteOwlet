@@ -335,12 +335,11 @@
        })
      
   })
-  
   whenPageReady(function(){
      var twtSecondPart = twtOAuth();
      quoteData.setQuoteData.bind(quoteData)(twtSecondPart.getSessionData());
     console.log("ACCESS twitter ===================")
-     twtSecondPart.accessTwitter();
+    twtSecondPart.accessTwitter();
      
   })
 

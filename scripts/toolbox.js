@@ -17,7 +17,7 @@ if(typeof _pS_.modulMgr ==="object" && _pS_.modulMgr !== null){ // checking to s
          function handler(ev){ 
              if(ready) return; 
              
-             if(ev.type ==="readystagechange" && document.readyState != "complete"){
+             if(ev.type === "readystatechange" && document.readyState !== "complete"){
                 return;
              }
 
@@ -25,17 +25,17 @@ if(typeof _pS_.modulMgr ==="object" && _pS_.modulMgr !== null){ // checking to s
                  funcs[i].call(document) // not sure why whould you envoke funs on documnet
              }
            ready = true;
-          // funcs = []; // ready for garabge colection 
+           funcs = null; // ready for garabge colection 
          }
  
          if(document.addEventListener){
-             document.addEventListener("DOMContentLoaded", handler ,false) // After all deffer-ed script finished
-             document.addEventListener("readystatechange", handler, false) // For IE events.
-             document.addEventListener("load", handler ,false);            // when all scripts finished.
+            document.addEventListener("DOMContentLoaded", handler ,false) // After all deffer-ed script finished
+            //document.addEventListener("readystatechange", handler, false) // For IE events.
+           // window.addEventListener("load", handler ,false);            // when all scripts finished.
          }
          else if(document.attachEvent){  // for IE < 9
              document.attachEvent("onreadystatechange", handler);
-             document.attachEvent("onload", handler);
+             window.attachEvent("onload", handler);
              
          }
 
@@ -1264,6 +1264,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
           } 
 
           this.oauth.verifier = this.authorized.oauth_verifier  // put authorized verifier in oauth object
+          delete this.oauth.callback;                            // callback not needed for this step
           this.setNonUserParams(); 
           this.genSignatureBaseString(vault);   // generate SBS // checkt if you really need the vault here
        
@@ -1529,7 +1530,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
    }
     
    twtOAuth.prototype.sendRequest = function(options){     // was (vault, resolve, leg) 
-
+     console.log('request SENT +')
       request(options);
    }
    
