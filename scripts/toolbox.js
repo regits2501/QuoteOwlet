@@ -1263,8 +1263,9 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
             return;                                       // print info and return if no tokens or label incore
           } 
 
-          this.oauth.verifier = this.authorized.oauth_verifier  // put authorized verifier in oauth object
-          delete this.oauth.callback;                            // callback not needed for this step
+          this.oauth.verifier = this.authorized.oauth_verifier  // Put authorized verifier in oauth object
+          this.oauth.token = this.authorized.oauth_token;    // Authorized token
+          delete this.oauth.callback;                           // Callback not needed for this step
           this.setNonUserParams(); 
           this.genSignatureBaseString(vault);   // generate SBS // checkt if you really need the vault here
        
