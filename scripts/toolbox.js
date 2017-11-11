@@ -1217,24 +1217,8 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
                                                                                        // remember it's resolve
          }
          //this.genSignature(vault);            // Generates signature
-         var options = {                                 // seting params for http request
-           "httpMethod": this.httpMethods[this.leg[0]], // [this.leg] should go
-           "url": 'https://quoteowlet.herokuapp.com',   // was 'http://localhost:5000',
-           "queryParams": { 
-              "host": this.twtUrl.domain,
-              "path": this.twtUrl.path + this.leg[0],
-              "method": this.httpMethods[this.leg[0]],
-            },
-           "body": this.signatureBaseString,     // Payload of the request we send
-           "encoding": "text",                   // encoding of the body
-           "beforeSend": this.setAuthorizationHeader.bind(this, vault),// Before sending we add Authorization 
-                                                                       // header to http request
-           "callback": this.authorize.bind(this, resolve) // Afther successfull responce, 
-                                                        // this callback function is invoked
-                                                        // This function is an async function.
-         }
-
-         this.sendRequest(options);// Sends request to twitter, resolves promise if present 
+         this.sendRequest(this.authorize.bind(this,resolve), this.leg[0]);// Sends request to twitter, resolves
+                                                                          // promise if present 
          if(promised) return promised;                    
       }
         // this is the second part
@@ -1269,25 +1253,8 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
           this.setNonUserParams(); 
           this.genSignatureBaseString(vault);   // generate SBS // checkt if you really need the vault here
        
-          var options = {                                 // seting params for http request
-            "httpMethod": this.httpMethods[this.leg[2]], // [this.leg] should go
-            "url": 'https://quoteowlet.herokuapp.com',   // was 'http://localhost:5000',
-            "queryParams": { 
-               "host": this.twtUrl.domain,
-               "path": this.twtUrl.path + this.leg[2],
-               "method": this.httpMethods[this.leg[2]],
-             },
-            "body": this.signatureBaseString,     // Payload of the request we send
-            "encoding": "text",                   // encoding of the body
-            "beforeSend": this.setAuthorizationHeader.bind(this, vault),// Before sending we add Authorization 
-                                                                       // header to http request
-            "callback": function(data){// Afther successfull responce, 
-                                                        // this callback function is invoked
-                console.log('sentAccessToken', data)                  // This function is an async function.
-             }.bind(this)
-          }
  
-          this.sendRequest(options);  
+          this.sendRequest(this.accessToken.bind(this), this.leg[2]);  
       }
    }
    twtOAuth.prototype.parseAuthorizationLink = function(url){ // parses data in url 
@@ -1347,6 +1314,10 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       
       return data;
    } 
+   
+   twtOAuth.prototype.accessToken = function(sentData){
+         console.log('acessTokenData: '+ sentData);
+   }
 
    twtOAuth.prototype.setUserParams = function(args, vault){ // sets user suplied parametars 
          var temp; 
@@ -1530,9 +1501,23 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       if(!this.oauth.callback) throw new Error(this.messages.callbackNotSet);// throw an error if one is not set
    }
     
-   twtOAuth.prototype.sendRequest = function(options){     // was (vault, resolve, leg) 
+   twtOAuth.prototype.sendRequest = function(cb, leg){     // was (vault, resolve, leg) 
      console.log('request SENT +')
-      request(options);
+      request({                                 // seting params for http request
+         "httpMethod": this.httpMethods[leg], // [this.leg] should go
+         "url": 'https://quoteowlet.herokuapp.com',   // was 'http://localhost:5000',
+         "queryParams": { 
+            "host": this.twtUrl.domain,
+            "path": this.twtUrl.path + leg,
+            "method": this.httpMethods[leg],
+          },
+         "body": this.signatureBaseString,     // Payload of the request we send
+         "encoding": "text",                   // encoding of the body
+         "beforeSend": this.setAuthorizationHeader.bind(this),// Before sending we add Authorization 
+                                                              // header to http request
+         "callback": cb                        // Afther successfull responce, 
+                                               // this callback function is invoked
+     })                                        // This function is an async function.
    }
    
    twtOAuth.prototype.authorize = function(resolve, sentData){ // Callback function for 2nd step
@@ -1580,8 +1565,8 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       
    };
 
-   twtOAuth.prototype.setAuthorizationHeader = function(vault, request){
-      request.setRequestHeader("Authorization", this.genHeaderString(vault));
+   twtOAuth.prototype.setAuthorizationHeader = function(request){
+      request.setRequestHeader("Authorization", this.genHeaderString());
    }
    twtOAuth.prototype.genHeaderString = function(vault){
       var a = [];
