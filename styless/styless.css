@@ -32,6 +32,44 @@ body{
    background-color:#193f41 ; /*#1b2527;*/ /* #393f4d */
    min-height:100%;
 }
+
+/*twitting.html*/
+
+.twitt{
+ 
+   margin: 4%;
+}
+.twittText{
+   
+   border: 2px solid white;
+   min-height: 2.6em;
+   border-radius: 5px;
+   height:100%;
+   width:100%;
+
+   font-size:2.5em;
+   font-family:'Chalky';
+   resize:vertical;
+ 
+}
+
+.twittButton{
+   font-size: 1.8em;
+   margin-right: 4%;
+   border:2px solid white;
+   border-radius: 8px;
+   padding:2px;
+   width: 100px;
+   text-align:center;
+   float:right;
+   color:white;
+   font-family:'DejaVUSerif'
+}
+
+
+
+
+/*  index.html */
 .showQuote{
     font-size:3em;
     padding:0px 5px;
@@ -69,6 +107,8 @@ body{
     height:50px;
     border: solid white 0px;
     border-radius:5px;
+}
+.boxShadow{  
     box-shadow: 0 0px 2px 0 rgba(0, 0, 0, 0.2), 0 2px 5px 0 rgba(0, 0, 0, 0.19);
 
     transition: box-shadow 0.3s ; 

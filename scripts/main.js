@@ -325,7 +325,7 @@
                                        },
                                        'new_window':{
                                            'name': 'nw',
-                                           'features':'resizable=yes,height=613,width=300,left=400,top=300'
+                                           'features':'resizable=yes,height=613,width=400,left=400,top=300'
                                         }
                                         
                                              
