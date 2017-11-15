@@ -1318,7 +1318,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
    twtOAuth.prototype.accessToken = function(sentData){
          console.log('acessTokenData: '+ sentData);
          var queryParams = this.parseQueryParams(sentData);
-         var parsedParams = this.objectify(queryParams)l
+         var parsedParams = this.objectify(queryParams)
         console.log('parsedParams: ', parsedParams);
           
    }
