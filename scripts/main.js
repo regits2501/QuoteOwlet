@@ -242,7 +242,30 @@
   
     
   whenPageReady(chromeCssBugFix.fixIt);
-  
+
+ //////////// firefox Quantum (ver:57.0) css bug (change) fix ////////////////////////////////
+ /* 
+  var quantumBugFix = Object.create(cssClassMgr); 
+  quantumBugFix.versionQuantumAndAbove = function () {      // check for ff Quantum (ver:57) and above
+    var browser = window.navigator.userAgent;
+    this.firefox = /Firefox/g.test(browser);      // test for ff 
+    this.version = browser.match(/Firefox\/[0-9][0-9]/g)[0].match(/[0-9][0-9]/g); // take name/version , 
+                                                                                  // then take version
+    this.version = parseInt(this.version); 
+    if(firefox && version >= 57) return true;
+  }
+
+  quantumBugFix.fixIt = function(className){
+     if(!this.versionQuantumAndAbove) return;
+   
+     var el = document.querySelectorAll(className)[0]; // get element
+     this.initClass(el);                               // initialize css class list for element;
+     this.removeClass('rwAnimation')
+     this.addClass('rwAnimationQuantum')              // adds css class that fixes the bug
+     console.log(" in Quantum Bug Fix")
+  }
+  // whenPageReady(quantumBugFix.fixIt.bind(quantumBugFix, '.right'));
+ */
  
   var cssEventMgr = Object.create(cssClassMgr); // making object that manages css classes on Events 
                                                // (links to the cssClassMgr Object)

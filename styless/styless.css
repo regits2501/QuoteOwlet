@@ -316,7 +316,7 @@ body{
                         wingRadiate 1.7s 8.1s 1 cubic-bezier(.61,-0.3,.71,.71) forwards;
     
   
-   -moz-animation: rightWingFlap 8s 0s 1 cubic-bezier(.61,-0.3,.71,.71) forwards, 
+   -moz-animation: rightWingFlapMoz 8s 0s 1 cubic-bezier(.61,-0.3,.71,.71) forwards, 
                     tuckWing 0.9s 7.5s 1 cubic-bezier(.61,-0.3,.71,.71) forwards,
                      wingRadiate 1.7s 8.1s 1 cubic-bezier(.61,-0.3,.71,.71) forwards;
 
@@ -324,10 +324,6 @@ body{
                   tuckWing 0.9s 7.5s 1 cubic-bezier(.61,-0.3,.71,.71) forwards,
                    wingRadiate 1.7s 8.1s 1 cubic-bezier(.61,-0.3,.71,.71) forwards;
 }
-
-
-/* put webkit prefix for other browsers*/
-
 
 @keyframes rightWingFlap{
    10%{   /* wing up */
@@ -394,7 +390,8 @@ body{
       right:-30px;
    }
 }
-@-moz-keyframes rightWingFlap{
+
+@-moz-keyframes rightWingFlapMoz{ 
      10%{   /* wing up */
       transform: rotateY(-180deg) skewY(20deg) skewX(40deg) translateY(10px) rotateX(-110deg) rotateZ(10deg) ;
       right:-30px;
