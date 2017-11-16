@@ -46,24 +46,28 @@ body{
    border-radius: 5px;
    height:100%;
    width:100%;
-
+   padding:0 6px;
+   min-height:400px;
    font-size:2.5em;
    font-family:'Chalky';
    resize:vertical;
- 
+   background-color:#193f41;
+   color:white;
 }
 
 .twittButton{
-   font-size: 1.8em;
+   font-size: 1.4em;
    margin-right: 4%;
    border:2px solid white;
    border-radius: 8px;
    padding:2px;
-   width: 100px;
+   width: 90px;
+   height: 40px;
+   line-height:33px;
    text-align:center;
    float:right;
    color:white;
-   font-family:'DejaVUSerif'
+   font-family:'Verdana';
 }
 
 
@@ -117,11 +121,7 @@ body{
     border:2px solid #193f41;
     box-shadow: 0 1px 10px 1px rgba(255, 255, 255, 0.2), 0 2px 6px 0 rgba(0, 0, 0, 0.19);
 }
-/*.quoteClick:hover ~ .quoteSign{   
-  transition-delay:0;
-  text-shadow: 0px 2px 25px white;   
-} 
-*/
+
 .quoteClickRadiate ~ .quoteSign{ /* for assigning with javascript */
     transition-delay:0s;
     text-shadow: 0px 2px 25px white;   

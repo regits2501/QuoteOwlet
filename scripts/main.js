@@ -14,7 +14,6 @@
   var byteLength = require(["byteLength"]).byteLength;
   var twtOAuth = require(["twtOAuth"]).twtOAuth; 
   var quoter = {}; // Object that handles getting data from server and showing it on page
-  var request = require(["request"]).request;
 
   quoter.messages = {
       noQuoteInArray: "There is no quote in array."
@@ -311,7 +310,7 @@
            console.log("Taking this data: ====",textContent(quoteData.quoteEl), textContent(quoteData.authorEl))
 
               var twty = twtOAuth();
-              var p =  twty.getRequestToken({"redirection_url":"https://gits2501.github.io/QuoteOwlet",
+              var p =  twty.getRequestToken({"redirection_url":"https://gits2501.github.io/QuoteOwlet/pages/twitting.html",
                                      "csecret": "okPWgBIV5A72Jhc5dT1UlQfAzXUFO42rp9VFNHsbyCCD2S1AtP",
                                       "ckey": "ZuQzYI8B574cweeef3rCKk2h2",
                                       "session_data": {
