@@ -8,7 +8,8 @@
   var textContent = require(["textContent"]).textContent; 
   var whenPageReady = require(["whenReady"]).whenReady;
   var addEvent = require(["addEvent"]).addEvent;
-  var classList = require(["classList"]).classList;  
+  var cssClassMgr = require(['cssClassMgr']).cssClassMgr(); // adds, removes etc ... css classes for an element
+  var cssEventMgr = require(['cssEventMgr']).cssEventMgr;
   var styleRulesMgr = require(["styleRulesMgr"]).styleRulesMgr;
   var addPrefAnimEvent = require(["addPrefixedAnimationEvent"]).addPrefixedAnimationEvent;
   var byteLength = require(["byteLength"]).byteLength;
@@ -115,43 +116,15 @@
                                                                                   // to be event that triggers
                                                                                  // display of quote data on page
  
-//// 
- var cssClassMgr =  {}; // manipulates with css class names of an element
 
- cssClassMgr.initClass = function(element){
-
-    if(typeof element === "string") this.el = document.getElementsByClassName(element)[0]
-    else this.el = element;
-    this.cssList = classList(this.el); // Using classList, module that emulates HTML5 classList property
-                           
- }
- cssClassMgr.addClass = function(clsName){
-    this.cssList.add(clsName);        // Adding css class name to the html element
-    
- }
- cssClassMgr.removeClass = function(clsName){
-   
-    this.cssList.remove(clsName); 
- } 
- cssClassMgr.toggleClass = function(clsName){
-    this.cssList.toggle(clsName);
- }
- cssClassMgr.toString = function(){
-    return this.cssList.toString();
-
- }
-
- ////////////////////////////////////////////
  
-////////////////////////////////////////////
-
-  
+////////////// wingRadiate animation (on click event) /////////////////////////
   var owletCssClass = Object.create(cssClassMgr); // Instance of an object that manipulates with elements
                                                   // css class names.
 
   function changeOwletsCssOnClick(){    // for mobile we defined touch events, just like for clicking.
       
-      owletCssClass.initClass("owlet"); // setting element that has css class name owlet
+      owletCssClass.initClass("owlet"); // setting element that has css class name 'owlet'
       addEvent(owletCssClass.el, "mousedown", owletCssClass.addClass.bind(owletCssClass, "quoteClickRadiate"));
        
       addEvent(owletCssClass.el,"mouseup", function(){ 
@@ -163,6 +136,7 @@
 
   whenPageReady(changeOwletsCssOnClick); // when dom ready set click event handler on element with class "owlet".
 
+////////// left and right wings animation fix (cross browser)////////
  var leftWingClass = Object.create(cssClassMgr);
  var rightWingClass = Object.create(cssClassMgr);
  var mainStyleSheet = styleRulesMgr(); // Instance of object that handles  css style rules of particular 
@@ -202,7 +176,7 @@
 
   
   
-
+/////////////// chrome mobile fix  /////////////////////
   var chromeCssBugFix = {};    // fix the css bug on chrome mobile
   chromeCssBugFix.checkChromeMob = function(){  // sniff chrome mobile
      var browser = window.navigator.userAgent 
@@ -243,73 +217,17 @@
     
   whenPageReady(chromeCssBugFix.fixIt);
 
- //////////// firefox Quantum (ver:57.0) css bug (change) fix ////////////////////////////////
- /* 
-  var quantumBugFix = Object.create(cssClassMgr); 
-  quantumBugFix.versionQuantumAndAbove = function () {      // check for ff Quantum (ver:57) and above
-    var browser = window.navigator.userAgent;
-    this.firefox = /Firefox/g.test(browser);      // test for ff 
-    this.version = browser.match(/Firefox\/[0-9][0-9]/g)[0].match(/[0-9][0-9]/g); // take name/version , 
-                                                                                  // then take version
-    this.version = parseInt(this.version); 
-    if(firefox && version >= 57) return true;
-  }
-
-  quantumBugFix.fixIt = function(className){
-     if(!this.versionQuantumAndAbove) return;
-   
-     var el = document.querySelectorAll(className)[0]; // get element
-     this.initClass(el);                               // initialize css class list for element;
-     this.removeClass('rwAnimation')
-     this.addClass('rwAnimationQuantum')              // adds css class that fixes the bug
-     console.log(" in Quantum Bug Fix")
-  }
-  // whenPageReady(quantumBugFix.fixIt.bind(quantumBugFix, '.right'));
- */
- 
-  var cssEventMgr = Object.create(cssClassMgr); // making object that manages css classes on Events 
-                                               // (links to the cssClassMgr Object)
- 
-  cssEventMgr.initEvent = function(className, classToManage, eventDesc){// manages element's css classes 
-                                                                        // on events
-     
-     this.element = document.getElementsByClassName(className)[0]  // gets element with css selector specified in
-     this.initClass(this.element);              // Initiate element's css class menager
-     var evt ,    // event type we want to subscribe to (click, mousedown ect..)
-         action,  // what we want to do with classToManage (add, remove,toggle)
-         delay;   // delay we want to pass before managing css class
-     
-     for(var i = 0; i < eventDesc.events.length; i++){  
-        evtType = eventDesc.events[i];
-        action = eventDesc.actions[i];
-        console.log("evtType:"+ evtType)
-        delay =  eventDesc.delays ? eventDesc.delays[i] : "";
-
-        addEvent(this.element, evtType, this[action].bind(this, classToManage, delay))
-     }
-                                                                        
-  }
-  cssEventMgr.add = function(classToAdd, delay){ // adds css class (from stylesheet) to element's class list
-                                                  
-     if(delay) setTimeout(function(){ this.elementCss.addClass(classToAdd) }, delay);
-     this.addClass(classToAdd); 
-  }
-  
-  cssEventMgr.remove = function(classToRemove, delay){ // removes css class form element's css class list
-    
-     if(delay) setTimeout(function(){ this.elementCss.removeClass(classToRemove) }, delay);
-     this.removeClass(classToRemove);
-  }
-
-  var twitterButton = Object.create(cssEventMgr) // make new "instance"
+ ////////////////// twitter button animation //////////////////////////////
+  var cssEvents = cssEventMgr(); 
+  var twitterButton = Object.create(cssEvents);
   
   
   whenPageReady(twitterButton.initEvent.bind(twitterButton, "twitterButton","logoOnClick",  
                {"events": ["mousedown","mouseup","touchstart","touchmove"],
-                "actions": ["add", "remove","add", "remove"]
-                
+                "actions": ["add", "remove","add", "remove"]          
   }));
-
+ 
+/////////////// twitter OAuth (for SPA cases) //////
   var quoteData = {};
 
   quoteData.getQuoteElements = function(){

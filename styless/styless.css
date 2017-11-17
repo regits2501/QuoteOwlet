@@ -46,7 +46,7 @@ body{
    border-radius: 5px;
    height:100%;
    width:100%;
-   padding:0 6px;
+   padding:6px;
    min-height:400px;
    font-size:2.5em;
    font-family:'Chalky';
@@ -56,20 +56,23 @@ body{
 }
 
 .twittButton{
-   font-size: 1.4em;
+   font-size: 1.5em;
    margin-right: 4%;
-   border:2px solid white;
    border-radius: 8px;
-   padding:2px;
    width: 90px;
    height: 40px;
-   line-height:33px;
+   border: 1px solid #193f41; 
+   line-height:34px;
    text-align:center;
    float:right;
    color:white;
-   font-family:'Verdana';
+   font-family:'Arial';
+   letter-spacing: 2px; 
 }
 
+.scaleText {
+  
+}
 
 
 
@@ -303,8 +306,7 @@ body{
 
    -ms-transform:rotateY(-180deg) skewY(35deg); 
    -webkit-transform:rotateY(-180deg) skewY(35deg); 
-   transform:rotateY(-180deg) skewY(35deg); /* Setting rotateY to 181deg only to math the .left wing Y angle.
-                                                Otherwise 180deg is what we want. */
+   transform:rotateY(-180deg) skewY(35deg); /* oposite position then that of a left wing */
 }
 .rwAnimation {   
    animation: rightWingFlap 8s 0s 1 cubic-bezier(.61,-0.3,.71,.71) forwards, 
@@ -319,7 +321,7 @@ body{
    -moz-animation: rightWingFlapMoz 8s 0s 1 cubic-bezier(.61,-0.3,.71,.71) forwards, 
                     tuckWing 0.9s 7.5s 1 cubic-bezier(.61,-0.3,.71,.71) forwards,
                      wingRadiate 1.7s 8.1s 1 cubic-bezier(.61,-0.3,.71,.71) forwards;
-
+   
    -o-animation: rightWingFlap 8s 0s 1 cubic-bezier(.61,-0.3,.71,.71) forwards, 
                   tuckWing 0.9s 7.5s 1 cubic-bezier(.61,-0.3,.71,.71) forwards,
                    wingRadiate 1.7s 8.1s 1 cubic-bezier(.61,-0.3,.71,.71) forwards;
@@ -423,6 +425,7 @@ body{
       right:-30px;
    }
 }
+
 @-o-keyframes rightWingFlap{
      10%{   /* wing up */
       transform: rotateY(-180deg) skewY(20deg) skewX(40deg) translateY(10px) rotateX(-110deg) rotateZ(10deg) ;

@@ -218,7 +218,82 @@ if(typeof _pS_.modulMgr ==="object" && _pS_.modulMgr !== null){ // checking to s
       
    }
  })
+
+ mgr.define('cssClassMgr',['classList'], function(classList){
+
+     var cssClassMgr =  {}; // manipulates with css class names of an element
+
+     cssClassMgr.initClass = function(element){
+
+       if(typeof element === "string") this.el = document.getElementsByClassName(element)[0]
+       else this.el = element;
+       this.cssList = classList(this.el); // Using classList, module that emulates HTML5 classList property
+                           
+    }
+    cssClassMgr.addClass = function(clsName){
+       this.cssList.add(clsName);        // Adding css class name to the html element
+    
+    }
+    cssClassMgr.removeClass = function(clsName){
+   
+       this.cssList.remove(clsName); 
+    } 
+    cssClassMgr.toggleClass = function(clsName){
+       this.cssList.toggle(clsName);
+    }
+    cssClassMgr.toString = function(){
+       return this.cssList.toString();
+    }
+  
+    return function(){
+       return inst = Object.create(cssClassMgr);
+
+      /* return phantomHead = {
+           initClass: inst.initClass.bind(inst),
+           addClass: inst.addClass.bind(inst),
+           removeClass: inst.removeClass.bind(inst),
+           toggleClass: inst.toggleClass.bind(inst),
+           toString: inst.toString.bind(inst)
+       } */
+    }
+ })
+ mgr.define('cssEventMgr',['cssClassMgr','addEvent'], function(cssClassMgr,addEvent){ // making object that manages css classes on Events 
+     var cssEventMgr = Object.create(cssClassMgr());  // (link to the cssClassMgr Object)
  
+     cssEventMgr.initEvent = function(className, classToManage, eventDesc){ // manages element's css classes 
+                                                                            // on events
+        this.element = document.getElementsByClassName(className)[0] // gets element with css selector specified
+        this.initClass(this.element);                                // Initiate element's css class menager
+        var evt ,    // event type we want to subscribe to (click, mousedown ect..)
+          action,    // what we want to do with classToManage (add, remove,toggle)
+          delay;     // delay we want to pass before managing css class
+     
+        for(var i = 0; i < eventDesc.events.length; i++){  
+           evtType = eventDesc.events[i];
+           action = eventDesc.actions[i];
+           console.log("evtType:"+ evtType)
+           delay =  eventDesc.delays ? eventDesc.delays[i] : "";
+
+           addEvent(this.element, evtType, this[action].bind(this, classToManage, delay))
+        }
+                                                                        
+     }
+     cssEventMgr.add = function(classToAdd, delay){ // adds css class (from stylesheet) to element's class list
+                                                  
+        if(delay) setTimeout(function(){ this.elementCss.addClass(classToAdd) }, delay);
+        this.addClass(classToAdd); 
+     }
+  
+     cssEventMgr.remove = function(classToRemove, delay){ // removes css class form element's css class list
+    
+        if(delay) setTimeout(function(){ this.elementCss.removeClass(classToRemove) }, delay);
+        this.removeClass(classToRemove);
+     }
+
+     return function(){
+         return Object.create(cssEventMgr);
+     }
+ })
  mgr.define("styleRulesMgr",[], function(){
         
         var styleRulesUtils = {};  // object use css selector syntax to find rules

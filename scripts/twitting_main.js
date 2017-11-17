@@ -6,11 +6,27 @@
      
   var request = require(["request"]).request; // importing xmlhttp request API
   var textContent = require(["textContent"]).textContent; 
+  var cssEventMgr = require(['cssEventMgr']).cssEventMgr;
   var whenPageReady = require(["whenReady"]).whenReady;
   var addEvent = require(["addEvent"]).addEvent;
-  var twtOAuth = require(["twtOAuth"]).twtOAuth; 
+  var twtOAuth = require(["twtOAuth"]).twtOAuth;
+ 
+//////// twitt button css /////////////////
+ var cssEvents = cssEventMgr();
+ var twittButton = Object.create(cssEvents); // link to css event mgr
+ 
+ whenPageReady(twittButton.initEvent.bind(twittButton, "twittButton","logoOnClick",  
+               {"events": ["mousedown","mouseup","touchstart","touchmove"],
+                "actions": ["add", "remove","add", "remove"]          
+ }));
 
 
+
+
+
+
+
+////////////////////////
 var textArea = {};
 textArea.init = function (element){
    this.textEl = document.querySelectorAll(element)[0]
