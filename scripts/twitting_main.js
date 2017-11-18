@@ -33,7 +33,7 @@
  }
  textArea.insertQuote = function(sessionData){           // inserts received data from redirection (callback) url
      console.log('sessionData =====', sessionData);
-    textContent(this.textEl, "\"" + sessionData.quote + '\"\n~ ' + sessionData.author);
+    textContent(this.textEl, "\" " + sessionData.quote + '\"\n~ ' + sessionData.author);
  }
 
  whenPageReady(textArea.init.bind(textArea, '.twittText')) // when DOM is ready initialoze the object

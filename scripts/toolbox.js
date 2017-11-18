@@ -1277,7 +1277,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
          console.log("v: "+ vault)
          this.setUserParams(args, vault);       // Sets user supplied parameters like: 'redirection_url' ...
          this.setNonUserParams();               // Sets non user-suppliead params: timestamp, nonce, sig. method
-         this.appendToCallback(this.lnkLabel.data, this.lnkLabel.name); // adds uniqueness to url
+         this.appendToUrl(this.lnkLabel.data, this.lnkLabel.name); // adds uniqueness to url
          this.genSignatureBaseString(vault);    // Generates signature base string
          if(this.newWindow){                    // Checking for user supplied newWindow preference
             this.openWindow();                  // Opens new window.  
@@ -1316,7 +1316,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
           } 
 
           this.oauth.verifier = this.authorized.oauth_verifier  // Put authorized verifier in oauth object
-          this.oauth.token = this.authorized.oauth_token;    // Authorized token
+          this.oauth.token = this.authorized.oauth_token;       // Authorized token
           delete this.oauth.callback;                           // Callback not needed for this step
           this.setNonUserParams(); 
           this.genSignatureBaseString(vault);   // generate SBS // checkt if you really need the vault here
@@ -1384,10 +1384,13 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
    } 
    
    twtOAuth.prototype.accessToken = function(sentData){ // should be done by server
-         console.log('acessTokenData: '+ sentData);
-         var queryParams = this.parseQueryParams(sentData);
-         var parsedParams = this.objectify(queryParams)
-        console.log('parsedParams: ', parsedParams);
+       console.log('acessTokenData: '+ sentData);
+       var queryParams = this.parseQueryParams(sentData);
+       var parsedParams = this.objectify(queryParams)
+       console.log('parsedParams: ', parsedParams);
+
+       delete this.oauth_verifier; // no need for verifier field in this step
+       this.oauth_token = sentData.oauth_token // setting access_token in oauth_token  
           
    }
 
@@ -1487,7 +1490,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
             switch(key){                      // In case of consumer and user keys we leave them to server logic
               case "callback":   // Callback url to which users are redirected by twitter         
                                  // Check to see if there is data to append to calback as query string:
-                value = this.session_data ? this.appendToCallback(this.session_data) : this.oauth.callback; 
+                value = this.session_data ? this.appendToUrl(this.oauth.callback,this.session_data) : this.oauth.callback; 
               break; 
               case "consumer_key":
                 value = "";         // Sensitive data we leave for server to add
@@ -1546,20 +1549,26 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       //requestTokenNoData: "No data acquired from "+ this.leg[0] +  " step."
    };
 
-   twtOAuth.prototype.appendToCallback = function(data, name){// appends data object as querystring to                                                                        // callback url. 
+   twtOAuth.prototype.appendToUrl = function(url, data, name){// appends data object as querystring to                                                                        // callback url. 
     console.log('Data: ==> ', data)
+      if(!url){
+          console.log(this.messages.noStringProvided);
+          return;
+      }
+
       if(!name) name = "data";
-      var callback = this.oauth.callback;
+      var urlStr = url;
       var fEncoded = formEncode(data, true);
       console.log(fEncoded);
       var queryString = name + '=' + percentEncode(fEncoded); // Make string from object then                                                                                 // percent encode it.  
     console.log("queryString: ", queryString)
-      if(!/\?/.test(callback)) callback += "?";               // Add "?" if one not exist
-      else queryString =  '&' + queryString                   // other queryString exists, so add '&' to this qs
-      this.oauth.callback = callback + queryString;           // Add queryString to callback
+      if(!/\?/.test(urlStr)) urlStr += "?";       // Add "?" if one not exist
+      else queryString =  '&' + queryString       // other queryString exists, so add '&' to this qs
+     
+      urlStr += queryString;           // Add queryString to callback
                                                      
-       console.log("OAUTH CALLBACK: "+this.oauth.callback);
-      return this.oauth.callback;
+       console.log("OAUTH CALLBACK: "+ urlStr);
+      return urlStr;
    };
 
    twtOAuth.prototype.checkConsumerSecret = function(vault){ // checks if consumer secret is set 
