@@ -26,25 +26,32 @@
 
 
 
-////////////////////////
-var textArea = {};
-textArea.init = function (element){
-   this.textEl = document.querySelectorAll(element)[0]
-}
-textArea.insertQuote = function(sessionData){           // inserts received data from redirection (callback) url
-    console.log('sessionData =====', sessionData);
-   textContent(this.textEl, sessionData.quote + '\n ~' + sessionData.author);
-}
+ ////////////////////////
+ var textArea = {};
+ textArea.init = function (element){
+    this.textEl = document.querySelectorAll(element)[0]
+ }
+ textArea.insertQuote = function(sessionData){           // inserts received data from redirection (callback) url
+     console.log('sessionData =====', sessionData);
+    textContent(this.textEl, "\"" + sessionData.quote + '\"\n~ ' + sessionData.author);
+ }
 
-whenPageReady(textArea.init.bind(textArea, '.twittText')) // when DOM is ready initialoze the object
+ whenPageReady(textArea.init.bind(textArea, '.twittText')) // when DOM is ready initialoze the object
 
-whenPageReady(function(){
-   var twtOAuthSecond = twtOAuth();
-   var sessionData = twtOAuthSecond.getSessionData();
+ whenPageReady(function addQuoteData_SendOnClick(){
+    var secondPhase = twtOAuth();
+    var sessionData = secondPhase.getSessionData();
 
-   textArea.insertQuote.call(textArea, sessionData);
+    textArea.insertQuote.call(textArea, sessionData);
+    var tweetBtn = document.querySelectorAll('.twittButton')[0];
+    addEvent(tweetBtn, 'click', function(){
+         secondPhase.accessTwitter();
+    });
+ });
 
-});
+
+    
+})
 
 
 

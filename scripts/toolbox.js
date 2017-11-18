@@ -248,13 +248,6 @@ if(typeof _pS_.modulMgr ==="object" && _pS_.modulMgr !== null){ // checking to s
     return function(){
        return inst = Object.create(cssClassMgr);
 
-      /* return phantomHead = {
-           initClass: inst.initClass.bind(inst),
-           addClass: inst.addClass.bind(inst),
-           removeClass: inst.removeClass.bind(inst),
-           toggleClass: inst.toggleClass.bind(inst),
-           toString: inst.toString.bind(inst)
-       } */
     }
  })
  mgr.define('cssEventMgr',['cssClassMgr','addEvent'], function(cssClassMgr,addEvent){ // making object that manages css classes on Events 
