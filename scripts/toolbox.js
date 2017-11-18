@@ -1277,8 +1277,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
          console.log("v: "+ vault)
          this.setUserParams(args, vault);       // Sets user supplied parameters like: 'redirection_url' ...
          this.setNonUserParams();               // Sets non user-suppliead params: timestamp, nonce, sig. method
-         this.oauth.callback = this.appendToUrl(this.oauth.callback, this.lnkLabel.data, this.lnkLabel.name); 
-                                                                      // adds uniqueness to url
+         this.appendToCallback(this.lnkLabel.data, this.lnkLabel.name); // adds uniqueness to url
          this.genSignatureBaseString(vault);    // Generates signature base string
          if(this.newWindow){                    // Checking for user supplied newWindow preference
             this.openWindow();                  // Opens new window.  
@@ -1491,7 +1490,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
             switch(key){                      // In case of consumer and user keys we leave them to server logic
               case "callback":   // Callback url to which users are redirected by twitter         
                                  // Check to see if there is data to append to calback as query string:
-                value = this.session_data ? this.appendToUrl(this.oauth.callback,this.session_data) : this.oauth.callback; 
+                value = this.session_data ? this.appendToCallback(this.session_data) : this.oauth.callback; 
               break; 
               case "consumer_key":
                 value = "";         // Sensitive data we leave for server to add
@@ -1550,26 +1549,20 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       //requestTokenNoData: "No data acquired from "+ this.leg[0] +  " step."
    };
 
-   twtOAuth.prototype.appendToUrl = function(url, data, name){// appends data object as querystring to                                                                        // callback url. 
+   twtOAuth.prototype.appendToCallback = function(data, name){// appends data object as querystring to                                                                        // callback url. 
     console.log('Data: ==> ', data)
-      if(!url){
-          console.log(this.messages.noStringProvided);
-          return;
-      }
-
       if(!name) name = "data";
-      var urlStr = url;
+      var callback = this.oauth.callback;
       var fEncoded = formEncode(data, true);
       console.log(fEncoded);
       var queryString = name + '=' + percentEncode(fEncoded); // Make string from object then                                                                                 // percent encode it.  
     console.log("queryString: ", queryString)
-      if(!/\?/.test(urlStr)) urlStr += "?";       // Add "?" if one not exist
-      else queryString =  '&' + queryString       // other queryString exists, so add '&' to this qs
-     
-      urlStr += queryString;           // Add queryString to callback
+      if(!/\?/.test(callback)) callback += "?";               // Add "?" if one not exist
+      else queryString =  '&' + queryString                   // other queryString exists, so add '&' to this qs
+      this.oauth.callback = callback + queryString;           // Add queryString to callback
                                                      
-       console.log("OAUTH CALLBACK: "+ urlStr);
-      return urlStr;
+       console.log("OAUTH CALLBACK: "+this.oauth.callback);
+      return this.oauth.callback;
    };
 
    twtOAuth.prototype.checkConsumerSecret = function(vault){ // checks if consumer secret is set 
