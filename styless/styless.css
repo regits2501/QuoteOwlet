@@ -62,12 +62,11 @@ body{
    width: 90px;
    height: 40px;
    border: 1px solid #193f41; 
-   line-height:34px;
+   line-height:35px;
    text-align:center;
    float:right;
    color:white;
-   font-family:'Arial';
-   letter-spacing: 2px; 
+   font-family:'Georgia', 'Arial';
 }
 
 .scaleText {
