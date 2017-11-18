@@ -50,21 +50,6 @@
  });
 
 
-    
-})
-
-
-
-
-  
-
-
-
-
-
-
-
-
 })()
 console.log('twitting_main loaded')
 
