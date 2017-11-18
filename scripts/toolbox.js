@@ -1277,7 +1277,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
          console.log("v: "+ vault)
          this.setUserParams(args, vault);       // Sets user supplied parameters like: 'redirection_url' ...
          this.setNonUserParams();               // Sets non user-suppliead params: timestamp, nonce, sig. method
-         this.appendToUrl(this.oauth.callback, this.lnkLabel.data, this.lnkLabel.name); 
+         this.oauth.callback = this.appendToUrl(this.oauth.callback, this.lnkLabel.data, this.lnkLabel.name); 
                                                                       // adds uniqueness to url
          this.genSignatureBaseString(vault);    // Generates signature base string
          if(this.newWindow){                    // Checking for user supplied newWindow preference
