@@ -1406,10 +1406,13 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
 
 
             switch(prop){
-               case "redirection_url":// this is the url to which user gets redirected by twiiter api, 
+               case "server_url":       // where the server code runs 
+                 this.server_url = temp;
+               break;
+               case "redirection_url": // this is the url to which user gets redirected by twiiter api, 
                  this.oauth.callback = temp;
                break; 
-               case "new_window":     // object that holds properties for making new window(tab/popup)
+               case "new_window":      // object that holds properties for making new window(tab/popup)
                  this.newWindow = {};
                  for(var data in temp){
                     switch(data){
@@ -1582,10 +1585,13 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
    }
     
    twtOAuth.prototype.sendRequest = function(cb, leg){     // was (vault, resolve, leg) 
-     console.log('request SENT +')
-      request({                                 // seting params for http request
+      console.log('request SENT +')
+      var options;
+
+      if(typeof leg === 'string'){
+        options = {                                 // seting params for http request
          "httpMethod": this.httpMethods[leg], // [this.leg] should go
-         "url": 'https://quoteowlet.herokuapp.com',   // was 'http://localhost:5000',
+         "url": this.server_url,   // was 'http://localhost:5000',
          "queryParams": { 
             "host": this.twtUrl.domain,
             "path": this.twtUrl.path + leg,
@@ -1597,7 +1603,14 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
                                                               // header to http request
          "callback": cb                        // Afther successfull responce, 
                                                // this callback function is invoked
-     })                                        // This function is an async function.
+        }
+      }
+      else {                   
+        options = leg;  // leg is object with provided options
+      }   
+    
+
+      request(options);
    }
    
    twtOAuth.prototype.authorize = function(resolve, sentData){ // Callback function for 2nd step

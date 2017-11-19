@@ -250,22 +250,23 @@
            console.log("Taking this data: ====",textContent(quoteData.quoteEl), textContent(quoteData.authorEl))
 
               var twty = twtOAuth();
-              var p =  twty.getRequestToken({"redirection_url":"https://gits2501.github.io/QuoteOwlet/pages/tweeting.html",
-                                     "csecret": "okPWgBIV5A72Jhc5dT1UlQfAzXUFO42rp9VFNHsbyCCD2S1AtP",
-                                      "ckey": "ZuQzYI8B574cweeef3rCKk2h2",
-                                      "session_data": {
-                                          'quote': textContent(quoteData.quoteEl), 
-                                          'author': textContent(quoteData.authorEl),
-                                          'hobbit':{
-                                              'name': 'Peregrin',
-                                              'lastName': 'Tuk'
-                                           },
-                                           'id': 209
-                                       },
-                                       'new_window':{
-                                           'name': 'nw',
-                                           'features':'resizable=yes,height=613,width=400,left=400,top=300'
-                                        }
+              var p =  twty.getRequestToken({"server_url": "https://quoteowlet.herokuapp.com",
+                                   "redirection_url":"https://gits2501.github.io/QuoteOwlet/pages/tweeting.html",
+                                    "csecret": "okPWgBIV5A72Jhc5dT1UlQfAzXUFO42rp9VFNHsbyCCD2S1AtP",
+                                    "ckey": "ZuQzYI8B574cweeef3rCKk2h2",
+                                    "session_data": {
+                                        'quote': textContent(quoteData.quoteEl), 
+                                        'author': textContent(quoteData.authorEl),
+                                        'hobbit':{
+                                            'name': 'Peregrin',
+                                            'lastName': 'Tuk'
+                                         },
+                                        'id': 209
+                                     },
+                                    'new_window':{
+                                        'name': 'nw',
+                                        'features':'resizable=yes,height=613,width=400,left=400,top=300'
+                                     }
                                         
                                              
               });
