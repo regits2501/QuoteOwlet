@@ -915,7 +915,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
         
          for(var j = 0; j < this.blocksize; j++){ 
                
-             if(diff && (j+diff) >= this.blocksize || j >= hashedKeyLen){  // if diff exists (key is shorter then
+             if(diff && (j+diff) >= this.blocksize || j >= hashedKeyLen){ // if diff exists (key is shorter then
                                                         // blocksize) and if we are at boundry where we should
                                                         // be, apply XOR on zero byte and constants, result put
                                                         // in corresponding padding key. Or the key was too long
@@ -1214,9 +1214,9 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
  });
 
  mgr.define("twtOAuth",["HmacSha1","percentEncode", "request", "formEncode"], function(HmacSha1, percentEncode, request, formEncode) {
-    
+   'use strict' 
 
-   function twtOAuth (args){
+   function twtOAuth (args){ 
       var vault = {               // this is vault, for storing sensitive information
         "consumer_key": "",
         "consumer_secret":"",
@@ -1234,13 +1234,13 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       this.twtUrl = {            // Parts of twitter api url
            "protocol": "https://",
            "domain": "api.twitter.com",
-           "path": "/oauth/"     // 'path' is actualy just part of complete path
-           
+           "path": "/oauth/",    // 'path' is actualy just part of complete path, used in 3-leg dance 
+           "api_path": "/1.1/"   // api path for calls afther authorization/access_token
       }  
      
       this.apiUrl =  this.twtUrl.protocol + this.twtUrl.domain + this.twtUrl.path; // here we store absolute url                                                                                   // without leg.
  
-      this.absoluteUrls = {}    // here we put together the complete url for each leg in authentication
+      this.absoluteUrls = {}    // here we put together the complete url for each leg (step) in authentication
       this.absoluteUrls[this.leg[0]] = this.apiUrl + this.leg[0]; 
       this.absoluteUrls[this.leg[1]] = this.apiUrl + this.leg[1];
       this.absoluteUrls[this.leg[2]] = this.apiUrl + this.leg[2];
@@ -1252,7 +1252,6 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
           }
       } 
        
-      this.baseUrl = "";             // url to which request is send
       this.headerPrefix = "oauth_";  // prefix for each oauth key in a http request
       this.leadPrefix = "OAuth "     // leading string afther all key-value pairs go. Notice space at the end. 
       this.signatureBaseString = ""; // The string HMAC-SHA1 uses as second argument.
@@ -1312,7 +1311,8 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
           return this.sessionData;
       }
 
-      this.accessTwitter = function(){
+      this.accessTwitter = function(userParams){
+          this.server_url = userParams.sever_url;
           if(!this.wasParsed) this.parseAuthorizationLink(window.location.href);
  
           if(!this.authorized) {
@@ -1403,7 +1403,6 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
          var temp; 
          for(var prop in args){    // iterate trough any user params
             temp = args[prop];
-
 
             switch(prop){
                case "server_url":       // where the server code runs 
@@ -1526,7 +1525,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
  
          // Finaly we assemble the string. PercentEncoding again the signature base string.
          this.signatureBaseString = this.method + this.url + percentEncode(this.signatureBaseString);
-         console.log("SIg string: "+ this.signatureBaseString); 
+         console.log("SBS string: "+ this.signatureBaseString); 
    }
    twtOAuth.prototype.openWindow = function(){ // opens pop-up and puts in under current window
         console.log("==== POP-UP =====");
@@ -1588,9 +1587,9 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       console.log('request SENT +')
       var options;
 
-      if(typeof leg === 'string'){
-        options = {                                 // seting params for http request
-         "httpMethod": this.httpMethods[leg], // [this.leg] should go
+      if(typeof leg === 'string'){            // we are in 3-leg dance
+        options = {                           // seting params for http request
+         "httpMethod": this.httpMethods[leg], // take http method for this leg
          "url": this.server_url,   // was 'http://localhost:5000',
          "queryParams": { 
             "host": this.twtUrl.domain,
@@ -1738,7 +1737,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
    return function(){
       var r = new twtOAuth(); 
       
-      return phantomHead = {
+      return {
           getRequestToken : r.getRequestToken.bind(r),
           getSessionData: r.getSessionData.bind(r),
           accessTwitter: r.accessTwitter.bind(r)

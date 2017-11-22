@@ -35,6 +35,9 @@
      console.log('sessionData =====', sessionData);
     textContent(this.textEl, "\" " + sessionData.quote + '\"\n~ ' + sessionData.author);
  }
+ textArea.getQuote = function(){
+   return textContent(this.textEl);
+ }
 
  whenPageReady(textArea.init.bind(textArea, '.twittText')) // when DOM is ready initialoze the object
 
@@ -44,8 +47,15 @@
 
     textArea.insertQuote.call(textArea, sessionData);
     var tweetBtn = document.querySelectorAll('.twittButton')[0];
+    var options = { 
+       server_url :'https://quoteowlet.herokuapp.com',
+       method: "POST",
+       path:'statuses/update.json',
+       params:'',
+       body: textArea.getQuote.call(textArea)
+    }
     addEvent(tweetBtn, 'click', function(){
-         secondPhase.accessTwitter();
+         secondPhase.accessTwitter(options);
     });
  });
 
