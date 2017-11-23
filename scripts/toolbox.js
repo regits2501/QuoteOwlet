@@ -1252,20 +1252,20 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
           }
       } 
        
-      this.headerPrefix = "oauth_";  // prefix for each oauth key in a http request
+      this.prefix = "oauth_";  // prefix for each oauth key in a http request
       this.leadPrefix = "OAuth "     // leading string afther all key-value pairs go. Notice space at the end. 
       this.signatureBaseString = ""; // The string HMAC-SHA1 uses as second argument.
       
-      this.oauth = {          // Holds parameters that go into header of request and are used to 
-                              // assemble the signature key
-        callback: "",         // User is return to this link, if approval is confirmed  
-        consumer_key: "",     // This is very sensitive data. Server sets the value.
-        signature: "",        // This value also sets the server.
-        nonce: "",            // Session id, twitter api uses this to determines duplicate requests 
-        signature_method: "", // What signature method we are using
-        timestamp: "",        // Unix epoch timestamp
-        version: "1.0"        // all request use ver 1.0
-      }
+      this.oauth = {}                             // Holds parameters that are used to generate SBS and AH
+      this.oauth[ this.prefix + 'callback'] = "";    // User is return to this link, if approval is confirmed 
+      this.oauth[ this.prefix + 'consumer_key'] = "";// This is very sensitive data. Server sets the value.
+      this.oauth[ this.prefix + 'signature'] = "";   // This value also sets the server.
+      this.oauth[ this.prefix + 'nonce'] =  "";    // Session id, twitter api uses this to determines duplicates
+      this.oauth[ this.prefix + 'signature_method'] = ""; // Signature method we are using
+      this.oauth[ this.prefix + 'timestamp'] = "";   // Unix epoch timestamp
+      this.oauth[ this.prefix + 'version'] = ""     // all request use ver 1.0
+      
+
 
       this.alreadyCalled = false; // Control flag. Protection against multiple calls to twitter from same 
                                   // instance
@@ -1322,7 +1322,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
 
           this.oauth.verifier = this.authorized.oauth_verifier  // Put authorized verifier in oauth object
           this.oauth.token = this.authorized.oauth_token;       // Authorized token
-          delete this.oauth.callback;                           // Callback not needed for this step
+          delete this.oauth[this.prefix + callback];            // Callback not needed for this step
           this.setNonUserParams(); 
           this.genSignatureBaseString(vault);   // generate SBS // checkt if you really need the vault here
        
@@ -1409,7 +1409,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
                  this.server_url = temp;
                break;
                case "redirection_url": // this is the url to which user gets redirected by twiiter api, 
-                 this.oauth.callback = temp;
+                 this.oauth[ this.prefix + 'callback'] = temp;
                break; 
                case "new_window":      // object that holds properties for making new window(tab/popup)
                  this.newWindow = {};
@@ -1495,26 +1495,27 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
                                               // between each pair of key/value it puts "&" sign.
             key = a[i];                       // Thakes key that was sorted alphabeticaly
             switch(key){                      // In case of consumer and user keys we leave them to server logic
-              case "callback":   // Callback url to which users are redirected by twitter         
+              case "oauth_callback":   // Callback url to which users are redirected by twitter         
                                  // Check to see if there is data to append to calback as query string:
-                value = this.session_data ? this.appendToCallback(this.session_data) : this.oauth.callback; 
+                value = this.session_data ? this.appendToCallback(this.session_data) : 
+                                                this.oauth[this.prefix + 'callback']; 
               break; 
-              case "consumer_key":
+              case "oauth_consumer_key":
                 value = "";         // Sensitive data we leave for server to add
               break;   
-              case "user_key":
+              case "oauth_user_key":
                 value = ""; 
               break;
-              case "signature":
+              case "oauth_signature":
                 continue;           // We dont add signature to singatureBaseString at all (server does that)
               break;
               default:
                 value = this.oauth[key];          // Takes value of that key
             }
             keyValue = percentEncode(key) + "=" + percentEncode(value); // Encodes key value and inserts "="
-          console.log(this.headerPrefix + keyValue)                     // in between.
-            if(i !== a.length - 1) keyValue += "&";                     // Dont append "&" on last pair    
-            this.signatureBaseString += this.headerPrefix + keyValue;   // Add prefix to every key value pair
+          console.log(keyValue)                                         // in between.
+            if(i !== a.length - 1) keyValue += "&"; // Dont append "&" on last pair    
+            this.signatureBaseString += keyValue;   // Add pair to SBS
          } 
    
          this.method = this.httpMethods[this.leg[0]]    // Get the method for this leg
@@ -1559,17 +1560,17 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
    twtOAuth.prototype.appendToCallback = function(data, name){// appends data object as querystring to                                                                        // callback url. 
     console.log('Data: ==> ', data)
       if(!name) name = "data";
-      var callback = this.oauth.callback;
+      var callback = this.oauth[ this.prefix + 'callback'];
       var fEncoded = formEncode(data, true);
       console.log(fEncoded);
       var queryString = name + '=' + percentEncode(fEncoded); // Make string from object then                                                                                 // percent encode it.  
     console.log("queryString: ", queryString)
       if(!/\?/.test(callback)) callback += "?";               // Add "?" if one not exist
       else queryString =  '&' + queryString                   // other queryString exists, so add '&' to this qs
-      this.oauth.callback = callback + queryString;           // Add queryString to callback
+      this.oauth[ this.prefix + 'callback'] = callback + queryString;           // Add queryString to callback
                                                      
-       console.log("OAUTH CALLBACK: "+this.oauth.callback);
-      return this.oauth.callback;
+       console.log("OAUTH CALLBACK: "+this.oauth[ this.prefix + 'callback'])
+      return this.oauth[ this.prefix + 'callback'];
    };
 
    twtOAuth.prototype.checkConsumerSecret = function(vault){ // checks if consumer secret is set 
@@ -1580,7 +1581,8 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       if(!vault.user_key) throw new Error(this.messages.userKeyNotSet);
    }
    twtOAuth.prototype.checkRequestTokenCallback = function (){ // checks for the url user is returned to
-      if(!this.oauth.callback) throw new Error(this.messages.callbackNotSet);// throw an error if one is not set
+      if(!this.oauth[ this.prefix + 'callback']) throw new Error(this.messages.callbackNotSet);
+                                                                // throw an error if one is not set
    }
     
    twtOAuth.prototype.sendRequest = function(cb, leg){     // was (vault, resolve, leg) 
@@ -1680,9 +1682,9 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
 
          // if(key === "consumer_key") value = vault.consumer_key; // get value from vault
          // else
-          value = this.oauth[key];                       // Get it from oauth object
+          value = this.oauth[key];   // Get it from oauth object
       
-          key = this.headerPrefix + percentEncode(key);  // Addig prefix to every key;
+          key = percentEncode(key);  // Encode the key
           value = "\"" + percentEncode(value) + "\"";    // Adding double quotes to value
           
           keyValue = key + "=" + value;                  // Adding "=" between
@@ -1708,12 +1710,12 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       // if step where user key required check vor usr key  
       return key; 
    }
-   twtOAuth.prototype.setSignatureMethod = function(){
-      this.oauth.signature_method = this.oauth.signature_method || "HMAC-SHA1";
+   twtOAuth.prototype.setSignatureMethod = function(method){
+      this.oauth[this.prefix + 'signature_method'] = method || "HMAC-SHA1";
    }
 
-   twtOAuth.prototype.setVersion = function(){ 
-      this.oauth.version = this.oauth.version || "1.0";
+   twtOAuth.prototype.setVersion = function(version){ 
+      this.oauth[ this.prefix + 'version'] =  version || "1.0";
    }
    twtOAuth.prototype.setNonce = function(){ // Generates string from random sequence of 32 numbers, 
                                           // then returns base64 encoding of that string, striped of "=" sign.
@@ -1726,12 +1728,12 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
     
       nonce = btoa(nonce).replace(/=/g,""); // encode to base64 and strip the "=" sign
       console.log("nonce: " + nonce)
-      this.oauth.nonce = nonce;            // set twitter session identifier (nonce)
+      this.oauth[ this.prefix + 'nonce'] = nonce;            // set twitter session identifier (nonce)
    }
 
    twtOAuth.prototype.setTimestamp = function(){
-      this.oauth.timestamp = (Date.now() / 1000 | 0) + 1;// cuting off decimal part by converting it to 32 bit integer
-                                                   // in bitwise OR operation. 
+      this.oauth[ this.prefix + 'timestamp'] = (Date.now() / 1000 | 0) + 1;// cuting off decimal part by 
+                                                   // converting it to 32 bit integer in bitwise OR operation. 
    }
 
    return function(){
