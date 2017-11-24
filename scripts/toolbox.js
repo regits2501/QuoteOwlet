@@ -1415,7 +1415,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
        
        this.params('remove', this.oauth, this[this.leg[1]]);  // Remove params needed for previous step
       
-       this.params('add', this.oauth, this.userOptions.queryParams)// params needed for api call (raw values) 
+       this.params('add', this.oauth, this.userOptions.params)// params needed for api call (raw values) 
                                                     // MUST check for
        this.oauth.oauth_token = sentData.oauth_token // setting access_token in oauth_token 
                                                      // only for testing purposes , this will do server logic
@@ -1426,14 +1426,14 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
            method: this.httpMethods[this.leg[2]], // method for access_token leg
            queryParams: {
              host: this.twtUrl.domain,
-             path: this.twtUrl.api_path + this.userOptions.path + '?'+ formEncode(this.userOptions.queryParams),
+             path: this.twtUrl.api_path + this.userOptions.path + '?'+ formEncode(this.userOptions.params),
              method: this.userOptions.method      // method user supplied
            },
            body: this.signatureBaseString,
            beforeSend: this.setAuthorizationHeader.bind(this),
            callback: function(sentData){console.log("API CALL data: ", sentData)}
        }
-       console.log("api path with params: ", options.queryParams.path);
+       console.log("api path with params: ", options.params.path);
    }
 
    twtOAuth.prototype.setUserParams = function(args, vault){ // sets user suplied parametars 
