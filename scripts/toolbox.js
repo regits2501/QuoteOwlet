@@ -1359,7 +1359,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       if(obj.oauth_token && obj.oauth_verifier && obj.__lance){ // check to see we have needed tokens 
          this.authorized  = obj;           // make new variable;                     
       }
-      this.wasParsed = true;         /gen      // indicate that the url was already parsed  
+      this.wasParsed = true;               // indicate that the url was already parsed  
    }
   
    twtOAuth.prototype.parseSessionData = function(str){
@@ -1426,7 +1426,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
            method: this.httpMethods[this.leg[2]], // method for access_token leg
            queryParams: {
              host: this.twtUrl.domain,
-             path: this.twtUrl.api_path + this.userOptions.path + '?'+ formEncode(this.userOptions.queryParams)
+             path: this.twtUrl.api_path + this.userOptions.path + '?'+ formEncode(this.userOptions.queryParams),
              method: this.userOptions.method      // method user supplied
            },
            body: this.signatureBaseString,
@@ -1437,7 +1437,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
    }
 
    twtOAuth.prototype.setUserParams = function(args, vault){ // sets user suplied parametars 
-         var temp; /setAuthor
+         var temp; 
          for(var prop in args){    // iterate trough any user params
             temp = args[prop];
 
