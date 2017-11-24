@@ -1256,20 +1256,34 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       this.leadPrefix = "OAuth "     // leading string afther all key-value pairs go. Notice space at the end. 
       this.signatureBaseString = ""; // The string HMAC-SHA1 uses as second argument.
       
-      this.oauth = {}                             // Holds parameters that are used to generate SBS and AH
-      this.oauth[ this.prefix + 'callback'] = "";    // User is return to this link, if approval is confirmed 
+      this.oauth = {}                                // Holds parameters that are used to generate SBS and AH
       this.oauth[ this.prefix + 'consumer_key'] = "";// This is very sensitive data. Server sets the value.
       this.oauth[ this.prefix + 'signature'] = "";   // This value also sets the server.
       this.oauth[ this.prefix + 'nonce'] =  "";    // Session id, twitter api uses this to determines duplicates
       this.oauth[ this.prefix + 'signature_method'] = ""; // Signature method we are using
       this.oauth[ this.prefix + 'timestamp'] = "";   // Unix epoch timestamp
-      this.oauth[ this.prefix + 'version'] = ""     // all request use ver 1.0
+      this.oauth[ this.prefix + 'version'] = ""      // all request use ver 1.0
       
+      this[this.leg[0]] = {}; 
+      this[this.leg[0]][ this.prefix + 'callback'] = ""; // User is return to this link, if approval is confirmed 
+      this[this.leg[1]] = {}                          // Creating object for params used in 'authorize' leg
+      this[this.leg[1]][ this.prefix + 'token'] = '';  
+      this[this.leg[1]][ this.prefix + 'verifier'] = '';
 
+      this[this.leg[2]] = {}                          // Creating 'access_token' object for that step params
+      this[this.leg[2]][ this.prefix + 'token'] = ''; // we need just token param
+      
+      this.params = function(action, o1, o2){
+          Object.getOwnPropertyNames(o2)
+                  .map(function(key, i){
+                       if(action === 'add') o1[key] = o2[key]; // add property name and value from o2 to o1
+                       else delete o1[key];                    // removes property name we found in o2 from o1 
+                   })
+      }
 
       this.alreadyCalled = false; // Control flag. Protection against multiple calls to twitter from same 
                                   // instance
-          // first part (maybe call it UserAuthorization)
+      // first part (maybe call it UserAuthorization)
       this.getRequestToken = function(args){  // Add leg argument check to see which leg, act acording
          
          if(this.alreadyCalled) return;       // Just return, in case of subsequent call.
@@ -1279,6 +1293,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
          var promised;
          
          console.log("v: "+ vault)
+         this.params('add', this.oauth, this[this.leg[0]]) // add oauth param (callaback) for reqest_token step
          this.setUserParams(args, vault);       // Sets user supplied parameters like: 'redirection_url' ...
          this.setNonUserParams();               // Sets non user-suppliead params: timestamp, nonce, sig. method
          this.appendToCallback(this.lnkLabel.data, this.lnkLabel.name); // adds uniqueness to url
@@ -1286,16 +1301,16 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
          if(this.newWindow){                    // Checking for user supplied newWindow preference
             this.openWindow();                  // Opens new window.  
        //  if(Promise) promised = new Promise(function(rslv, rjt){ resolve = rslv; }) // if can, make a Promise
-                                                                                       // remember it's resolve
+                                                                                      // remember it's resolve
          }
          //this.genSignature(vault);            // Generates signature
-         this.sendRequest(this.authorize.bind(this,resolve), this.leg[0]);// Sends request to twitter, resolves
-                                                                          // promise if present 
+          console.log('authorize FUNC: ', this.authorize);
+         this.sendRequest(this.redirection.bind(this,resolve), this.leg[0]);// Sends request to twitter,resolves
+                                                                            // promise if present 
          if(promised) return promised;                    
       }
         // this is the second part
-      this.getSessionData = function(cb){
-                                                // here could go user callback
+      this.getSessionData = function(){
          
          if(!this.wasParsed) this.parseAuthorizationLink(window.location.href); // parse returned data
          
@@ -1320,9 +1335,10 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
             return;                                       // print info and return if no tokens or label incore
           } 
 
-          this.oauth.verifier = this.authorized.oauth_verifier  // Put authorized verifier in oauth object
-          this.oauth.token = this.authorized.oauth_token;       // Authorized token
-          delete this.oauth[this.prefix + callback];            // Callback not needed for this step
+          
+          this.oauth[this.prefix + 'verifier'] = this.authorized.oauth_verifier // Put authorized verifier
+          this.oauth[this.prefix + 'token'] = this.authorized.oauth_token;       // Authorized token
+          delete this.oauth[this.prefix + 'callback'];            // Callback not needed for this step
           this.setNonUserParams(); 
           this.genSignatureBaseString(vault);   // generate SBS // checkt if you really need the vault here
        
@@ -1337,7 +1353,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       var qp = this.parseQueryParams(str); // parse parameters from query string
       var obj = this.objectify(qp);        // makes an object from query string parametars
       console.log(obj.__lance);
-      if(obj.oauth_token && obj.oauth_verifier && obj.__lance){ // check to see we have needed tokens
+      if(obj.oauth_token && obj.oauth_verifier && obj.__lance){ // check to see we have needed tokens 
          this.authorized  = obj;           // make new variable;                     
       }
       this.wasParsed = true;               // indicate that the url was already parsed  
@@ -1554,7 +1570,6 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       noStringProvided: "You must provide a string for parsing." ,
       noSessionData: "No session data was found.",
       linkNotAuthorized: "Appears that obtained url doesn't have necessary data."
-      //requestTokenNoData: "No data acquired from "+ this.leg[0] +  " step."
    };
 
    twtOAuth.prototype.appendToCallback = function(data, name){// appends data object as querystring to                                                                        // callback url. 
@@ -1614,16 +1629,15 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       request(options);
    }
    
-   twtOAuth.prototype.authorize = function(resolve, sentData){ // Callback function for 2nd step
+   twtOAuth.prototype.redirection = function(resolve, sentData){ // Callback function for 2nd step
                                                   
        console.log("From twitter request_token: " + sentData);
-       
        this.oauth_token = this.parse(sentData,/oauth_token/g, /&/g);// parses oauth_token 
                                                                     // from string twitter sent
        this.redirect(resolve);  // redirect user to twitter for authorization 
    };
 
-   twtOAuth.prototype.parse = function(str, delimiter1, delimiter2){ // parses substring a string (str) 
+   twtOAuth.prototype.parse = function(str, delimiter1, delimiter2){ // parses substring of a string (str) 
                                                                      
        if(!str){ 
           console.log(this.messages.noStringProvided);
