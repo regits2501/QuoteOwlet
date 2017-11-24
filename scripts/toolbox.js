@@ -1359,7 +1359,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       if(obj.oauth_token && obj.oauth_verifier && obj.__lance){ // check to see we have needed tokens 
          this.authorized  = obj;           // make new variable;                     
       }
-      this.wasParsed = true;               // indicate that the url was already parsed  
+      this.wasParsed = true;         /gen      // indicate that the url was already parsed  
    }
   
    twtOAuth.prototype.parseSessionData = function(str){
@@ -1409,30 +1409,35 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
    
    twtOAuth.prototype.accessToken = function(sentData){ // should be done by server
        console.log('acessTokenData: '+ sentData);
-       var queryParams = this.parseQueryParams(sentData);
-       var parsedParams = this.objectify(queryParams)
-       console.log('parsedParams: ', parsedParams);
+       var qp = this.parseQueryParams(sentData);
+       var parsed = this.objectify(qp)
+       console.log('parsedParams: ', parsed);
        
        this.params('remove', this.oauth, this[this.leg[1]]);  // Remove params needed for previous step
-       this.params('add', this.oauth, this[this.leg[2]]);     // Add params for this step
-       this.oauth_token = sentData.oauth_token // setting access_token in oauth_token  
-    
       
-      // this.params('add', this.oauth, this.userParams.queryParams)// params needed for api call (raw values) 
-      // genSBS()   
+       this.params('add', this.oauth, this.userOptions.queryParams)// params needed for api call (raw values) 
+                                                    // MUST check for
+       this.oauth.oauth_token = sentData.oauth_token // setting access_token in oauth_token 
+                                                     // only for testing purposes , this will do server logic
+       this.genSignatureBaseString();   
+       console.log("SBS sting: ", this.signatureBaseString)
        var options =  {
            url: this.userOptions.sever_url,       // server 
            method: this.httpMethods[this.leg[2]], // method for access_token leg
            queryParams: {
              host: this.twtUrl.domain,
-             path: this.twtUrl.api_path + this.userParams.path, // api end-point user supplied
-             method: this.userParams.method      // method user supplied
-           }
+             path: this.twtUrl.api_path + this.userOptions.path + '?'+ formEncode(this.userOptions.queryParams)
+             method: this.userOptions.method      // method user supplied
+           },
+           body: this.signatureBaseString,
+           beforeSend: this.setAuthorizationHeader.bind(this),
+           callback: function(sentData){console.log("API CALL data: ", sentData)}
        }
+       console.log("api path with params: ", options.queryParams.path);
    }
 
    twtOAuth.prototype.setUserParams = function(args, vault){ // sets user suplied parametars 
-         var temp; 
+         var temp; /setAuthor
          for(var prop in args){    // iterate trough any user params
             temp = args[prop];
 
@@ -1538,6 +1543,10 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
               case "oauth_user_key":
                 value = ""; 
               break;
+          /*    case "oauth_token":    // Needs to be present for api calls but not for access token step 
+                value = "";            // since we need oauth_token and oauth_verifier for that.
+              break;
+           */
               case "oauth_signature":
                 continue;           // We dont add signature to singatureBaseString at all (server does that)
               break;
@@ -1588,7 +1597,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       linkNotAuthorized: "Appears that obtained url doesn't have necessary data."
    };
 
-   twtOAuth.prototype.appendToCallback = function(data, name){// appends data object as querystring to                                                                        // callback url. 
+   twtOAuth.prototype.appendToCallback = function(data, name){ // appends data object as querystring to                                                                        // callback url. 
     console.log('Data: ==> ', data)
       if(!name) name = "data";
       var callback = this.oauth[ this.prefix + 'callback'];
