@@ -51,7 +51,9 @@
        server_url :'https://quoteowlet.herokuapp.com',
        method: "POST",
        path:'statuses/update.json',
-       params:'',
+       params:{
+         status: textArea.getQuote.call
+       },
        body: textArea.getQuote.call(textArea)
     }
     addEvent(tweetBtn, 'click', function(){
@@ -61,5 +63,5 @@
 
 
 })()
-console.log('twitting_main loaded')
+console.log('twitting_main loaded');
 

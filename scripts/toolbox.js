@@ -1055,7 +1055,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
             case "callback":
               this.addListener(temp);   // Adds listener for succesful data retrieval and invokes callback
             break;
-            case "httpMethod":
+            case "method":
               this.method = temp.toUpperCase() || "GET" // request method
             break;
             case "body":  console.log("has DATA");
@@ -1266,12 +1266,12 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       
       this[this.leg[0]] = {}; 
       this[this.leg[0]][ this.prefix + 'callback'] = ""; // User is return to this link, if approval is confirmed 
-      this[this.leg[1]] = {}                          // Creating object for params used in 'authorize' leg
+      this[this.leg[1]] = {}                             // Creating object for params used in 'authorize' leg
       this[this.leg[1]][ this.prefix + 'token'] = '';  
       this[this.leg[1]][ this.prefix + 'verifier'] = '';
 
       this[this.leg[2]] = {}                          // Creating 'access_token' object for that step params
-      this[this.leg[2]][ this.prefix + 'token'] = ''; // we need just token param
+      this[this.leg[2]][ this.prefix + 'token'] = ''; // we need just oauth_token param
       
       this.params = function(action, o1, o2){
           Object.getOwnPropertyNames(o2)
@@ -1293,7 +1293,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
          var promised;
          
          console.log("v: "+ vault)
-         this.params('add', this.oauth, this[this.leg[0]]) // add oauth param (callaback) for reqest_token step
+         this.params('add', this.oauth, this[this.leg[0]]) // add oauth param (callback) for reqest_token step
          this.setUserParams(args, vault);       // Sets user supplied parameters like: 'redirection_url' ...
          this.setNonUserParams();               // Sets non user-suppliead params: timestamp, nonce, sig. method
          this.appendToCallback(this.lnkLabel.data, this.lnkLabel.name); // adds uniqueness to url
@@ -1326,8 +1326,11 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
           return this.sessionData;
       }
 
-      this.accessTwitter = function(userParams){
-          this.server_url = userParams.sever_url;
+      this.accessTwitter = function(options){ // Exchanges token and verifier for access_token
+          this.userOptions = options; // Create new property and put user suppliead options in. This is used 
+                                      // when we acquire access token (next step)         
+          this.server_url = this.userOptions.server_url; // we need only server_url from user for this step
+          
           if(!this.wasParsed) this.parseAuthorizationLink(window.location.href);
  
           if(!this.authorized) {
@@ -1337,8 +1340,8 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
 
           
           this.oauth[this.prefix + 'verifier'] = this.authorized.oauth_verifier // Put authorized verifier
-          this.oauth[this.prefix + 'token'] = this.authorized.oauth_token;       // Authorized token
-          delete this.oauth[this.prefix + 'callback'];            // Callback not needed for this step
+          this.oauth[this.prefix + 'token'] = this.authorized.oauth_token;      // Authorized token
+          this.params('remove', this.oauth, this[this.leg[0]]);       // Remove params not needed for this step
           this.setNonUserParams(); 
           this.genSignatureBaseString(vault);   // generate SBS // checkt if you really need the vault here
        
@@ -1409,10 +1412,23 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
        var queryParams = this.parseQueryParams(sentData);
        var parsedParams = this.objectify(queryParams)
        console.log('parsedParams: ', parsedParams);
-
-       delete this.oauth_verifier; // no need for verifier field in this step
+       
+       this.params('remove', this.oauth, this[this.leg[1]]);  // Remove params needed for previous step
+       this.params('add', this.oauth, this[this.leg[2]]);     // Add params for this step
        this.oauth_token = sentData.oauth_token // setting access_token in oauth_token  
-          
+    
+      
+      // this.params('add', this.oauth, this.userParams.queryParams)// params needed for api call (raw values) 
+      // genSBS()   
+       var options =  {
+           url: this.userOptions.sever_url,       // server 
+           method: this.httpMethods[this.leg[2]], // method for access_token leg
+           queryParams: {
+             host: this.twtUrl.domain,
+             path: this.twtUrl.api_path + this.userParams.path, // api end-point user supplied
+             method: this.userParams.method      // method user supplied
+           }
+       }
    }
 
    twtOAuth.prototype.setUserParams = function(args, vault){ // sets user suplied parametars 
@@ -1606,7 +1622,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
 
       if(typeof leg === 'string'){            // we are in 3-leg dance
         options = {                           // seting params for http request
-         "httpMethod": this.httpMethods[leg], // take http method for this leg
+         "method": this.httpMethods[leg], // take http method for this leg
          "url": this.server_url,   // was 'http://localhost:5000',
          "queryParams": { 
             "host": this.twtUrl.domain,
