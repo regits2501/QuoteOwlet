@@ -1661,7 +1661,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
         }
       }
       else {                             // 'leg' is object with provided options
-        options.callback = leg.callback; // set callback  
+          leg.callback = cb; // set callback  
       }   
     
 
