@@ -1420,7 +1420,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
        this.oauth.oauth_token = sentData.oauth_token // setting access_token in oauth_token 
                                                      // only for testing purposes , this will do server logic
        this.genSignatureBaseString();   
-       console.log("SBS sting: ", this.signatureBaseString)
+       console.log("SBS (api call): ", this.signatureBaseString)
        var options =  {
            url: this.userOptions.sever_url,       // server 
            method: this.httpMethods[this.leg[2]], // method for access_token leg
@@ -1433,7 +1433,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
            beforeSend: this.setAuthorizationHeader.bind(this),
            callback: function(sentData){console.log("API CALL data: ", sentData)}
        }
-       console.log("api path with params: ", options.params.path);
+       console.log("api path with params: ", this.userOptions.params.path);
    }
 
    twtOAuth.prototype.setUserParams = function(args, vault){ // sets user suplied parametars 
