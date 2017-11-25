@@ -1417,24 +1417,25 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
       
        this.params('add', this.oauth, this.userOptions.params)// params needed for api call (raw values) 
                                                     // ADD this.oauth to this.userParams 
-       this.oauth.oauth_token = parsed.oauth_token // setting access_token in oauth_token 
-                                                     // only for testing purposes , this will do server logic
+       this.oauth.oauth_token = parsed.oauth_token  // setting access_token in oauth_token 
+                                                    // only for testing purposes , this will do server logic
+       this.genSignatureBaseString({}, this.userOptions);   
+       console.log("SBS (api call): ", this.signatureBaseString)
+       
        var options =  {
-           url: this.userOptions.server_url,        
-           method: this.httpMethods[this.leg[2]], // method for access_token leg
-           queryParams: {
-             host: this.twtUrl.domain,            //
-             path: this.twtUrl.api_path + this.userOptions.path + '?'+ formEncode(this.userOptions.params),
-             method: this.userOptions.method      // method user supplied
-           },
-           body: this.signatureBaseString,
-           beforeSend: this.setAuthorizationHeader.bind(this),
-           callback: function(sentData){console.log("API CALL data: ", sentData)}
+          url: this.userOptions.server_url,        
+          method: this.httpMethods[this.leg[2]], // method for access_token leg
+          queryParams: {
+            host: this.twtUrl.protocol + this.twtUrl.domain,            
+            path: this.twtUrl.api_path + this.userOptions.path + '?'+ formEncode(this.userOptions.params, true),
+            method: this.userOptions.method      // method user supplied
+          },
+          body: this.signatureBaseString,
+          beforeSend: this.setAuthorizationHeader.bind(this),
+          callback: function(sentData){console.log("API CALL data: ", sentData)}
        }
        console.log("All Options", options);
 
-       this.genSignatureBaseString();   
-       console.log("SBS (api call): ", this.signatureBaseString)
    }
 
    twtOAuth.prototype.setUserParams = function(args, vault){ // sets user suplied parametars 
