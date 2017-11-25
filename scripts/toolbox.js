@@ -1419,7 +1419,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
                                                     // ADD this.oauth to this.userParams 
        this.oauth.oauth_token = parsed.oauth_token  // setting access_token in oauth_token 
                                                     // only for testing purposes , this will do server logic
-       this.genSignatureBaseString({}, this.userOptions);   
+       this.genSignatureBaseString({}, this.userOptions);  // add vault or remove this obeject as first arg 
        console.log("SBS (api call): ", this.signatureBaseString)
        
        var options =  {
@@ -1435,7 +1435,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
          
        }
        console.log("All Options", options);
-       this.send( function(sentData){console.log("API CALL data: ", sentData)}, options ); // send api call 
+       this.sendRequest( function(sentData){console.log("API CALL data: ", sentData)}, options ); // api call 
 
    }
 
