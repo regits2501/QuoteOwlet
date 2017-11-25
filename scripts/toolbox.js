@@ -1297,7 +1297,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
          this.setUserParams(args, vault);       // Sets user supplied parameters like: 'redirection_url' ...
          this.setNonUserParams();               // Sets non user-suppliead params: timestamp, nonce, sig. method
          this.appendToCallback(this.lnkLabel.data, this.lnkLabel.name); // adds uniqueness to url
-         this.genSignatureBaseString(vault);    // Generates signature base string
+         this.genSignatureBaseString(vault,this.leg[0]);    // Generates signature base string
          if(this.newWindow){                    // Checking for user supplied newWindow preference
             this.openWindow();                  // Opens new window.  
        //  if(Promise) promised = new Promise(function(rslv, rjt){ resolve = rslv; }) // if can, make a Promise
@@ -1343,7 +1343,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
           this.oauth[this.prefix + 'token'] = this.authorized.oauth_token;      // Authorized token
           this.params('remove', this.oauth, this[this.leg[0]]);       // Remove params not needed for this step
           this.setNonUserParams(); 
-          this.genSignatureBaseString(vault);   // generate SBS // checkt if you really need the vault here
+          this.genSignatureBaseString(vault,this.leg[2]);   // generate SBS // check if you really need the vault here
        
  
           this.sendRequest(this.accessToken.bind(this), this.leg[2]);  
@@ -1419,13 +1419,11 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
                                                     // ADD this.oauth to this.userParams 
        this.oauth.oauth_token = parsed.oauth_token // setting access_token in oauth_token 
                                                      // only for testing purposes , this will do server logic
-       this.genSignatureBaseString();   
-       console.log("SBS (api call): ", this.signatureBaseString)
        var options =  {
-           url: this.userOptions.sever_url,       // server 
+           url: this.userOptions.server_url,        
            method: this.httpMethods[this.leg[2]], // method for access_token leg
            queryParams: {
-             host: this.twtUrl.domain,
+             host: this.twtUrl.domain,            //
              path: this.twtUrl.api_path + this.userOptions.path + '?'+ formEncode(this.userOptions.params),
              method: this.userOptions.method      // method user supplied
            },
@@ -1434,6 +1432,9 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
            callback: function(sentData){console.log("API CALL data: ", sentData)}
        }
        console.log("All Options", options);
+
+       this.genSignatureBaseString();   
+       console.log("SBS (api call): ", this.signatureBaseString)
    }
 
    twtOAuth.prototype.setUserParams = function(args, vault){ // sets user suplied parametars 
@@ -1516,11 +1517,11 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
          
    }
    
-   twtOAuth.prototype.genSignatureBaseString = function(vault){ // generates SBS (signature base string) 
+   twtOAuth.prototype.genSignatureBaseString = function(vault, leg){ // generates SBS (signature base string) 
          this.signatureBaseString = '';
          var a = [];
-         for(var name in this.oauth){ // takes every oauth prop name
-            a.push(name);             // and pushes it to array
+         for(var name in this.oauth){ // takes every oauth params name
+            a.push(name);             // and pushes them to array
          } 
      
          a.sort();  // sorts alphabeticaly
@@ -1528,13 +1529,13 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
          var keyValue;
          var key;
          var value;    
-
+                                              // Collects oauth params
          for(var i = 0; i < a.length; i++){   // Percent encodes every key value, puts "=" between those, and
                                               // between each pair of key/value it puts "&" sign.
             key = a[i];                       // Thakes key that was sorted alphabeticaly
             switch(key){                      // In case of consumer and user keys we leave them to server logic
               case "oauth_callback":   // Callback url to which users are redirected by twitter         
-                                 // Check to see if there is data to append to calback as query string:
+                                       // Check to see if there is data to append to calback as query string:
                 value = this.session_data ? this.appendToCallback(this.session_data) : 
                                                 this.oauth[this.prefix + 'callback']; 
               break; 
@@ -1559,15 +1560,25 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
             if(i !== a.length - 1) keyValue += "&"; // Dont append "&" on last pair    
             this.signatureBaseString += keyValue;   // Add pair to SBS
          } 
-   
-         this.method = this.httpMethods[this.leg[0]]    // Get the method for this leg
-         this.method = this.method.toUpperCase() + "&"; // upercase the method, add "&"
 
-         this.url = this.absoluteUrls[this.leg[0]];     // Get the absoute url for this leg of authentication
-         this.url = percentEncode(this.url) + "&";      // Encode the url, add "&".
- 
-         // Finaly we assemble the string. PercentEncoding again the signature base string.
-         this.signatureBaseString = this.method + this.url + percentEncode(this.signatureBaseString);
+         var method;  // Collecting the reqest method and url
+         var url;
+
+         if(typeof leg === 'string'){            // we are in 3-leg dance, take well known params
+           method = this.httpMethods[leg]        // Get the method for this leg
+           method = method.toUpperCase() + "&";  // upercase the method, add "&"
+
+           url = this.absoluteUrls[leg];         // Get the absoute url for this leg of authentication
+           url = percentEncode(url) + "&";       // Encode the url, add "&".
+         }
+         else {                                      // 'leg' is the options object user provided     
+           method = leg.method.toUpperCase() + "&";  // Upercase the method, add "&"
+           url = this.twtUrl.protocol + this.twtUrl.domain + this.twtUrl.api_path + leg.path;     
+                                                     // Get the absoute url for api call + user provided path
+           url = percentEncode(url) + "&";           // Encode the url, add "&".
+         }
+         // Finaly we assemble the sbs string. PercentEncoding again the signature base string.
+         this.signatureBaseString = method + url + percentEncode(this.signatureBaseString);
          console.log("SBS string: "+ this.signatureBaseString); 
    }
    twtOAuth.prototype.openWindow = function(){ // opens pop-up and puts in under current window

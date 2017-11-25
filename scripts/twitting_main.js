@@ -52,9 +52,9 @@
        method: "POST",
        path:'statuses/update.json',
        params:{
-         status: textArea.getQuote.call
+         status: textArea.getQuote.call(textArea)
        },
-       body: textArea.getQuote.call(textArea)
+       body: textArea.getQuote.call(textArea)  // rethink this body
     }
     addEvent(tweetBtn, 'click', function(){
          secondPhase.accessTwitter(options);
