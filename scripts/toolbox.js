@@ -1431,10 +1431,11 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
             method: this.userOptions.method      // method user supplied
           },
           body: this.signatureBaseString,
-          beforeSend: this.setAuthorizationHeader.bind(this),
-          callback: function(sentData){console.log("API CALL data: ", sentData)}
+          beforeSend: this.setAuthorizationHeader.bind(this)
+         
        }
        console.log("All Options", options);
+       this.send( function(sentData){console.log("API CALL data: ", sentData)}, options ); // send api call 
 
    }
 
@@ -1518,7 +1519,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
          
    }
    
-   twtOAuth.prototype.genSignatureBaseString = function(vault, leg){ // generates SBS (signature base string) 
+   twtOAuth.prototype.genSignatureBaseString = function(vault, leg){ // generates SBS  
          this.signatureBaseString = '';
          var a = [];
          for(var name in this.oauth){ // takes every oauth params name
@@ -1659,12 +1660,12 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
                                                // this callback function is invoked
         }
       }
-      else {                   
-        options = leg;  // leg is object with provided options
+      else {                             // 'leg' is object with provided options
+        options.callback = leg.callback; // set callback  
       }   
     
 
-      request(options);
+      request(options);  
    }
    
    twtOAuth.prototype.redirection = function(resolve, sentData){ // Callback function for 2nd step
