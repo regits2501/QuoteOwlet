@@ -1416,8 +1416,8 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
        this.params('remove', this.oauth, this[this.leg[1]]);  // Remove params needed for previous step
       
        this.params('add', this.oauth, this.userOptions.params)// params needed for api call (raw values) 
-                                                    // MUST check for
-       this.oauth.oauth_token = sentData.oauth_token // setting access_token in oauth_token 
+                                                    // ADD this.oauth to this.userParams 
+       this.oauth.oauth_token = parsed.oauth_token // setting access_token in oauth_token 
                                                      // only for testing purposes , this will do server logic
        this.genSignatureBaseString();   
        console.log("SBS (api call): ", this.signatureBaseString)
@@ -1433,7 +1433,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
            beforeSend: this.setAuthorizationHeader.bind(this),
            callback: function(sentData){console.log("API CALL data: ", sentData)}
        }
-       console.log("api path with params: ", this.userOptions.params.path);
+       console.log("All Options", options);
    }
 
    twtOAuth.prototype.setUserParams = function(args, vault){ // sets user suplied parametars 
@@ -1517,6 +1517,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
    }
    
    twtOAuth.prototype.genSignatureBaseString = function(vault){ // generates SBS (signature base string) 
+         this.signatureBaseString = '';
          var a = [];
          for(var name in this.oauth){ // takes every oauth prop name
             a.push(name);             // and pushes it to array
