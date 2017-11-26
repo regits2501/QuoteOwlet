@@ -1425,7 +1425,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
           url: this.userOptions.server_url,        
           method: this.httpMethods[this.leg[2]], // method for access_token leg
           queryParams: {
-            host: this.twtUrl.protocol + this.twtUrl.domain,            
+            host: this.twtUrl.domain,            
             path: this.twtUrl.api_path + this.userOptions.path + '?'+ formEncode(this.userOptions.params, true),
             method: this.userOptions.method      // method user supplied
           },
