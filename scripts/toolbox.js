@@ -1151,13 +1151,12 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
        this.request.setRequestHeader(header, value);  
     };
 
-    request.setBody = function(){ // sets Content-Type encoding and encodes the body of a request
+    request.setBody = function(){ // sets Content-Type encoding and encode the body of a request
                console.log("In setBody")
         if(this.body){     // check for data payload 
           
           if(!this.encoding){                       // If there is no string that indicates encoding
-            this.body = formEncode(this.body); // default to form encoded
-            this.setHeader("Content-Type", "application/x-www-url-formencoded"); // set the content type
+            this.setHeader("Content-Type", "text/plain"); // default to text, set the content type (was formEnc)
           }
           else {
               switch(this.encoding.toLowerCase()){      // when there is encoding string
