@@ -90,9 +90,9 @@ if(typeof _pS_.modulMgr ==="object" && _pS_.modulMgr !== null){ // checking to s
        var type;
         for(var name in dataObj){
             type = typeof dataObj[name];
-             if(dataObj.hasOwnProperty(name) && type !== "function" && type !== "null"){ // only props 
+             if(dataObj.hasOwnProperty(name) && type !== "function" && dataObj[name] !== "null"){ // only props 
                                                                                            // in dataObj 
-                  key = encodeURIComponent(name);
+                  key = encodeURIComponent(name);   // encode property name
 
                   if(type === 'object'){                         
                      value = formEncode(dataObj[name], spaces); // form encode object
@@ -1104,7 +1104,7 @@ mgr.define("HmacSha1",["Rusha"], function(Rusha){
     };
 
     request.setQuery = function(queryParams){
-      this.queryString = formEncode(queryParams); // Function uses form-url-encoded scheme to return query string
+      this.queryString = formEncode(queryParams);// Function uses form-url-encoded scheme to return query string
       if(this.url.indexOf("?") === -1) this.url+="?"; // if doesnt have query delimiter add it. 
       this.url+= this.queryString; // Adds query string to url 
 
