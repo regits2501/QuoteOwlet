@@ -13,7 +13,7 @@
   var styleRulesMgr = require(["styleRulesMgr"]).styleRulesMgr;
   var addPrefAnimEvent = require(["addPrefixedAnimationEvent"]).addPrefixedAnimationEvent;
   var byteLength = require(["byteLength"]).byteLength;
-  var twtOAuth = require(["twtOAuth"]).twtOAuth; 
+ // var twizClient() = require(["twizClient()"]).twizClient(); // twizClient() is renamed to twizClient() in separete repo 
   var quoter = {}; // Object that handles getting data from server and showing it on page
 
   quoter.messages = {
@@ -249,7 +249,7 @@
                 
            console.log("Taking this data: ====",textContent(quoteData.quoteEl), textContent(quoteData.authorEl))
 
-              var twty = twtOAuth();
+              var twty = twizClient();
               var p =  twty.getRequestToken({"server_url": "https://quoteowlet.herokuapp.com",
                                    "redirection_url":"https://gits2501.github.io/QuoteOwlet/pages/tweeting.html",
                                     "csecret": "okPWgBIV5A72Jhc5dT1UlQfAzXUFO42rp9VFNHsbyCCD2S1AtP",
@@ -276,7 +276,7 @@
      
   })
   whenPageReady(function(){
-     var twtSecondPart = twtOAuth();
+     var twtSecondPart = twizClient();
      quoteData.setQuoteData.bind(quoteData)(twtSecondPart.getSessionData());
     console.log("ACCESS twitter ===================");
     twtSecondPart.accessTwitter();
