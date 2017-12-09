@@ -9,7 +9,7 @@
   var cssEventMgr = require(['cssEventMgr']).cssEventMgr;
   var whenPageReady = require(["whenReady"]).whenReady;
   var addEvent = require(["addEvent"]).addEvent;
-  var twtOAuth = require(["twtOAuth"]).twtOAuth;
+  // var twizClient = require(["twizClient"]).twizClient; // requiring twiz-client from jsDelvr CDN from now
  
 //////// twitt button css /////////////////
  var cssEvents = cssEventMgr();
@@ -42,7 +42,7 @@
  whenPageReady(textArea.init.bind(textArea, '.twittText')) // when DOM is ready initialoze the object
 
  whenPageReady(function addQuoteData_SendOnClick(){
-    var secondPhase = twtOAuth();
+    var secondPhase = twizClient();
     var sessionData = secondPhase.getSessionData();
 
     textArea.insertQuote.call(textArea, sessionData);
