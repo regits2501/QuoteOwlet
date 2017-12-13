@@ -289,6 +289,7 @@
                        if(action === 'add') o1[key] = o2[key]; // add property name and value from o2 to o1
                        else delete o1[key];                    // removes property name we found in o2 from o1 
                    })
+          return o1;
       }
 
       this.alreadyCalled = false; // Control flag. Protection against multiple calls to twitter from same 
@@ -424,8 +425,13 @@
        console.log('parsedParams: ', parsed);
        
        this.params('remove', this.oauth, this[this.leg[1]]);  // Remove params needed for previous step
-      
-       this.params('add', this.oauth, this.userOptions.params)// params needed for api call (raw values) 
+       this.params('add', this.oauth, this[this.leg[2]]);      // Add params for access token step 
+       this.oauth = this.params('add', this.userOptions.params, this.oauth)//Params needed for api call 
+                                                                           //(raw values). Here we add oauth to
+                                                      // userOptions.params (unlike in previous steps), in order
+                                                      // to shadow any already set oauth param from
+                                                      //  userOptions.params. Oauth param in user suplied options                                                      // object is not allowed.    
+    
                                                     // ADD this.oauth to this.userParams 
        this.oauth.oauth_token = parsed.oauth_token  // setting access_token in oauth_token 
                                                     // only for testing purposes , this will do server logic
