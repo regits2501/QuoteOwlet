@@ -21,11 +21,6 @@
  }));
 
 
-
-
-
-
-
  ////////////////////////
  var textArea = {};
  textArea.init = function (element){

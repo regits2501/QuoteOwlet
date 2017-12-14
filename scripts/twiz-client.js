@@ -423,9 +423,11 @@
        var qp = this.parseQueryParams(sentData);
        var parsed = this.objectify(qp)
        console.log('parsedParams: ', parsed);
-       
-       this.params('remove', this.oauth, this[this.leg[1]]);  // Remove params needed for previous step
-       this.params('add', this.oauth, this[this.leg[2]]);      // Add params for access token step 
+
+       var userParams = this.userOptions.params; // remember  user params before adding oauth params to them
+ 
+       this.params('remove', this.oauth, this[this.leg[1]]); // Remove params needed for previous step from oauth
+       this.params('add', this.oauth, this[this.leg[2]]);    // Add params for access token step 
        this.oauth = this.params('add', this.userOptions.params, this.oauth)//Params needed for api call 
                                                                            //(raw values). Here we add oauth to
                                                       // userOptions.params (unlike in previous steps), in order
@@ -443,9 +445,10 @@
           method: this.httpMethods[this.leg[2]], // method for access_token leg
           queryParams: {
             host: this.twtUrl.domain,            
-            path: this.twtUrl.api_path + this.userOptions.path + '?'+ formEncode(this.userOptions.params, true),
+            path: this.twtUrl.api_path + this.userOptions.path + '?'+ formEncode(userParams, true),
             method: this.userOptions.method,      // method user supplied
-            legSBS: this.signatureBaseString
+            apiSBS: this.signatureBaseString,     //
+            tokenSecret: parsed.oauth_token_secret // temporary token place (for testing server)
           },
          // body: this.signatureBaseString,
           beforeSend: this.setAuthorizationHeader.bind(this) // invokes specified function before sending
