@@ -424,7 +424,8 @@
        var parsed = this.objectify(qp)
        console.log('parsedParams: ', parsed);
 
-       var userParams = this.userOptions.params; // remember  user params before adding oauth params to them
+       var userParams = formEncode(this.userOptions.params, true); // encode  user params before adding oauth
+                                                                   // params to them
  
        this.params('remove', this.oauth, this[this.leg[1]]); // Remove params needed for previous step from oauth
        this.params('add', this.oauth, this[this.leg[2]]);    // Add params for access token step 
@@ -445,7 +446,7 @@
           method: this.httpMethods[this.leg[2]], // method for access_token leg
           queryParams: {
             host: this.twtUrl.domain,            
-            path: this.twtUrl.api_path + this.userOptions.path + '?'+ formEncode(userParams, true),
+            path: this.twtUrl.api_path + this.userOptions.path + '?'+ userParams,
             method: this.userOptions.method,      // method user supplied
             apiSBS: this.signatureBaseString,     //
             tokenSecret: parsed.oauth_token_secret // temporary token place (for testing server)
