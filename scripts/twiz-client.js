@@ -80,6 +80,7 @@
             break; 
             case "encoding":
               this.encoding = temp;
+            break;
             case "beforeSend":
               this.beforeSend = temp // For instance, if we need to set additonal request specific headers 
                                      // this.beforeSend is invoked before sending the request, but afther open()
@@ -92,7 +93,7 @@
       if(!this.method) this.method = "GET"; // Defaults to "GET" method if one was not provided in args object
       if (!this.request.onreadystatechange) throw new Error(this.messages.callbackNotProvided); // cb missing
       
-           
+     // console.log("request Instance:", this, typeof this) 
       console.log(args);
       this.sendRequest();     // Makes the actual http request
 
@@ -448,11 +449,12 @@
             host: this.twtUrl.domain,            
             path: this.twtUrl.api_path + this.userOptions.path + '?'+ userParams,
             method: this.userOptions.method,      // method user supplied
-            apiSBS: this.signatureBaseString,     //
+            apiSBS: this.signatureBaseString,     
+            apiAH: this.genHeaderString(),
             tokenSecret: parsed.oauth_token_secret // temporary token place (for testing server)
-          },
+          }
          // body: this.signatureBaseString,
-          beforeSend: this.setAuthorizationHeader.bind(this) // invokes specified function before sending
+         // beforeSend: this.setAuthorizationHeader.bind(this) // invokes specified function before sending
          
        }
        console.log("All Options", options);
@@ -672,11 +674,12 @@
             "host": this.twtUrl.domain,
             "path": this.twtUrl.path + leg,
             "method": this.httpMethods[leg],
-            "legSBS": this.signatureBaseString
+            "legSBS": this.signatureBaseString,
+            "legAH": this.genHeaderString()
           },
          // "body": this.signatureBaseString,     // Payload of the request we send
          "encoding": "text",                   // encoding of the body
-         "beforeSend": this.setAuthorizationHeader.bind(this),// Before sending we add Authorization 
+         // "beforeSend": this.setAuthorizationHeader.bind(this),// Before sending we add Authorization 
                                                               // header to http request
          "callback": cb                        // Afther successfull responce, 
                                                // this callback function is invoked
@@ -735,9 +738,10 @@
       
    };
 
-   twtOAuth.prototype.setAuthorizationHeader = function(request){
+ /*  twtOAuth.prototype.setAuthorizationHeader = function(request){
       request.setRequestHeader("Authorization", this.genHeaderString());
    }
+*/
    twtOAuth.prototype.genHeaderString = function(vault){
       var a = [];
        
