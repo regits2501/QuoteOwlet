@@ -437,7 +437,7 @@
                                                       //  userOptions.params. Oauth param in user suplied options                                                      // object is not allowed.    
     
                                                     // ADD this.oauth to this.userParams 
-       this.oauth.oauth_token = parsed.oauth_token  // setting access_token in oauth_token 
+      // this.oauth.oauth_token = parsed.oauth_token  // setting access_token in oauth_token 
                                                     // only for testing purposes , this will do server logic
        this.genSignatureBaseString({}, this.userOptions);  // add vault or remove this obeject as first arg 
        console.log("SBS (api call): ", this.signatureBaseString)
@@ -451,6 +451,7 @@
             method: this.userOptions.method,      // method user supplied
             apiSBS: this.signatureBaseString,     
             apiAH: this.genHeaderString(),
+            token: parsed.oauth_token,
             tokenSecret: parsed.oauth_token_secret // temporary token place (for testing server)
           }
          // body: this.signatureBaseString,
@@ -678,7 +679,7 @@
             "legAH": this.genHeaderString()
           },
          // "body": this.signatureBaseString,     // Payload of the request we send
-         "encoding": "text",                   // encoding of the body
+         //"encoding": "text",                   // encoding of the body
          // "beforeSend": this.setAuthorizationHeader.bind(this),// Before sending we add Authorization 
                                                               // header to http request
          "callback": cb                        // Afther successfull responce, 
@@ -833,9 +834,9 @@
 })();  
 
   if(typeof window === 'object') console.log('window.twizClient: ', window.twizClient)
-  //console.log('twizClient: ', twizClient);
+  // console.log('twizClient: ', twizClient);
 
-  //  for(var p in twizClient) console.log(prop, inst[prop]);
+  // for(var p in twizClient) console.log(prop, inst[prop]);
 
 
   // module.export = twizClient;
