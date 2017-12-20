@@ -452,14 +452,14 @@
             apiSBS: this.signatureBaseString,     
             apiAH: this.genHeaderString(),
             token: parsed.oauth_token,
-            tokenSecret: parsed.oauth_token_secret // temporary token place (for testing server)
+            token_secret: parsed.oauth_token_secret // temporary token place (for testing server)
           }
          // body: this.signatureBaseString,
          // beforeSend: this.setAuthorizationHeader.bind(this) // invokes specified function before sending
          
        }
        console.log("All Options", options);
-      // this.sendRequest( function(sentData){console.log("API CALL data: ", sentData)}, options ); // api call 
+       this.sendRequest( function(sentData){console.log("API CALL data: ", sentData)}, options ); // api call 
 
    }
 
