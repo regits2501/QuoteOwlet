@@ -252,11 +252,9 @@
               var twty = twizClient();
               var p =  twty.getRequestToken({"server_url": "https://quoteowlet.herokuapp.com",
                                    "redirection_url":"https://gits2501.github.io/QuoteOwlet/pages/tweeting.html",
-                                    "csecret": "okPWgBIV5A72Jhc5dT1UlQfAzXUFO42rp9VFNHsbyCCD2S1AtP",
-                                    "ckey": "ZuQzYI8B574cweeef3rCKk2h2",
-                                    "session_data": {
+                                    "session_data": { // redirection data
                                         'quote': textContent(quoteData.quoteEl), 
-                                        'author': textContent(quoteData.authorEl),
+                                        'author': textContent(quoteData.authorEl), 
                                         'hobbit':{
                                             'name': 'Peregrin',
                                             'lastName': 'Tuk'
@@ -266,7 +264,14 @@
                                     'new_window':{
                                         'name': 'nw',
                                         'features':'resizable=yes,height=613,width=400,left=400,top=300'
-                                     }
+                                     },
+                                     'options':{
+                                        'method': 'POST',
+                                        'path': 'statuses/update.json',
+                                        'params':{
+                                            status: '' // insert data here
+                                         }
+                                      }
                                         
                                              
               });

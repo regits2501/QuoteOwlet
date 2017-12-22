@@ -58,6 +58,7 @@
       var temp;                           // Temporary place holder
       
       for(var prop in args){           // iterates trough every argument provided
+         if(!args.hasOwnProperty(prop)) continue;
          temp = args[prop];         
          switch(prop){
             case "url":
@@ -270,7 +271,7 @@
       this.oauth = {}                                // Holds parameters that are used to generate SBS and AH
       this.oauth[ this.prefix + 'consumer_key'] = "";// This is very sensitive data. Server sets the value.
       this.oauth[ this.prefix + 'signature'] = "";   // This value also sets the server.
-      this.oauth[ this.prefix + 'nonce'] =  "";    // Session id, twitter api uses this to determines duplicates
+      this.oauth[ this.prefix + 'nonce'] =  "";     // Session id, twitter api uses this to determines duplicates
       this.oauth[ this.prefix + 'signature_method'] = ""; // Signature method we are using
       this.oauth[ this.prefix + 'timestamp'] = "";   // Unix epoch timestamp
       this.oauth[ this.prefix + 'version'] = ""      // all request use ver 1.0
@@ -284,7 +285,7 @@
       this[this.leg[2]] = {}                          // Creating 'access_token' object for that step params
       this[this.leg[2]][ this.prefix + 'token'] = ''; // we need just oauth_token param
       
-      this.params = function(action, o1, o2){
+      this.params = function(action, o1, o2){         // Adds or removes properties from o2 to o1
           Object.getOwnPropertyNames(o2)
                   .map(function(key, i){
                        if(action === 'add') o1[key] = o2[key]; // add property name and value from o2 to o1
@@ -292,6 +293,31 @@
                    })
           return o1;
       }
+
+      
+      this.queryParams = {  // user provided are api params, used for twitter api calls, and leg params for oauth 
+        apiHost: '',
+        apiPath: '',
+        apiMethod: '',
+        apiParams: '',
+        apiSBS: '',
+        apiAH: '',
+        apiBody: '',
+    
+        legHost: '',
+        legPath: '',
+        legMethod: '',
+        legSBS: '',
+        legAH: ''
+      
+      }
+    
+      this.options = Object.create(this.queryParams);
+      this.options.url = '';
+      this.options.method = '';
+      this.options.queryParams = '';
+      this.options.body = '';
+      this.options.cb = '';       // Callback function
 
       this.alreadyCalled = false; // Control flag. Protection against multiple calls to twitter from same 
                                   // instance
@@ -301,15 +327,18 @@
          if(this.alreadyCalled) return;       // Just return, in case of subsequent call.
          else this.alreadyCalled = true;      
         
+         this.setUserParams(args, vault);       // Sets user supplied parameters like: 'redirection_url' ...
+         this.checkUserParams();                // Check that needed params are set
+         this.setNonUserParams();               // Sets non user-suppliead params: timestamp, nonce, sig. method
+         this.appendToCallback(this.lnkLabel.data, this.lnkLabel.name); // adds uniqueness to url
+
+         this.params('add', this.oauth, this[this.leg[0]]) // add oauth param (callback) for reqest_token step
+         this.genSignatureBaseString(vault,this.leg[0]);    // Generates signature base string
+
+
          var resolve;
          var promised;
          
-         console.log("v: "+ vault)
-         this.params('add', this.oauth, this[this.leg[0]]) // add oauth param (callback) for reqest_token step
-         this.setUserParams(args, vault);       // Sets user supplied parameters like: 'redirection_url' ...
-         this.setNonUserParams();               // Sets non user-suppliead params: timestamp, nonce, sig. method
-         this.appendToCallback(this.lnkLabel.data, this.lnkLabel.name); // adds uniqueness to url
-         this.genSignatureBaseString(vault,this.leg[0]);    // Generates signature base string
          if(this.newWindow){                    // Checking for user supplied newWindow preference
             this.openWindow();                  // Opens new window.  
        //  if(Promise) promised = new Promise(function(rslv, rjt){ resolve = rslv; }) // if can, make a Promise
@@ -436,7 +465,7 @@
                                                       // to shadow any already set oauth param from
                                                       //  userOptions.params. Oauth param in user suplied options                                                      // object is not allowed.    
     
-                                                    // ADD this.oauth to this.userParams 
+                                                    
       // this.oauth.oauth_token = parsed.oauth_token  // setting access_token in oauth_token 
                                                     // only for testing purposes , this will do server logic
        this.genSignatureBaseString({}, this.userOptions);  // add vault or remove this obeject as first arg 
@@ -478,6 +507,7 @@
                case "new_window":      // object that holds properties for making new window(tab/popup)
                  this.newWindow = {};
                  for(var data in temp){
+
                     switch(data){
                        case "name":
                          this.newWindow[data] = temp[data];
@@ -494,17 +524,26 @@
                case "session_data":
                  this.session_data = temp;
                break;
-               case "csecret":
-                 vault.consumer_secret = temp;  // placing sensitive data to variables formed in closures
-               break;
-               case "ckey":
-                 vault.consumer_key = temp;
-               break;
-               case "usecret":
-                 vault.user_key = temp; 
-               break;
                case "version":
                  this.oauth.version(temp);
+               break;
+               case "options":
+                 for (var opt in temp){
+                    switch (opt){
+                       case "method":
+                          this.options.apiMethod = temp[opt];          
+                       break;
+                       case "path":
+                          this.options.apiPath = temp[opt];          
+                       break;
+                       case "params":
+                          this.options.apiParams = temp[opt];          
+                       break;
+                       case "body":
+                          this.options.apiBody = temp[opt];          
+                       break;
+                    } 
+                 }
                break;
                case "urls":              // when we get urls object, we check for urls provided
                                          // for each leg (part) of the 3-leg authentication.
@@ -538,9 +577,6 @@
             }
          }
 
-         this.checkRequestTokenCallback();   // checks for callback, throws error if not set
-         this.checkConsumerSecret(vault);    // checks secret,
-         
    }
    
    twtOAuth.prototype.genSignatureBaseString = function(vault, leg){ // generates SBS  
@@ -566,7 +602,7 @@
                                                 this.oauth[this.prefix + 'callback']; 
               break; 
               case "oauth_consumer_key":
-                value = "";         // Sensitive data we leave for server to add
+                value = "";             // Sensitive data we leave for server to add
               break;   
               case "oauth_user_key":
                 value = ""; 
@@ -576,7 +612,7 @@
               break;
            */
               case "oauth_signature":
-                continue;           // We dont add signature to singatureBaseString at all (server does that)
+                continue;              // We dont add signature to singatureBaseString at all
               break;
               default:
                 value = this.oauth[key];          // Takes value of that key
@@ -627,12 +663,11 @@
 
    twtOAuth.prototype.messages = {
       callbackNotSet: "You must provide a callback url to which users are redirected.",
-      consumerKeyNotSet: "You must provide consumer KEY that indetifies your app.",
-      consumerSecretNotSet: "You must provede consumer SECRET that indentifies your app",
-      userKey: "You must provide user secret that intentifies user in which name your app makes request.",
       noStringProvided: "You must provide a string for parsing." ,
       noSessionData: "No session data was found.",
-      linkNotAuthorized: "Appears that obtained url doesn't have necessary data."
+      linkNotAuthorized: "Appears that obtained url doesn't have necessary data.",
+      serverUrlNotSet: "You must proivide twiz server url to which request will be sent",
+      optionNotSet: " option must be set"
    };
 
    twtOAuth.prototype.appendToCallback = function(data, name){ // appends data object as querystring to                                                                        // callback url. 
@@ -650,19 +685,29 @@
        console.log("OAUTH CALLBACK: "+this.oauth[ this.prefix + 'callback'])
       return this.oauth[ this.prefix + 'callback'];
    };
+   
+   twtOAuth.prototype.checkUserParams = function(){
+ 
+      if(!this.server_url) throw new Error(this.messages.serverUrlNotSet);
+      this.checkRedirectionCallback();
+      this.checkQueryParams();
+      
+   }
 
-   twtOAuth.prototype.checkConsumerSecret = function(vault){ // checks if consumer secret is set 
-      if(!vault.consumer_secret) throw new Error(this.messages.consumerSecretNotSet);
-      if(!vault.consumer_key) throw new Error(this.messages.consumerKeyNotSet)
-   }
-   twtOAuth.checkUserSecret = function(vault){  // check if user secret is set
-      if(!vault.user_key) throw new Error(this.messages.userKeyNotSet);
-   }
-   twtOAuth.prototype.checkRequestTokenCallback = function (){ // checks for the url user is returned to
+   twtOAuth.prototype.checkRedirectionCallback = function (){ // checks for the url user is returned to
       if(!this.oauth[ this.prefix + 'callback']) throw new Error(this.messages.callbackNotSet);
                                                                 // throw an error if one is not set
    }
-    
+
+   twtOAuth.prototype.checkQueryParams = function(){
+      for(var opt in this.queryParams){
+          if(opt === 'apiPath' && opt == 'apiMethod' ){ // mandatory params set by user
+            if(!this.queryParams[opt])                  // check that is set
+               throw new Error( opt.substr(3) + this.messages.optionNotSet)
+          }
+      }     
+   }
+   
    twtOAuth.prototype.sendRequest = function(cb, leg){     // was (vault, resolve, leg) 
       console.log('request SENT +')
       var options;
