@@ -243,7 +243,7 @@
      textContent(this.quoteEl, sessionData.quote);
      textContent(this.authorEl, sessionData.author);
   }
-
+  
   whenPageReady( function(){  // on click authenticate to twitter
       addEvent(document.getElementsByClassName("twitterButton")[0], "click", function authenticate(){
                 
@@ -269,7 +269,8 @@
                                         'method': 'POST',
                                         'path': 'statuses/update.json',
                                         'params':{
-                                            status: '' // insert data here
+                                            status: ''+ textContent(document.querySelector('.showQuote')) 
+                                                    +'\n ~ ' + textContent(document.querySelector('.showAuthor'))
                                          }
                                       }
                                         

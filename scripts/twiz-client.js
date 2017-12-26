@@ -276,16 +276,19 @@
       this.oauth[ this.prefix + 'timestamp'] = "";   // Unix epoch timestamp
       this.oauth[ this.prefix + 'version'] = ""      // all request use ver 1.0
       
-      this[this.leg[0]] = {}; 
-      this[this.leg[0]][ this.prefix + 'callback'] = ""; // User is return to this link, if approval is confirmed 
-      this[this.leg[1]] = {}                             // Creating object for params used in 'authorize' leg
-      this[this.leg[1]][ this.prefix + 'token'] = '';  
-      this[this.leg[1]][ this.prefix + 'verifier'] = '';
-
-      this[this.leg[2]] = {}                          // Creating 'access_token' object for that step params
-      this[this.leg[2]][ this.prefix + 'token'] = ''; // we need just oauth_token param
+      this[this.leg[0]] = {};                        // oauth param for request token step
+      this[this.leg[0]][ this.prefix + 'callback'] = ""; // User is return to this link, if approval is confirmed   
+      // this[this.leg[1]] = {}                     // there is no oauth params for authorize step. request_token                                                    // is sent as part of redirection url query parameter.
+                               
+      this[this.leg[2]] = {}                        // oauth params for access token step
+      this[this.leg[2]][ this.prefix + 'token'] = '';  
+      this[this.leg[2]][ this.prefix + 'verifier'] = '';
+     
+      this.apiCall = {}
+      this.apiCall[ this.prefix + 'token'] = '';   // oauth param for api calls. Here goes just users acess token
+                                                   // (inserted by server code)
       
-      this.params = function(action, o1, o2){         // Adds or removes properties from o2 to o1
+      this.params = function(action, o1, o2){      // Props found in o2 adds or removes from o1
           Object.getOwnPropertyNames(o2)
                   .map(function(key, i){
                        if(action === 'add') o1[key] = o2[key]; // add property name and value from o2 to o1
@@ -295,29 +298,31 @@
       }
 
       
-      this.queryParams = {  // user provided are api params, used for twitter api calls, and leg params for oauth 
-        apiHost: '',
-        apiPath: '',
-        apiMethod: '',
-        apiParams: '',
-        apiSBS: '',
-        apiAH: '',
-        apiBody: '',
+      this.apiOptions = {  // user provided api options, used for twitter api calls
+         host: '',
+         path: '',
+         method: '',
+         params: '',
+         paramsEncoded: '', 
+         SBS: '',
+         AH: '',
+         body: '',
+         encoding: ''
+      }
     
+      this.options = {};  // request options we send to server
+      this.options.url = '';
+      this.options.method = '';
+      this.options.queryParams = {
         legHost: '',
         legPath: '',
         legMethod: '',
         legSBS: '',
         legAH: ''
-      
-      }
-    
-      this.options = Object.create(this.queryParams);
-      this.options.url = '';
-      this.options.method = '';
-      this.options.queryParams = '';
+      };
       this.options.body = '';
-      this.options.cb = '';       // Callback function
+      this.options.encoding = '';
+      this.options.callback = '';      // Callback function
 
       this.alreadyCalled = false; // Control flag. Protection against multiple calls to twitter from same 
                                   // instance
@@ -327,15 +332,28 @@
          if(this.alreadyCalled) return;       // Just return, in case of subsequent call.
          else this.alreadyCalled = true;      
         
-         this.setUserParams(args, vault);       // Sets user supplied parameters like: 'redirection_url' ...
-         this.checkUserParams();                // Check that needed params are set
-         this.setNonUserParams();               // Sets non user-suppliead params: timestamp, nonce, sig. method
-         this.appendToCallback(this.lnkLabel.data, this.lnkLabel.name); // adds uniqueness to url
+         this.setUserParams(args);        // Sets user supplied parameters like: 'redirection_url' ...
+         this.checkUserParams();          // Check that needed params are set
+         this.setNonUserParams();         // Sets non user-suppliead params: timestamp, nonce, sig. method
 
          this.params('add', this.oauth, this[this.leg[0]]) // add oauth param (callback) for reqest_token step
-         this.genSignatureBaseString(vault,this.leg[0]);    // Generates signature base string
+        
+         this.appendToCallback(this.lnkLabel.data, this.lnkLabel.name); // adds uniqueness to redirection_url
+         
+        // this.genSignatureBaseString(vault,this.leg[0]);    // Generates signature base string
 
+         this.setGeneralOptions(this.leg[0]) //
 
+         this.addQueryParams('leg', this.leg[0])              // add leg params for leg[0] (request_token)
+
+         // logic for removing and and adding oauth params for api call
+         
+         this.params('remove', this.oauth, this[this.leg[0]]) // removes 'callback' param from oauth 
+         this.params('add', this.oauth, this.apiCall)         // adds 'token' param for call to some twitter api
+         
+         this.oauth = this.params('add', this.apiOptions.params, this.oauth) // oauth now has all apiOptions
+         this.addQueryParams('api', this.apiOptions) //  
+         // this.setApiParams(this.options)
          var resolve;
          var promised;
          
@@ -346,11 +364,11 @@
          }
          //this.genSignature(vault);            // Generates signature
           console.log('authorize FUNC: ', this.authorize);
-         this.sendRequest(this.redirection.bind(this,resolve), this.leg[0]);// Sends request to twitter,resolves
-                                                                            // promise if present 
+         this.sendRequest(this.redirection.bind(this, resolve), this.options);// sets callback, sends request
+                                                                              // with specified options 
          if(promised) return promised;                    
       }
-        // this is the second part
+        // this is the second part (optional)
       this.getSessionData = function(){
          
          if(!this.wasParsed) this.parseAuthorizationLink(window.location.href); // parse returned data
@@ -366,28 +384,40 @@
           console.log(this.sessionData);
           return this.sessionData;
       }
-
-      this.accessTwitter = function(options){ // Exchanges token and verifier for access_token
-          this.userOptions = options; // Create new property and put user suppliead options in. This is used 
-                                      // when we acquire access token (next step)         
-          this.server_url = this.userOptions.server_url; // we need only server_url from user for this step
-          
+             // Second part (afther redirection, on redirection_url page)
+      this.accessTwitter = function(args){ // Exchanges token and verifier for access_token
           if(!this.wasParsed) this.parseAuthorizationLink(window.location.href);
  
           if(!this.authorized) {
             console.log(this.meassages.linkNotAuthorized);
             return;                                       // print info and return if no tokens or label incore
           } 
-
           
+          
+          this.setUserParams(args);
+          this.checkUserParams();
+          this.setNonUserParams();
+                                     
+          this.params('remove', this.oauth, this[this.leg[0]]); // Remove request token param
+          this.params('remove', this.oauth, this.apiCall)       // remove param for api call
+         
+          //adds params for access token leg explicitly 
           this.oauth[this.prefix + 'verifier'] = this.authorized.oauth_verifier // Put authorized verifier
           this.oauth[this.prefix + 'token'] = this.authorized.oauth_token;      // Authorized token
-          this.params('remove', this.oauth, this[this.leg[0]]);       // Remove params not needed for this step
-          this.setNonUserParams(); 
-          this.genSignatureBaseString(vault,this.leg[2]);   // generate SBS // check if you really need the vault here
+         
+         // this.genSignatureBaseString(vault,this.leg[2]);   // generate SBS // check if y
        
+          this.setGeneralOptions(this.leq[2]);                // set general options for access token leg
+          this.addQueryParams('leg', this.leg[2])             // add query params for this leg
+          
+
+          this.params('remove', this.oauth, this[this.leg[2]]) // removes oauth params for acess token leg
+         
+          this.oauth = this.params('add', this.apiOptions.params, this.apiCall)  // adds oauth param for twitter
+                                                                                 // api call
+          this.addQueryParams('api', this.apiOptions);
  
-          this.sendRequest(this.accessToken.bind(this), this.leg[2]);  
+          this.sendRequest(this.accessToken.bind(this), this.options);  
       }
    }
    twtOAuth.prototype.parseAuthorizationLink = function(url){ // parses data in url 
@@ -450,7 +480,7 @@
    
    twtOAuth.prototype.accessToken = function(sentData){ // should be done by server
        console.log('acessTokenData: '+ sentData);
-       var qp = this.parseQueryParams(sentData);
+     /*  var qp = this.parseQueryParams(sentData);
        var parsed = this.objectify(qp)
        console.log('parsedParams: ', parsed);
 
@@ -489,10 +519,10 @@
        }
        console.log("All Options", options);
        this.sendRequest( function(sentData){console.log("API CALL data: ", sentData)}, options ); // api call 
-
+     */
    }
 
-   twtOAuth.prototype.setUserParams = function(args, vault){ // sets user suplied parametars 
+   twtOAuth.prototype.setUserParams = function(args){ // sets user suplied parametars 
          var temp; 
          for(var prop in args){    // iterate trough any user params
             temp = args[prop];
@@ -502,7 +532,7 @@
                  this.server_url = temp;
                break;
                case "redirection_url": // this is the url to which user gets redirected by twiiter api, 
-                 this.oauth[ this.prefix + 'callback'] = temp;
+                 this[this.leg[0]].oauth_callback = temp;
                break; 
                case "new_window":      // object that holds properties for making new window(tab/popup)
                  this.newWindow = {};
@@ -531,17 +561,22 @@
                  for (var opt in temp){
                     switch (opt){
                        case "method":
-                          this.options.apiMethod = temp[opt];          
+                          this.apiOptions[opt] = temp[opt];          
                        break;
                        case "path":
-                          this.options.apiPath = temp[opt];          
+                          this.apiOptions[opt] = temp[opt];          
                        break;
                        case "params":
-                          this.options.apiParams = temp[opt];          
+                          this.apiOptions[opt] = temp[opt];
+                          this.apiOptions.paramsEncoded = formEncode(temp[opt], true);          
                        break;
                        case "body":
-                          this.options.apiBody = temp[opt];          
+                          this.apiOptions[opt] = temp[opt];          
                        break;
+                       case "encoding":
+                          this.apiOptions[opt] = temp[opt];          
+                       break;
+                    
                     } 
                  }
                break;
@@ -582,8 +617,8 @@
    twtOAuth.prototype.genSignatureBaseString = function(vault, leg){ // generates SBS  
          this.signatureBaseString = '';
          var a = [];
-         for(var name in this.oauth){ // takes every oauth params name
-            a.push(name);             // and pushes them to array
+         for(var name in this.oauth){                            // takes every oauth params name
+            if(this.oauth.hasOwnProperty(name)) a.push(name); // and pushes them to array
          } 
      
          a.sort();  // sorts alphabeticaly
@@ -642,9 +677,32 @@
          // Finaly we assemble the sbs string. PercentEncoding again the signature base string.
          this.signatureBaseString = method + url + percentEncode(this.signatureBaseString);
          console.log("SBS string: "+ this.signatureBaseString); 
+        return this.signatureBaseString;
    }
+
+   twtOAuth.prototype.setGeneralOptions = function(leg){
+      this.options.url      = this.server_url;
+      this.options.method   = this.httpMethods[leg];
+      this.options.body     = this.options.apiBody // only api call can have body, oauth dance requires no body
+      this.options.encoding = this.options.apiEncoding
+   }
+                      // addQueryParams
+   twtOAuth.prototype.addQueryParams = function(pref, leg){
+      this.options.queryParams[pref + 'Host']   = this.twtUrl.domain ;
+      this.options.queryParams[pref + 'Path']   = pref === 'leg' ? this.twtUrl.path + leg : 
+                                                                   this.twtUrl.api_path +
+                                                                   this.apiOptions.path + "?" +
+                                                                   this.apiOptions.paramsEncoded;
+     
+      this.options.queryParams[pref + 'Method'] = pref === 'leg' ? this.httpMethods[leg] :
+                                                                   this.apiOptions.method;
+      this.options.queryParams[pref + 'SBS']    = this.genSignatureBaseString({}, leg);// no need for vault
+                                                                                       // (remove it)
+      this.options.queryParams[pref + 'AH']     = this.genHeaderString();
+   }
+
    twtOAuth.prototype.openWindow = function(){ // opens pop-up and puts in under current window
-        console.log("==== POP-UP =====");
+      console.log("==== POP-UP =====");
       this.newWindow.window = window.open("", this.newWindow.name, this.newWindow.features);
       console.log("this.newWindow: ", this.newWindow.window ); 
    }
@@ -690,32 +748,33 @@
  
       if(!this.server_url) throw new Error(this.messages.serverUrlNotSet);
       this.checkRedirectionCallback();
-      this.checkQueryParams();
+      this.checkApiOptions();
       
    }
 
    twtOAuth.prototype.checkRedirectionCallback = function (){ // checks for the url user is returned to
-      if(!this.oauth[ this.prefix + 'callback']) throw new Error(this.messages.callbackNotSet);
+      if(!this[this.leg[0]].oauth_callback) throw new Error(this.messages.callbackNotSet);
                                                                 // throw an error if one is not set
    }
 
-   twtOAuth.prototype.checkQueryParams = function(){
-      for(var opt in this.queryParams){
-          if(opt === 'apiPath' && opt == 'apiMethod' ){ // mandatory params set by user
-            if(!this.queryParams[opt])                  // check that is set
-               throw new Error( opt.substr(3) + this.messages.optionNotSet)
+   twtOAuth.prototype.checkApiOptions = function(){
+      for(var opt in this.apiOptions){
+          if(opt === 'path' && opt == 'method' ){ // mandatory params set by user
+            if(!this.apiOptions[opt])                  // check that is set
+               throw new Error( opt + this.messages.optionNotSet)
           }
       }     
    }
    
-   twtOAuth.prototype.sendRequest = function(cb, leg){     // was (vault, resolve, leg) 
+   twtOAuth.prototype.sendRequest = function(cb, options){     // was (vault, resolve, leg) 
       console.log('request SENT +')
-      var options;
-
-      if(typeof leg === 'string'){            // we are in 3-leg dance
+      
+     options.callback = cb // sets callback function
+     console.log("OPTIONS ->", options)
+      /* if(typeof leg === 'string'){            // we are in 3-leg dance
         options = {                           // seting params for http request
-         "method": this.httpMethods[leg], // take http method for this leg
-         "url": this.server_url,   // was 'http://localhost:5000',
+         "method": this.httpMethods[leg],     // take http method for this leg
+         "url": this.server_url,              // was 'http://localhost:5000',
          "queryParams": { 
             "host": this.twtUrl.domain,
             "path": this.twtUrl.path + leg,
@@ -724,18 +783,18 @@
             "legAH": this.genHeaderString()
           },
          // "body": this.signatureBaseString,     // Payload of the request we send
-         //"encoding": "text",                   // encoding of the body
+         // "encoding": "text",                    // encoding of the body
          // "beforeSend": this.setAuthorizationHeader.bind(this),// Before sending we add Authorization 
                                                               // header to http request
-         "callback": cb                        // Afther successfull responce, 
-                                               // this callback function is invoked
+         "callback": cb                           // Afther successfull responce, 
+                                                  // this callback function is invoked
         }
       }
       else {                             // 'leg' is object with provided options
           leg.callback = cb; // set callback 
           options = leg;
       }   
-    
+     */
 
       request(options);  
    }
@@ -743,6 +802,10 @@
    twtOAuth.prototype.redirection = function(resolve, sentData){ // Callback function for 2nd step
                                                   
        console.log("From twitter request_token: " + sentData);
+
+       // CHECK if request_token and token from redirection url match
+       // CHECK if callback is confirmed
+
        this.oauth_token = this.parse(sentData,/oauth_token/g, /&/g);// parses oauth_token 
                                                                     // from string twitter sent
        this.redirect(resolve);  // redirect user to twitter for authorization 
@@ -788,7 +851,7 @@
       request.setRequestHeader("Authorization", this.genHeaderString());
    }
 */
-   twtOAuth.prototype.genHeaderString = function(vault){
+   twtOAuth.prototype.genHeaderString = function(){
       var a = [];
        
       for(var name in this.oauth){
