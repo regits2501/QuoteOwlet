@@ -371,7 +371,8 @@
         // this is the second part (optional)
       this.getSessionData = function(){
          
-         if(!this.wasParsed) this.parseAuthorizationLink(window.location.href); // parse returned data
+         if(!this.authorizationLinkParsed) this.parseAuthorizationLink(window.location.href); // parse returned 
+                                                                                              // data
          
          if(!this.authorized) return;                       // return if no tokens
 
@@ -386,7 +387,7 @@
       }
              // Second part (afther redirection, on redirection_url page)
       this.accessTwitter = function(args){ // Exchanges token and verifier for access_token
-          if(!this.wasParsed) this.parseAuthorizationLink(window.location.href);
+          if(!this.authorizationLinkParsed) this.parseAuthorizationLink(window.location.href);
  
           if(!this.authorized) {
             console.log(this.meassages.linkNotAuthorized);
@@ -430,7 +431,7 @@
       if(obj.oauth_token && obj.oauth_verifier && obj.__lance){ // check to see we have needed tokens 
          this.authorized  = obj;           // make new variable;                     
       }
-      this.wasParsed = true;               // indicate that the url was already parsed  
+      this.authorizationLinkParsed = true;               // indicate that the url was already parsed  
    }
   
    twtOAuth.prototype.parseSessionData = function(str){
@@ -747,7 +748,7 @@
    twtOAuth.prototype.checkUserParams = function(){
  
       if(!this.server_url) throw new Error(this.messages.serverUrlNotSet);
-      this.checkRedirectionCallback();
+      if(!this.authorizationLinkParsed) this.checkRedirectionCallback();   // check only in request token step 
       this.checkApiOptions();
       
    }
