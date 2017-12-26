@@ -408,7 +408,7 @@
          
          // this.genSignatureBaseString(vault,this.leg[2]);   // generate SBS // check if y
        
-          this.setGeneralOptions(this.leq[2]);                // set general options for access token leg
+          this.setGeneralOptions(this.leg[2]);                // set general options for access token leg
           this.addQueryParams('leg', this.leg[2])             // add query params for this leg
           
 
