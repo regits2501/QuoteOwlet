@@ -413,7 +413,7 @@
           
 
           this.params('remove', this.oauth, this[this.leg[2]]) // removes oauth params for acess token leg
-        console.log("apiParams: ",this.apiOptions.params
+        console.log("apiParams: ",this.apiOptions.params)
         console.log("apiOptions: ", this.apiOptions)
         console.log("apiCall: ", this.apiCall);         
           this.oauth = this.params('add', this.apiOptions.params, this.apiCall)  // adds oauth param for twitter
