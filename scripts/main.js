@@ -274,7 +274,7 @@
                                          }
                                       },
                                       'callback_func': function(data){
-                                             console.log('returned twitter DAta:'. + data)
+                                             console.log('returned twitter DAta:', + data)
                                       }
                                         
                                              
