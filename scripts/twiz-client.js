@@ -129,7 +129,7 @@
     request.addListener = function(callback) {
       var alreadyCalled = false;
 
-      this.request.onreadystatechange = function(data){
+      this.request.onreadystatechange = function(){
           
          if(this.request.readyState === 4 && this.request.status === 200){
               if(alreadyCalled){
@@ -143,8 +143,8 @@
               switch(type){
                  case "application/json":   
                    try{
-                      if(this.parse) callback(JSON.parse(data)); // parse json data and send it as argument
-                      else callback(data);
+                      if(this.parse) callback(JSON.parse(this.request.responseText)); // parse json data
+                      else callback(this.request.responseText);
                    }
                    catch(e){
                       console.log(this.messages.cbWasNotCalled + " \n"+ e); // if parsing failed note it
