@@ -357,11 +357,8 @@
          var resolve;
          var promised;
          
-         if(this.newWindow){                    // Checking for user supplied newWindow preference
-            this.openWindow();                  // Opens new window.  
        //  if(Promise) promised = new Promise(function(rslv, rjt){ resolve = rslv; }) // if can, make a Promise
                                                                                       // remember it's resolve
-         }
          //this.genSignature(vault);            // Generates signature
           console.log('authorize FUNC: ', this.authorize);
          this.sendRequest(this.redirection.bind(this, resolve), this.options);// sets callback, sends request
@@ -704,9 +701,9 @@
       this.options.queryParams[pref + 'AH']     = this.genHeaderString();
    }
 
-   twtOAuth.prototype.openWindow = function(){ // opens pop-up and puts in under current window
+   twtOAuth.prototype.openWindow = function(url){ // opens pop-up and puts in under current window
       console.log("==== POP-UP =====");
-      this.newWindow.window = window.open("", this.newWindow.name, this.newWindow.features);
+      this.newWindow.window = window.open(url, this.newWindow.name, this.newWindow.features);
       console.log("this.newWindow: ", this.newWindow.window ); 
    }
    twtOAuth.prototype.genSignature = function(vault){ 
@@ -842,6 +839,7 @@
          return;
       }                         
       
+      this.openWindow(url);
       openedWindow = this.newWindow.window;           
       openedWindow.location = url;
 
