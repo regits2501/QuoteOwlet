@@ -805,12 +805,13 @@
    twtOAuth.prototype.redirection = function(resolve, sentData){ // Callback function for 2nd step
                                                   
        console.log("From twitter request_token: " + sentData);
-
+     
        // CHECK if request_token and token from redirection url match
        // CHECK if callback is confirmed
 
        this.oauth_token = this.parse(sentData,/oauth_token/g, /&/g);// parses oauth_token 
                                                                     // from string twitter sent
+       if(!this.oauth_token) return this.sentData
        this.redirect(resolve);  // redirect user to twitter for authorization 
    };
 
