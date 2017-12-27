@@ -739,6 +739,8 @@
        console.log("From twitter request_token: ", sentData);
        console.log('sentData type: ',typeof sentData);
        var sentObj = JSON.parse(sentData); 
+       
+       console.log('sentObj: ', sentObj)
        // CHECK if request_token and token from redirection url match
        // CHECK if callback is confirmed
 
