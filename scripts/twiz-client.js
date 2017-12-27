@@ -129,7 +129,7 @@
     request.addListener = function(callback) {
       var alreadyCalled = false;
 
-      this.request.onreadystatechange = function(){
+      this.request.onreadystatechange = function(data){
           
          if(this.request.readyState === 4 && this.request.status === 200){
               if(alreadyCalled){
@@ -480,46 +480,7 @@
    
    twtOAuth.prototype.accessToken = function(sentData){ // should be done by server
        console.log('acessTokenData: '+ sentData);
-     /*  var qp = this.parseQueryParams(sentData);
-       var parsed = this.objectify(qp)
-       console.log('parsedParams: ', parsed);
-
-       var userParams = formEncode(this.userOptions.params, true); // encode  user params before adding oauth
-                                                                   // params to them
- 
-       this.params('remove', this.oauth, this[this.leg[1]]); // Remove params needed for previous step from oauth
-       this.params('add', this.oauth, this[this.leg[2]]);    // Add params for access token step 
-       this.oauth = this.params('add', this.userOptions.params, this.oauth)//Params needed for api call 
-                                                                           //(raw values). Here we add oauth to
-                                                      // userOptions.params (unlike in previous steps), in order
-                                                      // to shadow any already set oauth param from
-                                                      //  userOptions.params. Oauth param in user suplied options                                                      // object is not allowed.    
-    
-                                                    
-      // this.oauth.oauth_token = parsed.oauth_token  // setting access_token in oauth_token 
-                                                    // only for testing purposes , this will do server logic
-       this.genSignatureBaseString({}, this.userOptions);  // add vault or remove this obeject as first arg 
-       console.log("SBS (api call): ", this.signatureBaseString)
-       
-       var options =  {
-          url: this.userOptions.server_url,        
-          method: this.httpMethods[this.leg[2]], // method for access_token leg
-          queryParams: {
-            host: this.twtUrl.domain,            
-            path: this.twtUrl.api_path + this.userOptions.path + '?'+ userParams,
-            method: this.userOptions.method,      // method user supplied
-            apiSBS: this.signatureBaseString,     
-            apiAH: this.genHeaderString(),
-            token: parsed.oauth_token,
-            token_secret: parsed.oauth_token_secret // temporary token place (for testing server)
-          }
-         // body: this.signatureBaseString,
-         // beforeSend: this.setAuthorizationHeader.bind(this) // invokes specified function before sending
-         
-       }
-       console.log("All Options", options);
-       this.sendRequest( function(sentData){console.log("API CALL data: ", sentData)}, options ); // api call 
-     */
+   
    }
 
    twtOAuth.prototype.setUserParams = function(args){ // sets user suplied parametars 
