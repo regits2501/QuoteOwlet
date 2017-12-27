@@ -410,9 +410,6 @@
           
 
           this.params('remove', this.oauth, this[this.leg[2]]) // removes oauth params for acess token leg
-        console.log("apiParams: ",this.apiOptions.params)
-        console.log("apiOptions: ", this.apiOptions)
-        console.log("apiCall: ", this.apiCall);         
           this.oauth = this.params('add', this.apiOptions.params, this.apiCall)  // adds oauth param for twitter
                                                                                  // api call
           this.addQueryParams('api', this.apiOptions);
@@ -741,13 +738,14 @@
                                                   
        console.log("From twitter request_token: ", sentData);
        console.log('sentData type: ',typeof sentData);
-     
+       var sentObj = JSON.parse(sentData); 
        // CHECK if request_token and token from redirection url match
        // CHECK if callback is confirmed
 
-       this.oauth_token = this.parse(sentData,/oauth_token/g, /&/g);// parses oauth_token 
-                                                                    // from string twitter sent
-       if(!this.oauth_token){
+       //this.oauth_token = this.parse(sentData,/oauth_token/g, /&/g);// parses oauth_token 
+       
+                                                                  // from string twitter sent
+       if(!sentObj.oauth_token){
            if(resolve){
                resolve(sentData)
                return
