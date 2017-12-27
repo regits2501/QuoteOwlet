@@ -771,37 +771,15 @@
       
      options.callback = cb // sets callback function
      console.log("OPTIONS ->", options)
-      /* if(typeof leg === 'string'){            // we are in 3-leg dance
-        options = {                           // seting params for http request
-         "method": this.httpMethods[leg],     // take http method for this leg
-         "url": this.server_url,              // was 'http://localhost:5000',
-         "queryParams": { 
-            "host": this.twtUrl.domain,
-            "path": this.twtUrl.path + leg,
-            "method": this.httpMethods[leg],
-            "legSBS": this.signatureBaseString,
-            "legAH": this.genHeaderString()
-          },
-         // "body": this.signatureBaseString,     // Payload of the request we send
-         // "encoding": "text",                    // encoding of the body
-         // "beforeSend": this.setAuthorizationHeader.bind(this),// Before sending we add Authorization 
-                                                              // header to http request
-         "callback": cb                           // Afther successfull responce, 
-                                                  // this callback function is invoked
-        }
-      }
-      else {                             // 'leg' is object with provided options
-          leg.callback = cb; // set callback 
-          options = leg;
-      }   
-     */
+      
 
       request(options);  
    }
    
    twtOAuth.prototype.redirection = function(resolve, sentData){ // Callback function for 2nd step
                                                   
-       console.log("From twitter request_token: " + sentData);
+       console.log("From twitter request_token: ", sentData);
+       console.log('sentData type: ',typeof sentData);
      
        // CHECK if request_token and token from redirection url match
        // CHECK if callback is confirmed
