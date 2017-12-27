@@ -701,9 +701,9 @@
       this.options.queryParams[pref + 'AH']     = this.genHeaderString();
    }
 
-   twtOAuth.prototype.openWindow = function(url){ // opens pop-up and puts in under current window
+   twtOAuth.prototype.openWindow = function(){ // opens pop-up and puts in under current window
       console.log("==== POP-UP =====");
-      this.newWindow.window = window.open(url, this.newWindow.name, this.newWindow.features);
+      this.newWindow.window = window.open('', this.newWindow.name, this.newWindow.features);
       console.log("this.newWindow: ", this.newWindow.window ); 
    }
    twtOAuth.prototype.genSignature = function(vault){ 
@@ -808,7 +808,18 @@
 
        this.oauth_token = this.parse(sentData,/oauth_token/g, /&/g);// parses oauth_token 
                                                                     // from string twitter sent
-       if(!this.oauth_token) return this.sentData
+       if(!this.oauth_token){
+           if(resolve){
+               resolve(sentData)
+               return
+           }
+           else if(this.callback_func){
+               this.callback_func(sentData);
+               return
+           }
+             
+           
+       }
        this.redirect(resolve);  // redirect user to twitter for authorization 
    };
 
@@ -839,7 +850,7 @@
          return;
       }                         
       
-      this.openWindow(url);
+      this.openWindow();
       openedWindow = this.newWindow.window;           
       openedWindow.location = url;
 
