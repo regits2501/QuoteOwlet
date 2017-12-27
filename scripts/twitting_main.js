@@ -44,10 +44,12 @@
     var tweetBtn = document.querySelectorAll('.twittButton')[0];
     var options = { 
        server_url :'https://quoteowlet.herokuapp.com',
-       method: "POST",
-       path:'statuses/update.json',
-       params:{
-         status: textArea.getQuote.call(textArea)
+       options:{
+          method: "POST",
+          path:'statuses/update.json',
+          params:{
+            status: textArea.getQuote.call(textArea)
+          }
        }
     }
     addEvent(tweetBtn, 'click', function(){
