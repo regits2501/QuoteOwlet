@@ -267,10 +267,10 @@
                                      },
                                      'options':{
                                         'method': 'GET',
-                                        'path': 'statuses/lookup.json',
+                                        'path': 'favorites/create.json',
                                         'params':{
                                           
-                                          id:"2,946333290553905152"
+                                          id:"946333290553905152"
                                           
                                            
                                           /*status: '\"'+ textContent(document.querySelector('.showQuote')) +'\"'
