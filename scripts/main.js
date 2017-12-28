@@ -266,7 +266,7 @@
                                         'features':'resizable=yes,height=613,width=400,left=400,top=300'
                                      },
                                      'options':{
-                                        'method': 'POST',
+                                        'method': 'GET',
                                         'path': 'statuses/user_timeline.json',
                                         'params':{
                                           
