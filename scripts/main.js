@@ -267,11 +267,11 @@
                                      },
                                      'options':{
                                         'method': 'GET',
-                                        'path': 'statuses/user_timeline.json',
+                                        'path': 'statuses/show.json',
                                         'params':{
                                           
-                                          screen_name:"yellowSpasm",
-                                          count: 2
+                                          id:"946332850500046800"
+                                          
                                            
                                           /*status: '\"'+ textContent(document.querySelector('.showQuote')) +'\"'
                                                     +'\n ~ ' + textContent(document.querySelector('.showAuthor'))
