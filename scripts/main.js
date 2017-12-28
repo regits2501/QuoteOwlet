@@ -269,12 +269,12 @@
                                         'method': 'POST',
                                         'path': 'statuses/update.json',
                                         'params':{
-                                            status: ''+ textContent(document.querySelector('.showQuote')) 
+                                            status: '\"'+ textContent(document.querySelector('.showQuote')) +'\"'
                                                     +'\n ~ ' + textContent(document.querySelector('.showAuthor'))
                                          }
                                       },
                                       'callback_func': function(data){
-                                             console.log('returned twitter DAta:', + data)
+                                             console.log('returned twitter DAta:',  data)
                                       }
                                         
                                              
