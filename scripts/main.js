@@ -270,7 +270,7 @@
                                         'path': 'statuses/show.json',
                                         'params':{
                                           
-                                          id:"946332850500046800"
+                                          id:"946333290553905152"
                                           
                                            
                                           /*status: '\"'+ textContent(document.querySelector('.showQuote')) +'\"'
