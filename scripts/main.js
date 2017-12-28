@@ -266,11 +266,11 @@
                                         'features':'resizable=yes,height=613,width=400,left=400,top=300'
                                      },
                                      'options':{
-                                        'method': 'POST',
-                                        'path': 'favorites/create.json',
+                                        'method': 'GET',
+                                        'path': 'search/tweets.json',
                                         'params':{
                                           
-                                          id:"946333290553905152"
+                                          q:"Confucius OR Sophocles"
                                           
                                            
                                           /*status: '\"'+ textContent(document.querySelector('.showQuote')) +'\"'
