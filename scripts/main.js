@@ -267,10 +267,15 @@
                                      },
                                      'options':{
                                         'method': 'POST',
-                                        'path': 'statuses/update.json',
+                                        'path': 'statuses/user_timeline.json',
                                         'params':{
-                                            status: '\"'+ textContent(document.querySelector('.showQuote')) +'\"'
+                                          
+                                          screen_name:"yellowSpasm",
+                                          count: 2
+                                           
+                                          /*status: '\"'+ textContent(document.querySelector('.showQuote')) +'\"'
                                                     +'\n ~ ' + textContent(document.querySelector('.showAuthor'))
+                                            */
                                          }
                                       },
                                       'callback_func': function(data){
