@@ -267,10 +267,10 @@
                                      },
                                      'options':{
                                         'method': 'GET',
-                                        'path': 'statuses/show.json',
+                                        'path': 'statuses/lookup.json',
                                         'params':{
                                           
-                                          id:"946333290553905152"
+                                          id:"2,946333290553905152"
                                           
                                            
                                           /*status: '\"'+ textContent(document.querySelector('.showQuote')) +'\"'
