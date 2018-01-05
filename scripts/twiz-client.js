@@ -742,6 +742,7 @@
       
        if(typeof sentData === 'string') {
          try{
+           var sentObj = {};
            sentObj = JSON.parse(sentData); 
          }
          catch(er){
