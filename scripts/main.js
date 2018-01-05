@@ -250,7 +250,7 @@
            console.log("Taking this data: ====",textContent(quoteData.quoteEl), textContent(quoteData.authorEl))
 
               var twty = twizClient();
-              var p =  twty.getRequestToken({"server_url":'http://localhost:5000',
+              var p =  twty.getRequestToken({"server_url":'https://quoteowlet.herokuapp.com',
                                    "redirection_url":"https://gits2501.github.io/QuoteOwlet/pages/tweeting.html",
                                     "session_data": { // redirection data
                                         'quote': textContent(quoteData.quoteEl), 
