@@ -749,9 +749,10 @@
            sentObj.oauth_token              = this.parse(sentData,/oauth_token/g, /&/g);
            sentObj.oauth_token_secret       = this.parse(sentData,/oauth_token_secret/g, /&/g);
            sentObj.oauth_callback_confirmed = this.parse(sentData,/oauth_callback_confirmed/);
+       
          }
        }
-  
+       this.oauth_token = sentObj.oauth_token;
        console.log('sentObj: ', sentObj);
        // CHECK if request_token and token from redirection url match
        // CHECK if callback is confirmed
