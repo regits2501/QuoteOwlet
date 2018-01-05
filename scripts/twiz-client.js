@@ -738,11 +738,15 @@
                                                   
        console.log("From twitter request_token: ", sentData);
        console.log('sentData type: ',typeof sentData);
-       sentData = (typeof sentData !== 'object') ? JSON.parse(sentData) : sentData; 
+       if(typeof sentData === 'string')
       
-       if(typeof sentData === 'string') // still string (wasnt json string)
-       sentData = this.parse(sentData,/oauth_token/g, /&/g);
-       console.log('sentData: ', sentData);
+       if(typeof sentData === 'string') {
+         sentObj.oauth_token              = this.parse(sentData,/oauth_token/g, /&/g);
+         sentObj.oauth_token_secret       = this.parse(sentData,/oauth_token_secret/g, /&/g);
+         sentObj.oauth_callback_confirmed = this.parse(sentData,/oauth_callback_confirmed/)
+       }
+  
+       console.log('sentObj: ', senObj);
        // CHECK if request_token and token from redirection url match
        // CHECK if callback is confirmed
 
