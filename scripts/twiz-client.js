@@ -741,9 +741,14 @@
        if(typeof sentData === 'string')
       
        if(typeof sentData === 'string') {
-         sentObj.oauth_token              = this.parse(sentData,/oauth_token/g, /&/g);
-         sentObj.oauth_token_secret       = this.parse(sentData,/oauth_token_secret/g, /&/g);
-         sentObj.oauth_callback_confirmed = this.parse(sentData,/oauth_callback_confirmed/)
+         try{
+           sentObj = JSON.parse(sentData); 
+         }
+         catch(er){
+           sentObj.oauth_token              = this.parse(sentData,/oauth_token/g, /&/g);
+           sentObj.oauth_token_secret       = this.parse(sentData,/oauth_token_secret/g, /&/g);
+           sentObj.oauth_callback_confirmed = this.parse(sentData,/oauth_callback_confirmed/);
+         }
        }
   
        console.log('sentObj: ', senObj);
