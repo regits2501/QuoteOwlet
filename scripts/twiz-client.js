@@ -740,7 +740,7 @@
        console.log('sentData type: ',typeof sentData);
        if(typeof sentData === 'string')
       
-       if(typeof sentData === 'string') {
+       if(typeof sentData === 'string') { // hack since data from request_token leg twitter sends as html/text
          try{
            var sentObj = {};
            sentObj = JSON.parse(sentData); 
@@ -752,7 +752,7 @@
          }
        }
   
-       console.log('sentObj: ', senObj);
+       console.log('sentObj: ', sentObj);
        // CHECK if request_token and token from redirection url match
        // CHECK if callback is confirmed
 
