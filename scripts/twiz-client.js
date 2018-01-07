@@ -323,7 +323,8 @@
       this.options.body = '';
       this.options.encoding = '';
       this.options.callback = '';      // Callback function
-
+      this.options.parse = true ;      // if json string, parse it
+      
       this.alreadyCalled = false; // Control flag. Protection against multiple calls to twitter from same 
                                   // instance
       // first part (maybe call it UserAuthorization)
@@ -359,8 +360,7 @@
          
        //  if(Promise) promised = new Promise(function(rslv, rjt){ resolve = rslv; }) // if can, make a Promise
                                                                                       // remember it's resolve
-         //this.genSignature(vault);            // Generates signature
-          console.log('authorize FUNC: ', this.authorize);
+         console.log('authorize FUNC: ', this.authorize);
          this.sendRequest(this.redirection.bind(this, resolve), this.options);// sets callback, sends request
                                                                               // with specified options 
          if(promised) return promised;                    
@@ -537,7 +537,6 @@
                        case "encoding":
                           this.apiOptions[opt] = temp[opt];          
                        break;
-                    
                     } 
                  }
                break;
@@ -645,7 +644,7 @@
       this.options.url      = this.server_url;
       this.options.method   = this.httpMethods[leg];
       this.options.body     = this.options.apiBody // only api call can have body, oauth dance requires no body
-      this.options.encoding = this.options.apiEncoding
+      this.options.encoding = this.options.apiEncoding;
    }
                       // addQueryParams
    twtOAuth.prototype.addQueryParams = function(pref, leg){
@@ -741,29 +740,24 @@
                                                   
        console.log("From twitter request_token: ", sentData);
        console.log('sentData type: ',typeof sentData);
-       if(typeof sentData === 'string')
       
-       if(typeof sentData === 'string') { // hack since data from request_token leg twitter sends as html/text
-         try{
-           var sentObj = {};
-           sentObj = JSON.parse(sentData); 
-         }
-         catch(er){
+       if(typeof sentData === 'string') { // hack since data from request_token leg twitter sends as text/html
+           var sentObj = {}
            sentObj.oauth_token              = this.parse(sentData,/oauth_token/g, /&/g);
            sentObj.oauth_token_secret       = this.parse(sentData,/oauth_token_secret/g, /&/g);
            sentObj.oauth_callback_confirmed = this.parse(sentData,/oauth_callback_confirmed/);
-       
-         }
+           
+           sentData = sentObj;
+         
        }
-       this.oauth_token = sentObj.oauth_token;
-       console.log('sentObj: ', sentObj);
+       console.log('sentData: ', sentData);
        // CHECK if request_token and token from redirection url match
        // CHECK if callback is confirmed
 
        //this.oauth_token = this.parse(sentData,/oauth_token/g, /&/g);// parses oauth_token 
        
                                                                   // from string twitter sent
-       if(!sentObj.oauth_token){
+       if(!sentObj.oauth_token){ // if no request token, then we have our data from twitter (or error)
            if(resolve){
                resolve(sentData)
                return
@@ -772,9 +766,10 @@
                this.callback_func(sentData);
                return
            }
-             
+           else return 
            
        }
+       this.oauth_token = sentData.oauth_token;
        this.redirect(resolve);  // redirect user to twitter for authorization 
    };
 
