@@ -341,9 +341,7 @@
         
          this.appendToCallback(this.lnkLabel.data, this.lnkLabel.name); // adds uniqueness to redirection_url
          
-        // this.genSignatureBaseString(vault,this.leg[0]);    // Generates signature base string
-
-         this.setGeneralOptions(this.leg[0]) //
+         this.setGeneralOptions(this.leg[0])           // sets host, path etc... for this request
 
          this.addQueryParams('leg', this.leg[0])              // add leg params for leg[0] (request_token)
 
@@ -369,7 +367,7 @@
       this.getSessionData = function(){
          
          if(!this.authorizationLinkParsed) this.parseAuthorizationLink(window.location.href); // parse returned 
-                                                                                              // data
+                                                                                              // data in url
          
          if(!this.authorized) return;                       // return if no tokens
 
@@ -378,17 +376,17 @@
             return; 
          }                          
           
-          this.sessionData = this.parseSessionData(this.authorized.data) // further parsing of session data
-          console.log(this.sessionData);
-          return this.sessionData;
+         this.sessionData = this.parseSessionData(this.authorized.data) // further parsing of session data
+         console.log(this.sessionData);
+         return this.sessionData;
       }
              // Second part (afther redirection, on redirection_url page)
       this.accessTwitter = function(args){ // Exchanges token and verifier for access_token
           if(!this.authorizationLinkParsed) this.parseAuthorizationLink(window.location.href);
  
           if(!this.authorized) {
-            console.log(this.meassages.linkNotAuthorized);
-            return;                                       // print info and return if no tokens or label incore
+            console.log(this.messages.linkNotAuthorized);
+            return;                                       // print info and return if no tokens or label present
           } 
           
           
