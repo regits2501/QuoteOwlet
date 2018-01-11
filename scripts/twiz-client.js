@@ -183,11 +183,9 @@
                    data = this.request.responseText;// text/html , text/css and others are treated as text
        }
 
-       error = statusCode !== 200 ? { status :    statusCode, 
-                                      statusText: this.request.statusText, 
-                                       data :      data
-                                    }
-       callback(error, data);   // invoke callback
+       error = statusCode !== 200 ? { status : statusCode, statusText: this.request.statusText, data : data }:""
+ 
+       callback(error, data)   // invoke callback
 
     }
 
