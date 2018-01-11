@@ -155,7 +155,7 @@
     request.invokeCallback = function (statusCode, contentType, callback){
        var error;
        var data;
-        
+
        contentType = contentType.split(';')[0]; // get just type , in case there is charset specified 
        switch(contentType){              // get request data from apropriate property, parse it if indicated  
                  case "application/json":   
@@ -171,6 +171,7 @@
                    data = this.request.responseXML; // responceXML already parsed as a DOM object
                  break;
                  case "application/x-www-url-formencoded":
+                   data =  {};
                    this.request.responseText.trim().split("&").forEach(function(el, i){ // split on &
                    
                          var pairs = el.split('=');                  
