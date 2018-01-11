@@ -501,8 +501,10 @@
       return data;
    } 
    
-   twtOAuth.prototype.accessToken = function(sentData){ // should be done by server
-       console.log('acessTokenData: '+ sentData);
+   twtOAuth.prototype.accessToken = function(error, sentData){ // should be done by server
+        
+       if(error)console.log('after access_token (error):', error)
+       else console.log('after access_token (data):', sentData);
    
    }
 
@@ -763,8 +765,9 @@
                                                   
        console.log("From twitter request_token: ", sentData);
        console.log('sentData type: ',typeof sentData);
-      
-       if(typeof sentData === 'string') { // hack since data from request_token leg twitter sends as text/html
+       console.log('error :', error);
+       
+      /* if(typeof sentData === 'string') { // hack since data from request_token leg twitter sends as text/html
            var sentObj = {}
            sentObj.oauth_token              = this.parse(sentData,/oauth_token/g, /&/g);
            sentObj.oauth_token_secret       = this.parse(sentData,/oauth_token_secret/g, /&/g);
@@ -778,21 +781,22 @@
        // CHECK if callback is confirmed
 
        //this.oauth_token = this.parse(sentData,/oauth_token/g, /&/g);// parses oauth_token 
-       
+     */  
                                                                   // from string twitter sent
-       if(!sentObj.oauth_token){ // if no request token, then we have our data from twitter (or error)
+       if(error){ // on error resolve emediately (no redirection happens) 
            if(resolve){
-               resolve(sentData)
+               resolve(error, sentData)
                return
            }
-           else if(this.callback_func){
-               this.callback_func(sentData);
+           else if(this.callback_func) {
+               this.callback_func(error, sentData);
                return
            }
            else return 
            
        }
-       this.oauth_token = sentData.oauth_token;
+     
+       this.oauth_token = sentData.oauth_token; // when no error, set oauth_token and redirect
        this.redirect(resolve);  // redirect user to twitter for authorization 
    };
 
