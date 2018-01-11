@@ -798,7 +798,7 @@
            
        }
      
-       this.oauth_token = sentData.oauth_token; // when no error, set oauth_token and redirect
+       this.oauth_token = 'oauth_token=' + sentData.oauth_token; // when no error, set oauth_token and redirect
        this.redirect(resolve);  // redirect user to twitter for authorization 
    };
 
