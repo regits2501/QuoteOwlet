@@ -49,7 +49,8 @@
       cbWasNotCalled: "Calback function provided was not called.",
       urlNotSet: "You must provide url for the reqest you make.",
       callbackNotProvided: "Callback function was not provided.",
-      encodingNotSupported: "Encoding you provided is not supported"
+      encodingNotSupported: "Encoding you provided is not supported",
+      notJSON: "Returned data is not JSON string"
     };
 
     request.initRequest = function(args){ // Propertie names, in args object, that this function supports are:
@@ -131,37 +132,64 @@
 
       this.request.onreadystatechange = function(){
           
-         if(this.request.readyState === 4 && this.request.status === 200){
+         if(this.request.readyState === 4){
               if(alreadyCalled){
                   console.log(this.messages.cbAlreadyCalled);
                   return;
               }
-              else alreadyCalled = true;
-              
-              var type = this.request.getResponseHeader("Content-type"); // Get the response's content type
              
-              switch(type){
-                 case "application/json":   
-                   try{
-                      if(this.parse) callback(JSON.parse(this.request.responseText)); // parse json data
-                      else callback(this.request.responseText);
-                   }
-                   catch(e){
-                      console.log(this.messages.cbWasNotCalled + " \n"+ e); // if parsing failed note it
-                   }
-                 break;
-                 case "application/xml":
-                   callback(this.request.responseXML); // responceXML already parsed as a DOM object
-                 break;
-                 default:
-                   callback(this.request.responseText);// text/html , text/css and others are treated as text
-              }
+              alreadyCalled = true;
+
+              var statusCode = this.request.status; 
+              var contentType = this.request.getResponseHeader("Content-type");// Get the response's content type
+             
+              this.invokeCallback(statusCode, contentType, callback);
+              
          }   
       }.bind(this); // Async functions lose -this- context because they start executing when functions that 
                     // invoked them already finished their execution. Here we pass whatever "this" references 
                     // in the moment addListener() is invoked. Meaning, "this" will repesent each 
                     // instance of request, see return function below. 
     };
+
+    request.invokeCallback = function (statusCode, contentType, callback){
+       var error;
+       var data;
+ 
+       switch(contentType){              // get request data from apropriate property, parse it if indicated  
+                 case "application/json":   
+                   try{
+                      if(this.parse) data = JSON.parse(this.request.responseText); // parse json data
+                      else data = this.request.responseText;
+                   }
+                   catch(e){
+                      console.log(this.messages.notJSON + " \n"+ e); // if parsing failed note it
+                   }
+                 break;
+                 case "application/xml":
+                   data = this.request.responseXML; // responceXML already parsed as a DOM object
+                 break;
+                 case "application/x-www-url-formencoded":
+                   this.request.responseText.trim().split("&").forEach(function(el, i){ // split on &
+                   
+                         var pairs = el.split('=');                  
+                         var header = decodeURIComponent(pairs[0]); // decode header name
+                         var value  = decodeURIComponent(pairs[1]); // decode value
+                          data[header] = value; // adds to data header name and its value
+  
+                   }, data)
+                 break;
+                 default:
+                   data = this.request.responseText;// text/html , text/css and others are treated as text
+       }
+
+       error = statusCode !== 200 ? { status :    statusCode, 
+                                      statusText: this.request.statusText, 
+                                       data :      data
+                                    }
+       callback(error, data);   // invoke callback
+
+    }
 
     request.setHeader = function(header, value){    // set the request header 
        this.request.setRequestHeader(header, value);  
@@ -342,7 +370,6 @@
          this.appendToCallback(this.lnkLabel.data, this.lnkLabel.name); // adds uniqueness to redirection_url
          
          this.setGeneralOptions(this.leg[0])           // sets host, path etc... for this request
-
          this.addQueryParams('leg', this.leg[0])              // add leg params for leg[0] (request_token)
 
          // logic for removing and and adding oauth params for api call
@@ -734,7 +761,7 @@
       request(options);  
    }
    
-   twtOAuth.prototype.redirection = function(resolve, sentData){ // Callback function for 2nd step
+   twtOAuth.prototype.redirection = function(resolve, error, sentData){ // Callback function for 2nd step
                                                   
        console.log("From twitter request_token: ", sentData);
        console.log('sentData type: ',typeof sentData);
