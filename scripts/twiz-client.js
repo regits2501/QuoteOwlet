@@ -155,7 +155,8 @@
     request.invokeCallback = function (statusCode, contentType, callback){
        var error;
        var data;
- 
+        
+       contentType = contentType.split(';')[0]; // get just type , in case there is charset specified 
        switch(contentType){              // get request data from apropriate property, parse it if indicated  
                  case "application/json":   
                    try{
