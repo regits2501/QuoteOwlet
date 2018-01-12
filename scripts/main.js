@@ -287,7 +287,7 @@
               if(p) p.then(function onFulfilled(w){
                            console.log("Promised: ", w)
                             if (!w.error){
-                               userID = w[0]['id_str']; 
+                               userID = w.data[0]['id_str']; 
                                console.log('userID:', userID)
                               return new Promise(function(res, rej){
                                     var twiz = twizClient();
