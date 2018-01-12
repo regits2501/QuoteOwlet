@@ -186,7 +186,7 @@
                    temp = this.request.responseText;// text/html , text/css and others are treated as text
        }
 
-       if(statusCode !== 200) error = { status: statusCode, statusText: this.request.statusText, data: temp }:""
+       if(statusCode !== 200) error = { status: statusCode, statusText: this.request.statusText, data: temp }
        else data = temp; //no error, data is object we got from payload
  
        
