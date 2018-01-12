@@ -248,9 +248,7 @@
       addEvent(document.getElementsByClassName("twitterButton")[0], "click", function authenticate(){
                 
            console.log("Taking this data: ====",textContent(quoteData.quoteEl), textContent(quoteData.authorEl))
-
-              var twty = twizClient();
-              var p =  twty.getRequestToken({"server_url":'https://quoteowlet.herokuapp.com',
+              var options = {      "server_url":'https://quoteowlet.herokuapp.com',
                                    "redirection_url":"https://gits2501.github.io/QuoteOwlet/pages/tweeting.html",
                                     "session_data": { // redirection data
                                         'quote': textContent(quoteData.quoteEl), 
@@ -267,10 +265,10 @@
                                      },
                                      'options':{
                                         'method': 'GET',
-                                        'path': 'search/tweets.json',
+                                        'path': 'users/search.json',
                                         'params':{
                                           
-                                          q:"Confucius OR Sophocles"
+                                          q:"DaiMokuroku"
                                           
                                            
                                           /*status: '\"'+ textContent(document.querySelector('.showQuote')) +'\"'
@@ -282,10 +280,28 @@
                                             if(error) console.log('error (callback_func): ', error)
                                              console.log('returned twitter DAta:',  data)
                                       }
-                                        
-                                             
-              });
-              if(p) p.then(function onFulfilled(w){console.log("Promised: ", w)})
+                              }
+
+	      var twty = twizClient();
+              var p =  twty.getRequestToken(options);
+              if(p) p.then(function onFulfilled(w){
+                           console.log("Promised: ", w)
+                           /*(if (!w.error){
+                              return new Promise(function(res, rej){
+                                    var twiz = twizClient();
+                                    options.options = {
+                                      'method': "POST", 
+                                      'path':'direct_messages/events/new(message_create)',
+                                      'params': {
+                                         q: '' 
+                                       }
+                                    }
+                                    var p = twiz.getRequestToken()
+                              })
+                           }
+                         */
+                      }
+                    )
               else console.log('NO Promise available')
        })
      

@@ -50,7 +50,8 @@
       urlNotSet: "You must provide url for the reqest you make.",
       callbackNotProvided: "Callback function was not provided.",
       encodingNotSupported: "Encoding you provided is not supported",
-      notJSON: "Returned data is not JSON string"
+      notJSON: "Returned data is not JSON string",
+      noContentType: "Failed to get content-type header from response"
     };
 
     request.initRequest = function(args){ // Propertie names, in args object, that this function supports are:
@@ -158,6 +159,7 @@
        var temp;
 
        contentType = contentType.split(';')[0]; // get just type , in case there is charset specified 
+       if(!contentType) throw new Error(this.messages.noContentType);
        switch(contentType){              // get request data from apropriate property, parse it if indicated  
                  case "application/json":   
                    try{
@@ -545,6 +547,9 @@
                break;
                case "session_data":
                  this.session_data = temp;
+               case 'before_end':
+                 this.beforeEnd = temp;
+               break
                break;
                case "version":
                  this.oauth.version(temp);
