@@ -286,22 +286,45 @@
               var p =  twty.getRequestToken(options);
               if(p) p.then(function onFulfilled(w){
                            console.log("Promised: ", w)
-                           /*(if (!w.error){
+                            if (!w.error){
+                               userID = w[0]['id_str']; 
+                               console.log('userID:', userID)
                               return new Promise(function(res, rej){
                                     var twiz = twizClient();
+                                    delete options.options.params;
                                     options.options = {
                                       'method': "POST", 
                                       'path':'direct_messages/events/new(message_create)',
-                                      'params': {
-                                         q: '' 
-                                       }
+                                       'body': JSON.stringify({
+                                                  "event": {
+                                                      "type": "message_create",
+                                                      "message_create": {
+                                                         "target": {
+                                                           "recipient_id": userID
+                                                         },
+                                                         "message_data": {
+                                                           "text": "In order to cover first you must show."
+                                                         }
+                                                      }
+                                                  }
+                                               }),
+                                       'beforeSend': function(request){
+                                           request.setHeader('Content-Type', 'application/json;charset=utf-8');
+                                       }          
                                     }
-                                    var p = twiz.getRequestToken()
+                                    var p = twiz.getRequestToken(options);
+                                    if(p) p.then(function(w){
+                                          if(!w.error){ res(w); return}
+                                          console.lo('error posting direct mesage:', w.error);
+                                    })
                               })
                            }
-                         */
+                         
                       }
-                    )
+                    ).then(function(w){
+                         if(!w.error)
+                          console.log('after direct mesage',w);
+                    })
               else console.log('NO Promise available')
        })
      
