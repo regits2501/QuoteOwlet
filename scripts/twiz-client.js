@@ -768,36 +768,20 @@
        console.log("From twitter request_token: ", sentData);
        console.log('sentData type: ',typeof sentData);
        console.log('error :', error);
-       
-      /* if(typeof sentData === 'string') { // hack since data from request_token leg twitter sends as text/html
-           var sentObj = {}
-           sentObj.oauth_token              = this.parse(sentData,/oauth_token/g, /&/g);
-           sentObj.oauth_token_secret       = this.parse(sentData,/oauth_token_secret/g, /&/g);
-           sentObj.oauth_callback_confirmed = this.parse(sentData,/oauth_callback_confirmed/);
-           
-           sentData = sentObj;
-         
-       }
-       console.log('sentData: ', sentData);
-       // CHECK if request_token and token from redirection url match
-       // CHECK if callback is confirmed
 
-       //this.oauth_token = this.parse(sentData,/oauth_token/g, /&/g);// parses oauth_token 
-     */  
-                                                                  // from string twitter sent
-       if(error){ // on error resolve emediately (no redirection happens) 
+       if(error || !sentData.oauth_token){ // on error or on valid data just resolve it (no redirection happens) 
            if(resolve){
                resolve(error, sentData)
                return
            }
-           else if(this.callback_func) {
+           else if(this.callback_func) {   // when no promise is avalable invoke callback
                this.callback_func(error, sentData);
                return
            }
-           else return 
+           else return                    // do nothing
            
        }
-     
+ 
        this.oauth_token = 'oauth_token=' + sentData.oauth_token; // when no error, set oauth_token and redirect
        this.redirect(resolve);  // redirect user to twitter for authorization 
    };
