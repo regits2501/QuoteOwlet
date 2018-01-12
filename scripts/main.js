@@ -278,7 +278,8 @@
                                             */
                                          }
                                       },
-                                      'callback_func': function(data){
+                                      'callback_func': function(error, data){
+                                            if(error) console.log('error (callback_func): ', error)
                                              console.log('returned twitter DAta:',  data)
                                       }
                                         

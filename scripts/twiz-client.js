@@ -153,40 +153,43 @@
     };
 
     request.invokeCallback = function (statusCode, contentType, callback){
-       var error;
+       var error; 
        var data;
+       var temp;
 
        contentType = contentType.split(';')[0]; // get just type , in case there is charset specified 
        switch(contentType){              // get request data from apropriate property, parse it if indicated  
                  case "application/json":   
                    try{
-                      if(this.parse) data = JSON.parse(this.request.responseText); // parse json data
-                      else data = this.request.responseText;
+                      if(this.parse) temp = JSON.parse(this.request.responseText); // parse json data
+                      else temp = this.request.responseText;
                    }
                    catch(e){
                       console.log(this.messages.notJSON + " \n"+ e); // if parsing failed note it
                    }
                  break;
                  case "application/xml":
-                   data = this.request.responseXML; // responceXML already parsed as a DOM object
+                   temp = this.request.responseXML; // responceXML already parsed as a DOM object
                  break;
                  case "application/x-www-url-formencoded":
-                   data =  {};
+                   temp =  {};
                    this.request.responseText.trim().split("&").forEach(function(el, i){ // split on &
                    
                          var pairs = el.split('=');                  
                          var header = decodeURIComponent(pairs[0]); // decode header name
                          var value  = decodeURIComponent(pairs[1]); // decode value
-                          data[header] = value; // adds to data header name and its value
+                          temp[header] = value; // adds to data header name and its value
   
-                   }, data)
+                   }, temp)
                  break;
                  default:
-                   data = this.request.responseText;// text/html , text/css and others are treated as text
+                   temp = this.request.responseText;// text/html , text/css and others are treated as text
        }
 
-       error = statusCode !== 200 ? { status : statusCode, statusText: this.request.statusText, data : data }:""
+       if(statusCode !== 200) error = { status: statusCode, statusText: this.request.statusText, data: temp }:""
+       else data = temp; //no error, data is object we got from payload
  
+       
        callback(error, data)   // invoke callback
 
     }
