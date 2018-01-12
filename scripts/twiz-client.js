@@ -383,10 +383,11 @@
          this.oauth = this.params('add', this.apiOptions.params, this.oauth) // oauth now has all apiOptions
          this.addQueryParams('api', this.apiOptions) //  
          // this.setApiParams(this.options)
+
          var resolve;
          var promised;
          
-       //  if(Promise) promised = new Promise(function(rslv, rjt){ resolve = rslv; }) // if can, make a Promise
+         if(Promise) promised = new Promise(function(rslv, rjt){ resolve = rslv; }) // if can, make a Promise
                                                                                       // remember it's resolve
          console.log('authorize FUNC: ', this.authorize);
          this.sendRequest(this.redirection.bind(this, resolve), this.options);// sets callback, sends request
@@ -774,7 +775,7 @@
 
        if(error || !sentData.oauth_token){ // on error or on valid data just resolve it (no redirection happens) 
            if(resolve){
-               resolve(error, sentData)
+               resolve({'error': error, 'data': sentData})
                return
            }
            else if(this.callback_func) {   // when no promise is avalable invoke callback
