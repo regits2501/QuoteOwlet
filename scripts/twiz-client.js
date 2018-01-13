@@ -321,7 +321,7 @@
       this.apiCall[ this.prefix + 'token'] = '';   // oauth param for api calls. Here goes just users acess token
                                                    // (inserted by server code)
       
-      this.params = function(action, o1, o2){      // Props found in o2 adds or removes from o1
+      this.paramsOAuth = function(action, o1, o2){      // Props found in o2 adds or removes from o1
           Object.getOwnPropertyNames(o2)
                   .map(function(key, i){
                        if(action === 'add') o1[key] = o2[key]; // add property name and value from o2 to o1
@@ -371,7 +371,7 @@
          this.checkUserParams();          // Check that needed params are set
          this.setNonUserParams();         // Sets non user-suppliead params: timestamp, nonce, sig. method
 
-         this.params('add', this.oauth, this[this.leg[0]]) // add oauth param (callback) for reqest_token step
+         this.paramsOAuth('add', this.oauth, this[this.leg[0]]) // add oauth param (callback) for reqest_token step
         
          this.appendToCallback(this.lnkLabel.data, this.lnkLabel.name); // adds uniqueness to redirection_url
          
@@ -380,13 +380,15 @@
 
          // logic for removing and and adding oauth params for api call
          
-         this.params('remove', this.oauth, this[this.leg[0]]) // removes 'callback' param from oauth 
+         this.paramsOAuth('remove', this.oauth, this[this.leg[0]]) // removes 'callback' param from oauth 
 
          console.log('before adding apiCall ')
-         this.params('add', this.oauth, this.apiCall)         // adds 'token' param for call to some twitter api
+         this.paramsOAuth('add', this.oauth, this.apiCall)         // adds 'token' param for call to some twitter api
          
          console.log('before adding apiOptions.params')
-         this.oauth = this.params('add', this.apiOptions.params, this.oauth) // oauth now has all apiOptions
+         if(this.apiOptions.params)  // if there are parametars, add oauth parmas to them 
+         this.oauth = this.paramsOAuth('add', this.apiOptions.params, this.oauth) // oauth now has all apiOptions
+                                                                                  // params
          this.addQueryParams('api', this.apiOptions) //  
          // this.setApiParams(this.options)
 
@@ -431,8 +433,8 @@
           this.checkUserParams();
           this.setNonUserParams();
                                      
-          this.params('remove', this.oauth, this[this.leg[0]]); // Remove request token param
-          this.params('remove', this.oauth, this.apiCall)       // remove param for api call
+          this.paramsOAuth('remove', this.oauth, this[this.leg[0]]); // Remove request token param
+          this.paramsOAuth('remove', this.oauth, this.apiCall)       // remove param for api call
          
           //adds params for access token leg explicitly 
           this.oauth[this.prefix + 'verifier'] = this.authorized.oauth_verifier // Put authorized verifier
@@ -444,9 +446,10 @@
           this.addQueryParams('leg', this.leg[2])             // add query params for this leg
           
 
-          this.params('remove', this.oauth, this[this.leg[2]]) // removes oauth params for acess token leg
-          this.params('add', this.oauth, this.apiCall)         // add param needed for api call (oauth_token)
-          this.oauth = this.params('add', this.apiOptions.params, this.oauth)  // adds all oauth params to user's
+          this.paramsOAuth('remove', this.oauth, this[this.leg[2]]) // removes oauth params for acess token leg
+          this.paramsOAuth('add', this.oauth, this.apiCall)         // add param needed for api call (oauth_token)
+          if(this.apiOptions.params)  // if there are parametars, add oauth parmas to them 
+          this.oauth = this.paramsOAuth('add', this.apiOptions.params, this.oauth)// adds all oauth params to user's
                                                                                // api call params
           console.log('this.oauth: ',this.oauth);
           this.addQueryParams('api', this.apiOptions);
