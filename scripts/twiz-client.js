@@ -442,10 +442,11 @@
           
 
           this.params('remove', this.oauth, this[this.leg[2]]) // removes oauth params for acess token leg
+          console.log('before adding apiCall ')
           this.params('add', this.oauth, this.apiCall)         // add param needed for api call (oauth_token)
-
+         console.log('before adding apiOptions.params')
           this.oauth = this.params('add', this.apiOptions.params, this.oauth)  // adds all oauth params to user's
-                                                                                // api call params
+                                                                               // api call params
           console.log('this.oauth: ',this.oauth);
           this.addQueryParams('api', this.apiOptions);
  
