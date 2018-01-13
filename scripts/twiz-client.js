@@ -381,8 +381,11 @@
          // logic for removing and and adding oauth params for api call
          
          this.params('remove', this.oauth, this[this.leg[0]]) // removes 'callback' param from oauth 
+
+         console.log('before adding apiCall ')
          this.params('add', this.oauth, this.apiCall)         // adds 'token' param for call to some twitter api
          
+         console.log('before adding apiOptions.params')
          this.oauth = this.params('add', this.apiOptions.params, this.oauth) // oauth now has all apiOptions
          this.addQueryParams('api', this.apiOptions) //  
          // this.setApiParams(this.options)
@@ -442,9 +445,7 @@
           
 
           this.params('remove', this.oauth, this[this.leg[2]]) // removes oauth params for acess token leg
-          console.log('before adding apiCall ')
           this.params('add', this.oauth, this.apiCall)         // add param needed for api call (oauth_token)
-         console.log('before adding apiOptions.params')
           this.oauth = this.params('add', this.apiOptions.params, this.oauth)  // adds all oauth params to user's
                                                                                // api call params
           console.log('this.oauth: ',this.oauth);
