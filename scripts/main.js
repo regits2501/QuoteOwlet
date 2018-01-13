@@ -321,8 +321,8 @@
                          
                       }
                     ).then(function(w){
-                         if(!w.error)
-                          console.log('after direct mesage',w);
+                         if(!w.error) console.log('after direct mesage',w);
+                         else console.log("success: ", w)
                     })
               else console.log('NO Promise available')
        })
