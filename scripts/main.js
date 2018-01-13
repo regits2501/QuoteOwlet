@@ -314,7 +314,7 @@
                                     var p = twiz.getRequestToken(options);
                                     if(p) p.then(function(w){
                                           if(!w.error){ res(w); return}
-                                          console.lo('error posting direct mesage:', w.error);
+                                          console.log('error posting direct mesage:', w.error);
                                     })
                               })
                            }
