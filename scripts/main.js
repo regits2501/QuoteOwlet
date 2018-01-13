@@ -295,7 +295,7 @@
                                     options.options = {
                                       'method': "POST", 
                                       'path':'direct_messages/events/new.json',
-                                       'body': JSON.stringify({
+                                       'body': {
                                                   "event": {
                                                       "type": "message_create",
                                                       "message_create": {
@@ -307,7 +307,7 @@
                                                          }
                                                       }
                                                   }
-                                               }),
+                                               },
                                        'encoding': 'json'
                                           
                                     }
