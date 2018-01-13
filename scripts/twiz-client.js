@@ -215,7 +215,7 @@
                     break;
                     case "json":
                       this.body = JSON.stringify(this.body)  
-                      this.setHeader("Content-Type", "application/json;charset=utf-8");
+                      this.setHeader("Content-Type", "application/json");
                     break;
                     case "text":
                        this.setHeader("Content-Type", 'text/plain;charset=utf-8');
