@@ -294,7 +294,7 @@
                                     delete options.options.params;
                                     options.options = {
                                       'method': "POST", 
-                                      'path':'direct_messages/events/new(message_create)',
+                                      'path':'direct_messages/events/new.json',
                                        'body': JSON.stringify({
                                                   "event": {
                                                       "type": "message_create",

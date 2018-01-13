@@ -568,7 +568,7 @@
                        break;
                        case "params":
                           this.apiOptions[opt] = temp[opt];
-                          this.apiOptions.paramsEncoded = formEncode(temp[opt], true);          
+                          this.apiOptions.paramsEncoded = "?" + formEncode(temp[opt], true);          
                        break;
                        case "body":
                           this.apiOptions[opt] = temp[opt];          
@@ -694,7 +694,7 @@
       this.options.queryParams[pref + 'Host']   = this.twtUrl.domain ;
       this.options.queryParams[pref + 'Path']   = pref === 'leg' ? this.twtUrl.path + leg : 
                                                                    this.twtUrl.api_path +
-                                                                   this.apiOptions.path + "?" +
+                                                                   this.apiOptions.path +
                                                                    this.apiOptions.paramsEncoded;
      
       this.options.queryParams[pref + 'Method'] = pref === 'leg' ? this.httpMethods[leg] : this.apiOptions.method;
