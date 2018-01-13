@@ -308,9 +308,8 @@
                                                       }
                                                   }
                                                }),
-                                       'beforeSend': function(request){
-                                           request.setHeader('Content-Type', 'application/json;charset=utf-8');
-                                       }          
+                                       'encoding': 'json'
+                                          
                                     }
                                     var p = twiz.getRequestToken(options);
                                     if(p) p.then(function(w){
