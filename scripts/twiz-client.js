@@ -211,13 +211,13 @@
               switch(this.encoding.toLowerCase()){      // when there is encoding string
                     case "form":
                       this.body = formEncode(this.body) // encode the body
-                      this.setHeader("Content-Type", "application/x-www-url-formencoded"); // set header
+                      this.setHeader("Content-Type", "application/x-www-url-formencoded;charset=utf-8"); 
                     break;
                     case "json":
                       this.body = JSON.stringify(this.body)  
-                      this.setHeader("Content-Type", "application/json");
+                      this.setHeader("Content-Type", "application/json;charset=utf-8");
                     case "text":
-                       this.setHeader("Content-Type", 'text/plain');
+                       this.setHeader("Content-Type", 'text/plain;charset=utf-8');
                     break;
                     default:
                       throw new Error(this.messages.encodingNotSupported);
@@ -355,6 +355,7 @@
       };
       this.options.body = '';
       this.options.encoding = '';
+      this.options.beforeSend = '';
       this.options.callback = '';      // Callback function
       this.options.parse = true ;      // if json string, parse it
       
@@ -547,9 +548,6 @@
                break;
                case "session_data":
                  this.session_data = temp;
-               case 'before_end':
-                 this.beforeEnd = temp;
-               break
                break;
                case "version":
                  this.oauth.version(temp);
@@ -572,7 +570,10 @@
                        break;
                        case "encoding":
                           this.apiOptions[opt] = temp[opt];          
-                       break;
+                       break; 
+                       case 'beforeSend':
+                           this.apiOptions[opt] = temp[opt]; 
+                       break
                     } 
                  }
                break;
@@ -661,7 +662,7 @@
            method = this.httpMethods[leg]        // Get the method for this leg
            method = method.toUpperCase() + "&";  // upercase the method, add "&"
 
-           url = this.absoluteUrls[leg];         // Get the absoute url for this leg of authentication
+           url = this.absoluteUrls[leg];         // Get the absolute url for this leg of authentication
            url = percentEncode(url) + "&";       // Encode the url, add "&".
          }
          else {                                      // 'leg' is the options object user provided     
@@ -677,10 +678,11 @@
    }
 
    twtOAuth.prototype.setGeneralOptions = function(leg){
-      this.options.url      = this.server_url;
-      this.options.method   = this.httpMethods[leg];
-      this.options.body     = this.options.apiBody // only api call can have body, oauth dance requires no body
-      this.options.encoding = this.options.apiEncoding;
+      this.options.url        = this.server_url;            // server address
+      this.options.method     = this.httpMethods[leg];      // method for reqest is method for this leg
+      this.options.body       = this.apiOptions.body // only api call can have body, oauth dance requires no body
+      this.options.encoding   = this.apiOptions.encoding;   // encoding of a body
+      this.options.beforeSend = this.apiOptions.beforeSend; // manipulates request before it is sent
    }
                       // addQueryParams
    twtOAuth.prototype.addQueryParams = function(pref, leg){
@@ -690,8 +692,7 @@
                                                                    this.apiOptions.path + "?" +
                                                                    this.apiOptions.paramsEncoded;
      
-      this.options.queryParams[pref + 'Method'] = pref === 'leg' ? this.httpMethods[leg] :
-                                                                   this.apiOptions.method;
+      this.options.queryParams[pref + 'Method'] = pref === 'leg' ? this.httpMethods[leg] : this.apiOptions.method;
       this.options.queryParams[pref + 'SBS']    = this.genSignatureBaseString({}, leg);// no need for vault
                                                                                        // (remove it)
       this.options.queryParams[pref + 'AH']     = this.genHeaderString();
