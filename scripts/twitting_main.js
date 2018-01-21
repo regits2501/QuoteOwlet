@@ -27,7 +27,7 @@
     this.textEl = document.querySelectorAll(element)[0]
  }
  textArea.insertQuote = function(sessionData){           // inserts received data from redirection (callback) url
-     console.log('sessionData =====', sessionData);
+    console.log('sessionData =====', sessionData);
     textContent(this.textEl, "\" " + sessionData.quote + '\"\n~ ' + sessionData.author);
  }
  textArea.getQuote = function(){

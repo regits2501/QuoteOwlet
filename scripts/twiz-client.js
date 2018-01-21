@@ -263,11 +263,7 @@
  })(); 
     
    function twtOAuth (args){ 
-      var vault = {               // this is vault, for storing sensitive information
-        "consumer_key": "",
-        "consumer_secret":"",
-        "user_key": ""
-      }
+      
       this.leg = ["request_token","authorize","access_token"] // Names of each leg (step) in 3-leg authentication
                                                              // to twitter. Names are also url path ends:
                                                              // http://api.twitter.com/oauth/request_token
@@ -617,7 +613,7 @@
 
    }
    
-   twtOAuth.prototype.genSignatureBaseString = function(vault, leg){ // generates SBS  
+   twtOAuth.prototype.genSignatureBaseString = function(leg){ // generates SBS  
          this.signatureBaseString = '';
          var a = [];
          for(var name in this.oauth){                            // takes every oauth params name
@@ -699,8 +695,7 @@
                                                                    this.apiOptions.paramsEncoded;
      
       this.options.queryParams[pref + 'Method'] = pref === 'leg' ? this.httpMethods[leg] : this.apiOptions.method;
-      this.options.queryParams[pref + 'SBS']    = this.genSignatureBaseString({}, leg);// no need for vault
-                                                                                       // (remove it)
+      this.options.queryParams[pref + 'SBS']    = this.genSignatureBaseString(leg); 
       this.options.queryParams[pref + 'AH']     = this.genHeaderString();
    }
 
@@ -884,14 +879,7 @@
       this.setVersion();
    }
    
-   twtOAuth.prototype.genSigningKey = function(vault){ // generates signing keys used by hmacSha1 function
-      var key = "";
-      key += percentEncode(vault.consumer_secret) + "&"; // percent encode SECRET , add "&"
-      if(vault.user_key) key += percentEncode(vault.user_key)     // check this in docs
-      // if step where user key required check vor usr key  
-      return key; 
-   }
-   twtOAuth.prototype.setSignatureMethod = function(method){
+      twtOAuth.prototype.setSignatureMethod = function(method){
       this.oauth[this.prefix + 'signature_method'] = method || "HMAC-SHA1";
    }
 

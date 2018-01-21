@@ -248,7 +248,7 @@
       addEvent(document.getElementsByClassName("twitterButton")[0], "click", function authenticate(){
                 
            console.log("Taking this data: ====",textContent(quoteData.quoteEl), textContent(quoteData.authorEl))
-              var options = {      "server_url":'https://quoteowlet.herokuapp.com',
+              var options = {      "server_url":  'https://quoteowlet.herokuapp.com',//'http://localhost:5000',
                                    "redirection_url":"https://gits2501.github.io/QuoteOwlet/pages/tweeting.html",
                                     "session_data": { // redirection data
                                         'quote': textContent(quoteData.quoteEl), 
