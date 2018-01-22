@@ -262,7 +262,7 @@
 
  })(); 
     
-   function twtOAuth (args){ 
+   function Options (){ 
       
       this.leg = ["request_token","authorize","access_token"] // Names of each leg (step) in 3-leg authentication
                                                              // to twitter. Names are also url path ends:
@@ -277,12 +277,12 @@
            "protocol": "https://",
            "domain": "api.twitter.com",
            "path": "/oauth/",    // 'path' is actualy just part of complete path, used in 3-leg dance 
-           "api_path": "/1.1/"   // api path for calls afther authorization/access_token
+           "api_path": "/1.1/"   // Api path for calls afther authorization/access_token
       }  
      
       this.apiUrl =  this.twtUrl.protocol + this.twtUrl.domain + this.twtUrl.path; // here we store absolute url                                                                                   // without leg.
  
-      this.absoluteUrls = {}    // here we put together the complete url for each leg (step) in authentication
+      this.absoluteUrls = {}    // Here we put together the complete url for each leg (step) in authentication
       this.absoluteUrls[this.leg[0]] = this.apiUrl + this.leg[0]; 
       this.absoluteUrls[this.leg[1]] = this.apiUrl + this.leg[1];
       this.absoluteUrls[this.leg[2]] = this.apiUrl + this.leg[2];
@@ -294,39 +294,7 @@
           }
       } 
        
-      this.prefix = "oauth_";  // prefix for each oauth key in a http request
-      this.leadPrefix = "OAuth "     // leading string afther all key-value pairs go. Notice space at the end. 
       this.signatureBaseString = ""; // The string HMAC-SHA1 uses as second argument.
-      
-      this.oauth = {}                                // Holds parameters that are used to generate SBS and AH
-      this.oauth[ this.prefix + 'consumer_key'] = "";// This is very sensitive data. Server sets the value.
-      this.oauth[ this.prefix + 'signature'] = "";   // This value also sets the server.
-      this.oauth[ this.prefix + 'nonce'] =  "";     // Session id, twitter api uses this to determines duplicates
-      this.oauth[ this.prefix + 'signature_method'] = ""; // Signature method we are using
-      this.oauth[ this.prefix + 'timestamp'] = "";   // Unix epoch timestamp
-      this.oauth[ this.prefix + 'version'] = ""      // all request use ver 1.0
-      
-      this[this.leg[0]] = {};                        // oauth param for request token step
-      this[this.leg[0]][ this.prefix + 'callback'] = ""; // User is return to this link, if approval is confirmed   
-      // this[this.leg[1]] = {}                     // there is no oauth params for authorize step. request_token                                                    // is sent as part of redirection url query parameter.
-                               
-      this[this.leg[2]] = {}                        // oauth params for access token step
-      this[this.leg[2]][ this.prefix + 'token'] = '';  
-      this[this.leg[2]][ this.prefix + 'verifier'] = '';
-     
-      this.apiCall = {}
-      this.apiCall[ this.prefix + 'token'] = '';   // oauth param for api calls. Here goes just users acess token
-                                                   // (inserted by server code)
-      
-      this.paramsOAuth = function(action, o1, o2){      // Props found in o2 adds or removes from o1
-          Object.getOwnPropertyNames(o2)
-                  .map(function(key, i){
-                       if(action === 'add') o1[key] = o2[key]; // add property name and value from o2 to o1
-                       else delete o1[key];                    // removes property name we found in o2 from o1 
-                   })
-          return o1;
-      }
-
       
       this.apiOptions = {  // user provided api options, used for twitter api calls
          host: '',
@@ -356,170 +324,9 @@
       this.options.callback = '';      // Callback function
       this.options.parse = true ;      // if json string, parse it
       
-      this.alreadyCalled = false; // Control flag. Protection against multiple calls to twitter from same 
-                                  // instance
-      // first part (maybe call it UserAuthorization)
-      this.getRequestToken = function(args){  // Add leg argument check to see which leg, act acording
-         
-         if(this.alreadyCalled) return;       // Just return, in case of subsequent call.
-         else this.alreadyCalled = true;      
-        
-         this.setUserParams(args);        // Sets user supplied parameters like: 'redirection_url' ...
-         this.checkUserParams();          // Check that needed params are set
-         this.setNonUserParams();         // Sets non user-suppliead params: timestamp, nonce, sig. method
-
-         this.paramsOAuth('add', this.oauth, this[this.leg[0]]) // add oauth param (callback) for reqest_token step
-        
-         this.appendToCallback(this.lnkLabel.data, this.lnkLabel.name); // adds uniqueness to redirection_url
-         
-         this.setGeneralOptions(this.leg[0])           // sets host, path etc... for this request
-         this.addQueryParams('leg', this.leg[0])              // add leg params for leg[0] (request_token)
-
-         // logic for removing and and adding oauth params for api call
-         
-         this.paramsOAuth('remove', this.oauth, this[this.leg[0]]) // removes 'callback' param from oauth 
-
-         console.log('before adding apiCall ')
-         this.paramsOAuth('add', this.oauth, this.apiCall)         // adds 'token' param for call to some twitter api
-         
-         console.log('before adding apiOptions.params')
-         if(this.apiOptions.params)  // if there are parametars, add oauth parmas to them 
-         this.oauth = this.paramsOAuth('add', this.apiOptions.params, this.oauth) // oauth now has all apiOptions
-                                                                                  // params
-         this.addQueryParams('api', this.apiOptions) //  
-         // this.setApiParams(this.options)
-
-         var resolve;
-         var promised;
-         
-         if(Promise) promised = new Promise(function(rslv, rjt){ resolve = rslv; }) // if can, make a Promise
-                                                                                      // remember it's resolve
-         console.log('authorize FUNC: ', this.authorize);
-         this.sendRequest(this.redirection.bind(this, resolve), this.options);// sets callback, sends request
-                                                                              // with specified options 
-         if(promised) return promised;                    
-      }
-        // this is the second part (optional)
-      this.getSessionData = function(){
-         
-         if(!this.authorizationLinkParsed) this.parseAuthorizationLink(window.location.href); // parse returned 
-                                                                                              // data in url
-         
-         if(!this.authorized) return;                       // return if no tokens
-
-         if(!this.authorized.data){                         // return if no session data
-            console.log(this.messages.noSessionData);
-            return; 
-         }                          
-          
-         this.sessionData = this.parseSessionData(this.authorized.data) // further parsing of session data
-         console.log(this.sessionData);
-         return this.sessionData;
-      }
-             // Second part (afther redirection, on redirection_url page)
-      this.accessTwitter = function(args){ // Exchanges token and verifier for access_token
-          if(!this.authorizationLinkParsed) this.parseAuthorizationLink(window.location.href);
- 
-          if(!this.authorized) {
-            console.log(this.messages.linkNotAuthorized);
-            return;                                       // print info and return if no tokens or label present
-          } 
-          
-          
-          this.setUserParams(args);
-          this.checkUserParams();
-          this.setNonUserParams();
-                                     
-          this.paramsOAuth('remove', this.oauth, this[this.leg[0]]); // Remove request token param
-          this.paramsOAuth('remove', this.oauth, this.apiCall)       // remove param for api call
-         
-          //adds params for access token leg explicitly 
-          this.oauth[this.prefix + 'verifier'] = this.authorized.oauth_verifier // Put authorized verifier
-          this.oauth[this.prefix + 'token'] = this.authorized.oauth_token;      // Authorized token
-         
-         // this.genSignatureBaseString(vault,this.leg[2]);   // generate SBS // check if y
-       
-          this.setGeneralOptions(this.leg[2]);                // set general options for access token leg
-          this.addQueryParams('leg', this.leg[2])             // add query params for this leg
-          
-
-          this.paramsOAuth('remove', this.oauth, this[this.leg[2]]) // removes oauth params for acess token leg
-          this.paramsOAuth('add', this.oauth, this.apiCall)         // add param needed for api call (oauth_token)
-          if(this.apiOptions.params)  // if there are parametars, add oauth parmas to them 
-          this.oauth = this.paramsOAuth('add', this.apiOptions.params, this.oauth)// adds all oauth params to user's
-                                                                               // api call params
-          console.log('this.oauth: ',this.oauth);
-          this.addQueryParams('api', this.apiOptions);
- 
-          this.sendRequest(this.accessToken.bind(this), this.options);  
-      }
    }
-   twtOAuth.prototype.parseAuthorizationLink = function(url){ // parses data in url 
-
-      var str = this.parse(url, /\?/g, /#/g); // parses query string
-
-      var qp = this.parseQueryParams(str); // parse parameters from query string
-      var obj = this.objectify(qp);        // makes an object from query string parametars
-      console.log(obj.__lance);
-      if(obj.oauth_token && obj.oauth_verifier && obj.__lance){ // check to see we have needed tokens 
-         this.authorized  = obj;           // make new variable;                     
-      }
-      this.authorizationLinkParsed = true;               // indicate that the url was already parsed  
-   }
-  
-   twtOAuth.prototype.parseSessionData = function(str){
-       if(/%[0-9][0-9]/g.test(str))                       // See if there are percent encoded chars
-       str = decodeURIComponent(decodeURIComponent(str)); // Decoding twice, since it was encoded twice
-                                                          // (by OAuth 1.0a specification). See SBS function.
-       var parsed = this.parseQueryParams(str);           // Parse key-value pairs  
-       return this.objectify(parsed);                     // Making an object from parsed key/values.
-   }
-  
-   twtOAuth.prototype.parseQueryParams = function (str){
-      var arr  = [];
-      if(!str){
-         console.log(this.messages.noStringProvided);
-         return;
-      }  
-
-      if(str[0] === "?") str = str.substring(1); // remove "?" if we have one at beggining
-
-      arr = str.split('&')                       // make new array element on each "&" 
-            .map( function(el, i){ 
-                 var arr2 =  el.split("=");      // for each element make new array element on each "=" 
-                 return arr2;   
-
-             });
-     
-      console.log(arr);
-      return arr;   // arr is now array of arrays
-   }
-
-   twtOAuth.prototype.objectify = function(array){ // makes new object with props and values from array's 
-                                                   // elements
-      var data = {};
-      var len = array.length;
-      
-      for(var i = 0; i < len; i++){
-            var arr = array[i];
-            for(var j = 0; j < arr.length; j++){   // iterating though each of arrays in parsed
-               if(j == 0) data[arr[j]] = arr[j+1]; // if we are at element that holds name of property, 
-                                                   // make property with that name in data object, set it's
-                                                   //  value of next element (j+1)
-          }
-      } 
-      
-      return data;
-   } 
    
-   twtOAuth.prototype.accessToken = function(error, sentData){ // should be done by server
-        
-       if(error)console.log('after access_token (error):', error)
-       else console.log('after access_token (data):', sentData);
-   
-   }
-
-   twtOAuth.prototype.setUserParams = function(args){ // sets user suplied parametars 
+   Options.prototype.setUserParams = function(args){ // sets user suplied parametars 
          var temp; 
          for(var prop in args){    // iterate trough any user params
             temp = args[prop];
@@ -612,8 +419,155 @@
          }
 
    }
+
+   Options.prototype.messages = {
+      callbackNotSet: "You must provide a callback url to which users are redirected.",
+      noStringProvided: "You must provide a string as an argument." ,
+      noSessionData: "No session data was found.",
+      linkNotAuthorized: "Appears that obtained url doesn't have necessary data.",
+      serverUrlNotSet: "You must proivide twiz server url to which request will be sent",
+      optionNotSet: " option must be set"
+   };
    
-   twtOAuth.prototype.genSignatureBaseString = function(leg){ // generates SBS  
+   Options.prototype.checkUserParams = function(){
+ 
+      if(!this.server_url) throw new Error(this.messages.serverUrlNotSet);
+      if(!this.authorizationLinkParsed) this.checkRedirectionCallback();   // check only in request token step 
+      this.checkApiOptions();
+      
+   }
+
+   Options.prototype.checkRedirectionCallback = function (){ // checks for the url user is returned to
+      if(!this[this.leg[0]].oauth_callback) throw new Error(this.messages.callbackNotSet);
+                                                                // throw an error if one is not set
+   }
+
+   Options.prototype.checkApiOptions = function(){
+      for(var opt in this.apiOptions){
+          if(opt === 'path' && opt == 'method' ){ // mandatory params set by user
+            if(!this.apiOptions[opt])                  // check that is set
+               throw new Error( opt + this.messages.optionNotSet)
+          }
+      }     
+   }
+   
+   Options.prototype.setGeneralOptions = function(leg){
+      this.options.url        = this.server_url;            // server address
+      this.options.method     = this.httpMethods[leg];      // method for reqest is method for this leg
+      this.options.body       = this.apiOptions.body // only api call can have body, oauth dance requires no body
+      this.options.encoding   = this.apiOptions.encoding;   // encoding of a body
+      this.options.beforeSend = this.apiOptions.beforeSend; // manipulates request before it is sent
+   }
+
+   Options.prototype.openWindow = function(){ // opens pop-up and puts in under current window
+      console.log("==== POP-UP =====");
+      this.newWindow.window = window.open('', this.newWindow.name, this.newWindow.features);
+      console.log("this.newWindow: ", this.newWindow.window ); 
+   }
+
+   function OAuth(){
+      Options.call(this);
+     
+      this.leadPrefix = "OAuth "     // leading string afther all key-value pairs go. Notice space at the end. 
+      this.prefix = "oauth_";        // Prefix for each oauth key in a http request
+      
+      this.oauth = {}                                // Holds parameters that are used to generate SBS and AH
+      this.oauth[ this.prefix + 'consumer_key'] = "";// This is very sensitive data. Server sets the value.
+      this.oauth[ this.prefix + 'signature'] = "";   // This value also sets the server.
+      this.oauth[ this.prefix + 'nonce'] =  "";     // Session id, twitter api uses this to determines duplicates
+      this.oauth[ this.prefix + 'signature_method'] = ""; // Signature method we are using
+      this.oauth[ this.prefix + 'timestamp'] = "";   // Unix epoch timestamp
+      this.oauth[ this.prefix + 'version'] = ""      // all request use ver 1.0
+      
+      this[this.leg[0]] = {};                        // oauth param for request token step
+      this[this.leg[0]][ this.prefix + 'callback'] = ""; // User is return to this link, if approval is confirmed   
+      // this[this.leg[1]] = {}                     // there is no oauth params for authorize step. request_token                                                    // is sent as part of redirection url query parameter.
+                               
+      this[this.leg[2]] = {}                        // oauth params for access token step
+      this[this.leg[2]][ this.prefix + 'token'] = '';  
+      this[this.leg[2]][ this.prefix + 'verifier'] = '';
+     
+      this.apiCall = {}
+      this.apiCall[ this.prefix + 'token'] = '';   // oauth param for api calls. Here goes just users acess token
+                                                   // (inserted by server code)
+      
+      this.paramsOAuth = function(action, o1, o2){      // Props found in o2 adds or removes from o1
+          Object.getOwnPropertyNames(o2)
+                  .map(function(key, i){
+                       if(action === 'add') o1[key] = o2[key]; // add property name and value from o2 to o1
+                       else delete o1[key];                    // removes property name we found in o2 from o1 
+                   })
+          return o1;
+      }
+
+       
+   }
+
+   OAuth.prototype = Object.create(Options.prototype);
+
+   OAuth.prototype.setNonUserParams = function(){ // sets all "calculated" oauth params 
+      this.setSignatureMethod();
+      this.setNonce();
+      this.setTimestamp();
+      this.setVersion();
+   }
+   
+   OAuth.prototype.setSignatureMethod = function(method){
+      this.oauth[this.prefix + 'signature_method'] = method || "HMAC-SHA1";
+   }
+
+   OAuth.prototype.setVersion = function(version){ 
+      this.oauth[ this.prefix + 'version'] =  version || "1.0";
+   }
+
+   OAuth.prototype.setNonce = function(){ // Generates string from random sequence of 32 numbers, 
+                                          // then returns base64 encoding of that string, striped of "=" sign.
+      var seeds = "AaBb1CcDd2EeFf3GgHh4IiJjK5kLl6MmN7nOo8PpQqR9rSsTtU0uVvWwXxYyZz"; 
+      var nonce = "";
+  
+      for(var i = 0; i < 31; i++){
+        nonce += seeds[Math.round(Math.random() * (seeds.length - 1))];// pick a random ascii from seeds string
+      }
+    
+      nonce = btoa(nonce).replace(/=/g,""); // encode to base64 and strip the "=" sign
+      console.log("nonce: " + nonce)
+      this.oauth[ this.prefix + 'nonce'] = nonce;            // set twitter session identifier (nonce)
+   }
+
+   OAuth.prototype.setTimestamp = function(){
+      this.oauth[ this.prefix + 'timestamp'] = (Date.now() / 1000 | 0) + 1;// cuting off decimal part by 
+                                                   // converting it to 32 bit integer in bitwise OR operation. 
+   }
+
+   OAuth.prototype.appendToCallback = function(data, name){ // appends data object as querystring to                                                                        // callback url. 
+    console.log('Data: ==> ', data)
+      if(!name) name = "data";
+      var callback = this.oauth[ this.prefix + 'callback'];
+      var fEncoded = formEncode(data, true);
+      console.log(fEncoded);
+      var queryString = name + '=' + percentEncode(fEncoded); // Make string from object then                                                                                 // percent encode it.  
+    console.log("queryString: ", queryString)
+      if(!/\?/.test(callback)) callback += "?";               // Add "?" if one not exist
+      else queryString =  '&' + queryString                   // other queryString exists, so add '&' to this qs
+      this.oauth[ this.prefix + 'callback'] = callback + queryString;           // Add queryString to callback
+                                                     
+       console.log("OAUTH CALLBACK: "+this.oauth[ this.prefix + 'callback'])
+      return this.oauth[ this.prefix + 'callback'];
+   };
+
+   OAuth.prototype.addQueryParams = function(pref, leg){
+      this.options.queryParams[pref + 'Host']   = this.twtUrl.domain ;
+      this.options.queryParams[pref + 'Path']   = pref === 'leg' ? this.twtUrl.path + leg : 
+                                                                   this.twtUrl.api_path +
+                                                                   this.apiOptions.path +
+                                                                   this.apiOptions.paramsEncoded;
+     
+      this.options.queryParams[pref + 'Method'] = pref === 'leg' ? this.httpMethods[leg] : this.apiOptions.method;
+      this.options.queryParams[pref + 'SBS']    = this.genSignatureBaseString(leg); 
+      this.options.queryParams[pref + 'AH']     = this.genHeaderString();
+   }
+   
+   OAuth.prototype.genSignatureBaseString = function(leg){ // generates SBS  
          this.signatureBaseString = '';
          var a = [];
          for(var name in this.oauth){                            // takes every oauth params name
@@ -679,166 +633,7 @@
         return this.signatureBaseString;
    }
 
-   twtOAuth.prototype.setGeneralOptions = function(leg){
-      this.options.url        = this.server_url;            // server address
-      this.options.method     = this.httpMethods[leg];      // method for reqest is method for this leg
-      this.options.body       = this.apiOptions.body // only api call can have body, oauth dance requires no body
-      this.options.encoding   = this.apiOptions.encoding;   // encoding of a body
-      this.options.beforeSend = this.apiOptions.beforeSend; // manipulates request before it is sent
-   }
-                      // addQueryParams
-   twtOAuth.prototype.addQueryParams = function(pref, leg){
-      this.options.queryParams[pref + 'Host']   = this.twtUrl.domain ;
-      this.options.queryParams[pref + 'Path']   = pref === 'leg' ? this.twtUrl.path + leg : 
-                                                                   this.twtUrl.api_path +
-                                                                   this.apiOptions.path +
-                                                                   this.apiOptions.paramsEncoded;
-     
-      this.options.queryParams[pref + 'Method'] = pref === 'leg' ? this.httpMethods[leg] : this.apiOptions.method;
-      this.options.queryParams[pref + 'SBS']    = this.genSignatureBaseString(leg); 
-      this.options.queryParams[pref + 'AH']     = this.genHeaderString();
-   }
-
-   twtOAuth.prototype.openWindow = function(){ // opens pop-up and puts in under current window
-      console.log("==== POP-UP =====");
-      this.newWindow.window = window.open('', this.newWindow.name, this.newWindow.features);
-      console.log("this.newWindow: ", this.newWindow.window ); 
-   }
-   twtOAuth.prototype.genSignature = function(vault){ 
-         // put here if request leg, athorization leg ...
-      var hmacSha1 = new HmacSha1();
-      var key = this.genSigningKey(vault); // signing key uses consumer secret, NOT consumer key
-      console.log("signing KEY: " + key); 
-      this.oauth.signature = hmacSha1.digest(key,this.signatureBaseString); // Produces hex string
-      this.oauth.signature = hmacSha1.hexToString(this.oauth.signature);    // Converts to string, for btoa()                                                                
-      this.oauth.signature = btoa(this.oauth.signature);                    // Converting to base64
-                                                                            // We percent encode it in 
-                                                                            // sendRequest function
-      console.log("oauth_sig: " + this.oauth.signature);                       
-   }
-
-   twtOAuth.prototype.messages = {
-      callbackNotSet: "You must provide a callback url to which users are redirected.",
-      noStringProvided: "You must provide a string for parsing." ,
-      noSessionData: "No session data was found.",
-      linkNotAuthorized: "Appears that obtained url doesn't have necessary data.",
-      serverUrlNotSet: "You must proivide twiz server url to which request will be sent",
-      optionNotSet: " option must be set"
-   };
-
-   twtOAuth.prototype.appendToCallback = function(data, name){ // appends data object as querystring to                                                                        // callback url. 
-    console.log('Data: ==> ', data)
-      if(!name) name = "data";
-      var callback = this.oauth[ this.prefix + 'callback'];
-      var fEncoded = formEncode(data, true);
-      console.log(fEncoded);
-      var queryString = name + '=' + percentEncode(fEncoded); // Make string from object then                                                                                 // percent encode it.  
-    console.log("queryString: ", queryString)
-      if(!/\?/.test(callback)) callback += "?";               // Add "?" if one not exist
-      else queryString =  '&' + queryString                   // other queryString exists, so add '&' to this qs
-      this.oauth[ this.prefix + 'callback'] = callback + queryString;           // Add queryString to callback
-                                                     
-       console.log("OAUTH CALLBACK: "+this.oauth[ this.prefix + 'callback'])
-      return this.oauth[ this.prefix + 'callback'];
-   };
-   
-   twtOAuth.prototype.checkUserParams = function(){
- 
-      if(!this.server_url) throw new Error(this.messages.serverUrlNotSet);
-      if(!this.authorizationLinkParsed) this.checkRedirectionCallback();   // check only in request token step 
-      this.checkApiOptions();
-      
-   }
-
-   twtOAuth.prototype.checkRedirectionCallback = function (){ // checks for the url user is returned to
-      if(!this[this.leg[0]].oauth_callback) throw new Error(this.messages.callbackNotSet);
-                                                                // throw an error if one is not set
-   }
-
-   twtOAuth.prototype.checkApiOptions = function(){
-      for(var opt in this.apiOptions){
-          if(opt === 'path' && opt == 'method' ){ // mandatory params set by user
-            if(!this.apiOptions[opt])                  // check that is set
-               throw new Error( opt + this.messages.optionNotSet)
-          }
-      }     
-   }
-   
-   twtOAuth.prototype.sendRequest = function(cb, options){     // was (vault, resolve, leg) 
-      console.log('request SENT +')
-      
-     options.callback = cb // sets callback function
-     console.log("OPTIONS ->", options)
-      
-
-      request(options);  
-   }
-   
-   twtOAuth.prototype.redirection = function(resolve, error, sentData){ // Callback function for 2nd step
-                                                  
-       console.log("From twitter request_token: ", sentData);
-       console.log('sentData type: ',typeof sentData);
-       console.log('error :', error);
-
-       if(error || !sentData.oauth_token){ // on error or on valid data just resolve it (no redirection happens) 
-           if(resolve){
-               resolve({'error': error, 'data': sentData})
-               return
-           }
-           else if(this.callback_func) {   // when no promise is avalable invoke callback
-               this.callback_func(error, sentData);
-               return
-           }
-           else return                    // do nothing
-           
-       }
- 
-       this.oauth_token = 'oauth_token=' + sentData.oauth_token; // when no error, set oauth_token and redirect
-       this.redirect(resolve);  // redirect user to twitter for authorization 
-   };
-
-   twtOAuth.prototype.parse = function(str, delimiter1, delimiter2){ // parses substring of a string (str) 
-                                                                     
-       if(!str){ 
-          console.log(this.messages.noStringProvided);
-          return;
-       }
-       var start = str.search(delimiter1);   // calculate from which index to take 
-       var end ; 
-       if(!delimiter2 || str.search(delimiter2) === -1) end = str.length;// if del2 was not passed as argument
-                                                                         // or we didnt find it, then end index
-                                                                         // is length of the string.
-       else end = str.search(delimiter2);    // calcualte to which index to take                                                             
-       console.log(str); 
-       return str.substring(start, end);     // return substring
-            
-   };
-
-   twtOAuth.prototype.redirect = function(resolve){ // redirects user to twitter for authorization   
-     console.log('RESOLVE : ', resolve);
-      var openedWindow;      
-      var url =  this.absoluteUrls[this.leg[1]] + "?" + this.oauth_token; // assemble url for second leg
-
-      if(!this.newWindow){
-         window.location = url; // redirect current window if no newWindow; 
-         return;
-      }                         
-      
-      this.openWindow();
-      openedWindow = this.newWindow.window;           
-      openedWindow.location = url;
-
-      if(resolve) resolve(openedWindow);       // if promise is there, resolve it with a window reference
-      else if (this.callback_func) this.callback_func(openedWindow); // if not invoke user callback function
-      
-      
-   };
-
- /*  twtOAuth.prototype.setAuthorizationHeader = function(request){
-      request.setRequestHeader("Authorization", this.genHeaderString());
-   }
-*/
-   twtOAuth.prototype.genHeaderString = function(){
+   OAuth.prototype.genHeaderString = function(){
       var a = [];
        
       for(var name in this.oauth){
@@ -871,52 +666,283 @@
       console.log("header string: " + headerString); 
       return headerString;
    }
-
-   twtOAuth.prototype.setNonUserParams = function(){ // sets all "calculated" oauth params 
-      this.setSignatureMethod();
-      this.setNonce();
-      this.setTimestamp();
-      this.setVersion();
-   }
    
-      twtOAuth.prototype.setSignatureMethod = function(method){
-      this.oauth[this.prefix + 'signature_method'] = method || "HMAC-SHA1";
+   function Redirect (){     // used to redirect user to twitter interstitals page 
+      OAuth.call(this);
+      this.oauth_token;       // requestToken
    }
 
-   twtOAuth.prototype.setVersion = function(version){ 
-      this.oauth[ this.prefix + 'version'] =  version || "1.0";
-   }
-   twtOAuth.prototype.setNonce = function(){ // Generates string from random sequence of 32 numbers, 
-                                          // then returns base64 encoding of that string, striped of "=" sign.
-      var seeds = "AaBb1CcDd2EeFf3GgHh4IiJjK5kLl6MmN7nOo8PpQqR9rSsTtU0uVvWwXxYyZz"; 
-      var nonce = "";
+   Redirect.prototype = Object.create(OAuth.prototype);
   
-      for(var i = 0; i < 31; i++){
-        nonce += seeds[Math.round(Math.random() * (seeds.length - 1))];// pick a random ascii from seeds string
+
+   Redirect.prototype.redirection = function(resolve, error, sentData){ // Callback function for 2nd step
+                                                  
+       console.log("From twitter request_token: ", sentData);
+       console.log('sentData type: ',typeof sentData);
+       console.log('error :', error);
+
+       if(error || !sentData.oauth_token){ // on error or on valid data just resolve it (no redirection happens) 
+           if(resolve){
+               resolve({'error': error, 'data': sentData})
+               return
+           }
+           else if(this.callback_func) {   // when no promise is avalable invoke callback
+               this.callback_func(error, sentData);
+               return
+           }
+           else return                    // do nothing
+           
+       }
+ 
+       this.oauth_token = 'oauth_token=' + sentData.oauth_token; // when no error, set oauth_token and redirect
+       this.redirect(resolve);  // redirect user to twitter for authorization 
+   };
+
+   Redirect.prototype.redirect = function(resolve){ // redirects user to twitter for authorization   
+      console.log('RESOLVE : ', resolve);
+      var openedWindow;      
+      var url =  this.absoluteUrls[this.leg[1]] + "?" + this.oauth_token; // assemble url for second leg
+
+      if(!this.newWindow){ // SPA
+         // resolve({tokenStr:'e0fhe0h0fhe0h'})  // resolve just with token string
+         window.location = url; // redirect current window if no newWindow; 
+         return;
+      }                         
+      
+      this.openWindow();
+      openedWindow = this.newWindow.window;           
+      openedWindow.location = url;
+                                       // resolve({window: openedWindow, tokenStr: '7gg97gg88y' })
+      if(resolve) resolve(openedWindow);       // if promise is there, resolve it with a window reference
+      else if (this.callback_func) this.callback_func(openedWindow); // if not invoke user callback function
+      
+      
+   };
+
+   Redirect.prototype.loadRequestToken = function(tokenString){
+      if(typeof tokenString !== string) throw new Error(this.messages.noStringProvided);
+      this.requestToken = tokenString; 
+   }
+
+   function Authorize (){
+      Redirect.call(this);
+   }
+  
+   Authorize.prototype = Object.create(Redirect.prototype);
+
+   Authorize.prototype.parseAuthorizationLink = function(url){ // parses data in url 
+
+      var str = this.parse(url, /\?/g, /#/g); // parses query string
+
+      var qp = this.parseQueryParams(str); // parse parameters from query string
+      var obj = this.objectify(qp);        // makes an object from query string parametars
+      console.log(obj.__lance);
+      if(obj.oauth_token && obj.oauth_verifier && obj.__lance){ // check to see we have needed tokens 
+         // this.matchRequestToken(obj.oauth_token);
+         this.authorized  = obj;           // make new variable;                     
       }
-    
-      nonce = btoa(nonce).replace(/=/g,""); // encode to base64 and strip the "=" sign
-      console.log("nonce: " + nonce)
-      this.oauth[ this.prefix + 'nonce'] = nonce;            // set twitter session identifier (nonce)
+      this.authorizationLinkParsed = true;               // indicate that the url was already parsed  
    }
 
-   twtOAuth.prototype.setTimestamp = function(){
-      this.oauth[ this.prefix + 'timestamp'] = (Date.now() / 1000 | 0) + 1;// cuting off decimal part by 
-                                                   // converting it to 32 bit integer in bitwise OR operation. 
+   Authorize.prototype.parse = function(str, delimiter1, delimiter2){ // parses substring of a string (str) 
+                                                                     
+       if(!str){ 
+          console.log(this.messages.noStringProvided);
+          return;
+       }
+       var start = str.search(delimiter1);   // calculate from which index to take 
+       var end ; 
+       if(!delimiter2 || str.search(delimiter2) === -1) end = str.length;// if del2 was not passed as argument
+                                                                         // or we didnt find it, then end index
+                                                                         // is length of the string.
+       else end = str.search(delimiter2);    // calcualte to which index to take                                                             
+       console.log(str); 
+       return str.substring(start, end);     // return substring
+            
+   };
+
+   Authorize.prototype.parseSessionData = function(str){
+       if(/%[0-9][0-9]/g.test(str))                       // See if there are percent encoded chars
+       str = decodeURIComponent(decodeURIComponent(str)); // Decoding twice, since it was encoded twice
+                                                          // (by OAuth 1.0a specification). See SBS function.
+       var parsed = this.parseQueryParams(str);           // Parse key-value pairs  
+       return this.objectify(parsed);                     // Making an object from parsed key/values.
+   }
+  
+   Authorize.prototype.parseQueryParams = function (str){
+      var arr  = [];
+      if(!str){
+         console.log(this.messages.noStringProvided);
+         return;
+      }  
+
+      if(str[0] === "?") str = str.substring(1); // remove "?" if we have one at beggining
+
+      arr = str.split('&')                       // make new array element on each "&" 
+            .map( function(el, i){ 
+                 var arr2 =  el.split("=");      // for each element make new array element on each "=" 
+                 return arr2;   
+
+             });
+     
+      console.log(arr);
+      return arr;   // arr is now array of arrays
    }
 
-   function twizClient(){
-      var r = new twtOAuth(); 
+   Authorize.prototype.objectify = function(array){ // makes new object with props and values from array's 
+                                                   // elements
+      var data = {};
+      var len = array.length;
+      
+      for(var i = 0; i < len; i++){
+            var arr = array[i];
+            for(var j = 0; j < arr.length; j++){   // iterating though each of arrays in parsed
+               if(j == 0) data[arr[j]] = arr[j+1]; // if we are at element that holds name of property, 
+                                                   // make property with that name in data object, set it's
+                                                   //  value of next element (j+1)
+          }
+      } 
+      
+      return data;
+   } 
+   
+
+   function twizClient (){
+      Authorize.call(this);
+     
+      this.alreadyCalled = false; // Control flag. Protection against multiple calls to twitter from same 
+                                  // instance
+      // first part (maybe call it UserAuthorization)
+      this.getRequestToken = function(args){  // Add leg argument check to see which leg, act acording
+         
+         if(this.alreadyCalled) return;       // Just return, in case of subsequent call.
+         else this.alreadyCalled = true;      
+        
+         this.setUserParams(args);        // Sets user supplied parameters like: 'redirection_url' ...
+         this.checkUserParams();          // Check that needed params are set
+         this.setNonUserParams();         // Sets non user-suppliead params: timestamp, nonce, sig. method
+
+         this.paramsOAuth('add', this.oauth, this[this.leg[0]]) // add oauth param (callback) for reqest_token step
+        
+         this.appendToCallback(this.lnkLabel.data, this.lnkLabel.name); // adds uniqueness to redirection_url
+         
+         this.setGeneralOptions(this.leg[0])           // sets host, path etc... for this request
+         this.addQueryParams('leg', this.leg[0])              // add leg params for leg[0] (request_token)
+
+         // logic for removing and and adding oauth params for api call
+         
+         this.paramsOAuth('remove', this.oauth, this[this.leg[0]]) // removes 'callback' param from oauth 
+
+         console.log('before adding apiCall ')
+         this.paramsOAuth('add', this.oauth, this.apiCall)         // adds 'token' param for call to some twitter api
+         
+         console.log('before adding apiOptions.params')
+         if(this.apiOptions.params)  // if there are parametars, add oauth parmas to them 
+         this.oauth = this.paramsOAuth('add', this.apiOptions.params, this.oauth) // oauth now has all apiOptions
+                                                                                  // params
+         this.addQueryParams('api', this.apiOptions) //  
+         // this.setApiParams(this.options)
+
+         var resolve;
+         var promised;
+         
+         if(Promise) promised = new Promise(function(rslv, rjt){ resolve = rslv; }) // if can, make a Promise
+                                                                                      // remember it's resolve
+         console.log('authorize FUNC: ', this.authorize);
+         this.sendRequest(this.redirection.bind(this, resolve), this.options);// sets callback, sends request
+                                                                              // with specified options 
+         if(promised) return promised;                    
+      }
+        // this is the second part (optional)
+      this.getSessionData = function(){
+         
+         if(!this.authorizationLinkParsed) this.parseAuthorizationLink(window.location.href); // parse returned 
+                                                                                              // data in url
+         
+         if(!this.authorized) return;                       // return if no tokens
+
+         if(!this.authorized.data){                         // return if no session data
+            console.log(this.messages.noSessionData);
+            return; 
+         }                          
+          
+         this.sessionData = this.parseSessionData(this.authorized.data) // further parsing of session data
+         console.log(this.sessionData);
+         return this.sessionData;
+      }
+             // Second part (afther redirection, on redirection_url page)
+      this.accessTwitter = function(args){ // Exchanges token and verifier for access_token
+          if(!this.authorizationLinkParsed) this.parseAuthorizationLink(window.location.href);
+ 
+          if(!this.authorized) {
+            console.log(this.messages.linkNotAuthorized);
+            return;                                       // print info and return if no tokens or label present
+          } 
+          
+          
+          this.setUserParams(args);
+          this.checkUserParams();
+          this.setNonUserParams();
+                                     
+          this.paramsOAuth('remove', this.oauth, this[this.leg[0]]); // Remove request token param
+          this.paramsOAuth('remove', this.oauth, this.apiCall)       // remove param for api call
+         
+          //adds params for access token leg explicitly 
+          this.oauth[this.prefix + 'verifier'] = this.authorized.oauth_verifier // Put authorized verifier
+          this.oauth[this.prefix + 'token'] = this.authorized.oauth_token;      // Authorized token
+         
+         // this.genSignatureBaseString(vault,this.leg[2]);   // generate SBS // check if y
+       
+          this.setGeneralOptions(this.leg[2]);                // set general options for access token leg
+          this.addQueryParams('leg', this.leg[2])             // add query params for this leg
+          
+
+          this.paramsOAuth('remove', this.oauth, this[this.leg[2]]) // removes oauth params for acess token leg
+          this.paramsOAuth('add', this.oauth, this.apiCall)         // add param needed for api call (oauth_token)
+          if(this.apiOptions.params)  // if there are parametars, add oauth params to them 
+          this.oauth = this.paramsOAuth('add', this.apiOptions.params, this.oauth)// adds all oauth params to 
+                                                                                  //user's api call params
+          console.log('this.oauth: ',this.oauth);
+          this.addQueryParams('api', this.apiOptions);
+ 
+          this.sendRequest(this.accessToken.bind(this), this.options);  
+      }
+
+   }
+
+   twizClient.prototype = Object.create(Authorize.prototype);
+
+   twizClient.prototype.sendRequest = function(cb, options){     // was (vault, resolve, leg) 
+      console.log('request SENT +')
+      
+      options.callback = cb // sets callback function
+      console.log("OPTIONS ->", options);
+      
+
+      request(options);  
+   }
+
+   twizClient.prototype.accessToken = function(error, sentData){ // should be done by server
+        
+       if(error)console.log('after access_token (error):', error)
+       else console.log('after access_token (data):', sentData);
+   
+   }
+
+  
+
+   function twiz(){
+      var r = new twizClient(); 
       
       return {
           getRequestToken : r.getRequestToken.bind(r),
-          getSessionData: r.getSessionData.bind(r),
-          accessTwitter: r.accessTwitter.bind(r)
+          getSessionData:   r.getSessionData.bind(r),
+          accessTwitter:    r.accessTwitter.bind(r)
       } 
    }
    
-  if(typeof window === 'object' && window!== 'null') window.twizClient = twizClient ; 
-  else if (typeof module === 'object' && module !== 'null') module.exports = twizClient;
+  if(typeof window === 'object' && window!== 'null') window.twizClient = twiz ; 
+  else if (typeof module === 'object' && module !== 'null') module.exports = twiz;
 //  console.log('module.exports: ', module.exports);
 
 })();  
