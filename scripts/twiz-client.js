@@ -744,11 +744,10 @@
    }
   
    Redirect.prototype.site = function(resolve, url){
-       
        var opened = this.openWindow();
        opened.location = url; 
        
-       var obj = {'window': opened, 'token': this.requestToken.oauth.token} 
+       var obj = {'window': opened, 'token': this.requestToken.oauth_token} 
        if(this.callback_func){
           this.callback_func(obj);
           return
