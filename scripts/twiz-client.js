@@ -776,7 +776,7 @@
       var str = this.parse(url, /\?/g, /#/g); // parses query string
 
       var data = this.parseQueryParams(str); // parse parameters from query string
-      console.log(obj.__lance);
+      console.log(data.__lance);
       this.authorize(data);
       this.authorized = data;           // make new variable;                     
       
