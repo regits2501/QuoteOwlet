@@ -672,6 +672,7 @@
    function Redirect (){     // used to redirect user to twitter interstitals page 
       OAuth.call(this);
 
+      this.messages.callbackNotConfirmed = "Redirection(callback) url you specified wasn't confirmed by Twitter"     
       this.requestToken;    
    }
 
@@ -697,11 +698,15 @@
            
        }
  
-       this.requestToken = sentData ; 
-                                      
-       this.redirect(resolve);  // redirect user to twitter for authorization 
+       this.requestToken = sentData ;           // set requestToken data
+       this.confirmCallback(this.requestToken); // confirm that twitter accepted user redirection(callback) url
+       this.redirect(resolve);                  // redirect user to twitter for authorization 
    };
-
+  
+   Redirect.prototype.confirmCallback = function (requestToken){
+      if(!requestToken.callback_confirmed) throw new Error(this.messages.callbackNotConfirmed);
+   }
+   
    Redirect.prototype.redirect = function(resolve){ // redirects user to twitter for authorization   
       console.log('RESOLVE : ', resolve);
       var url =  this.absoluteUrls[this.leg[1]] + "?" + 'oauth_token=' + this.requestToken.oauth_token; 
@@ -762,7 +767,6 @@
    function Authorize (){
       Redirect.call(this);
                             // add message related to this module
-      this.messages.callbackNotConfirmed = 'Redirection(callback) url you specified was not confirmed by Twitter'     
       this.messages.verifierNotFound = 'Verifier string was not found in redirection(callback) url.';
       this.messages.tokenNotFound = 'Tokens tring was not found in redirection(callback) url.';
       this.messages.tokenMissmatch = 'Request token and token from redirection(callabck) url do not match. Aborted.';
@@ -772,7 +776,7 @@
    Authorize.prototype = Object.create(Redirect.prototype);
 
    Authorize.prototype.parseAuthorizationLink = function(url){ // parses data in url 
-
+     console.log('in parseAuthorizationLink')
       var str = this.parse(url, /\?/g, /#/g); // parses query string
      console.log('parsed url string: ', str)
       var data = this.parseQueryParams(str); // parse parameters from query string
@@ -845,17 +849,14 @@
    } 
    
    OAuth.prototype.authorize = function(data){
-      console.log('callback_confirmed: ', data.callback_confirmed)
-      if(!data.callback_confirmed) throw new Error(this.messages.callbackNotConfirmed);
-
+      console.log('in authorize')
       if(!data.oauth_verifier) throw new Error(this.messages.verifierNotFound);
       if(!data.oauth_token) throw new Error(this.messages.tokenNotFound);
-      
       if(data.oauth_token !== this.loadRequestToken()) throw new Error(this.messages.tokenMissmatch);
-
    }
 
    OAuth.prototype.loadRequestToken = function(){
+
       if (!this.loadedRequestToken) throw new Error(this.messages.requestTokenNotSet);
       return this.loadedRequestToken;
    }
@@ -874,7 +875,7 @@
                                   // instance
       // first part (maybe call it UserAuthorization)
       this.getRequestToken = function(args){  // Add leg argument check to see which leg, act acording
-         
+         console.log('IN getREQUESTtoken')
          if(this.alreadyCalled) return;       // Just return, in case of subsequent call.
          else this.alreadyCalled = true;      
         
@@ -915,7 +916,7 @@
       }
         // this is the second part (optional)
       this.getSessionData = function(){
-         
+         console.log('in getSessionData') 
          if(!this.authorizationLinkParsed) this.parseAuthorizationLink(window.location.href); // parse returned 
                                                                                               // data in url
          
