@@ -774,7 +774,7 @@
    Authorize.prototype.parseAuthorizationLink = function(url){ // parses data in url 
 
       var str = this.parse(url, /\?/g, /#/g); // parses query string
-
+     console.log('parsed url string: ', str)
       var data = this.parseQueryParams(str); // parse parameters from query string
       console.log(data.__lance);
       this.authorize(data);
