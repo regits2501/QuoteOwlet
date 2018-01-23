@@ -463,6 +463,8 @@
       console.log("==== POP-UP =====");
       this.newWindow.window = window.open('', this.newWindow.name, this.newWindow.features);
       console.log("this.newWindow: ", this.newWindow.window ); 
+
+      return this.newWindow.window;
    }
 
    function OAuth(){
@@ -669,7 +671,8 @@
    
    function Redirect (){     // used to redirect user to twitter interstitals page 
       OAuth.call(this);
-      this.oauth_token;       // requestToken
+
+      this.requestToken;    
    }
 
    Redirect.prototype = Object.create(OAuth.prototype);
@@ -694,38 +697,77 @@
            
        }
  
-       this.oauth_token = 'oauth_token=' + sentData.oauth_token; // when no error, set oauth_token and redirect
+       this.requestToken = sentData ; 
+                                      
        this.redirect(resolve);  // redirect user to twitter for authorization 
    };
 
    Redirect.prototype.redirect = function(resolve){ // redirects user to twitter for authorization   
       console.log('RESOLVE : ', resolve);
-      var openedWindow;      
-      var url =  this.absoluteUrls[this.leg[1]] + "?" + this.oauth_token; // assemble url for second leg
+      var url =  this.absoluteUrls[this.leg[1]] + "?" + 'oauth_token=' + this.requestToken.oauth_token; 
+                                                                                  // assemble url for second leg
 
       if(!this.newWindow){ // SPA
-         // resolve({tokenStr:'e0fhe0h0fhe0h'})  // resolve just with token string
+         this.SPA(resolve, url);
+        /*     // resolve({tokenStr:'e0fhe0h0fhe0h'})  // resolve just with token string
          window.location = url; // redirect current window if no newWindow; 
          return;
+         */
+         return
+
       }                         
-      
-      this.openWindow();
-      openedWindow = this.newWindow.window;           
-      openedWindow.location = url;
+      this.site(resolve, url)
+    /*  var opened = this.openWindow();
+      opened.location = url;
                                        // resolve({window: openedWindow, tokenStr: '7gg97gg88y' })
       if(resolve) resolve(openedWindow);       // if promise is there, resolve it with a window reference
       else if (this.callback_func) this.callback_func(openedWindow); // if not invoke user callback function
-      
+   */
       
    };
 
-   Redirect.prototype.loadRequestToken = function(tokenString){
-      if(typeof tokenString !== string) throw new Error(this.messages.noStringProvided);
-      this.requestToken = tokenString; 
+   Redirect.prototype.SPA = function(resolve, url){   // logic for Sigle Page Apps
+      var token = {'token': this.requestToken.oauth_token };
+      function redirectCurrentWindow(){ window.location = url }// redirects window we are currently in (no popUp)
+
+      if(this.callback_func){
+         this.callback_func(token);                               // run callback with token
+         setTimeout(function(){ redirectCurrentWindow() },0);  // redirect asap
+         return;
+      }
+
+      if(resolve){
+         resolve(id);                                // resolve with id
+         Promise.resolve()             
+         .then(function(){ redirectCurrentWindow })  // redirect asap
+      }
+   }
+  
+   Redirect.prototype.site = function(resolve, url){
+       
+       var opened = this.openWindow();
+       opened.location = url; 
+       
+       var obj = {'window': opened, 'token': this.requestToken.oauth.token} 
+       if(this.callback_func){
+          this.callback_func(obj);
+          return
+       }
+
+       if(resolve) resolve(obj);
+      
+      // trow new Error (this.messages.noCallbackFunc)
    }
 
+  
    function Authorize (){
       Redirect.call(this);
+                            // add message related to this module
+      this.messages.callbackNotConfirmed = 'Redirection(callback) url you specified was not confirmed by Twitter'     
+      this.messages.verifierNotFound = 'Verifier string was not found in redirection(callback) url.';
+      this.messages.tokenNotFound = 'Tokens tring was not found in redirection(callback) url.';
+      this.messages.tokenMissmatch = 'Request token and token from redirection(callabck) url do not match. Aborted.';
+      this.messages.requesTokenNotSet = 'Request token was not set. You must set request token before you make your request.'
    }
   
    Authorize.prototype = Object.create(Redirect.prototype);
@@ -734,13 +776,11 @@
 
       var str = this.parse(url, /\?/g, /#/g); // parses query string
 
-      var qp = this.parseQueryParams(str); // parse parameters from query string
-      var obj = this.objectify(qp);        // makes an object from query string parametars
+      var data = this.parseQueryParams(str); // parse parameters from query string
       console.log(obj.__lance);
-      if(obj.oauth_token && obj.oauth_verifier && obj.__lance){ // check to see we have needed tokens 
-         // this.matchRequestToken(obj.oauth_token);
-         this.authorized  = obj;           // make new variable;                     
-      }
+      this.authorize(data);
+      this.authorized = data;           // make new variable;                     
+      
       this.authorizationLinkParsed = true;               // indicate that the url was already parsed  
    }
 
@@ -765,8 +805,7 @@
        if(/%[0-9][0-9]/g.test(str))                       // See if there are percent encoded chars
        str = decodeURIComponent(decodeURIComponent(str)); // Decoding twice, since it was encoded twice
                                                           // (by OAuth 1.0a specification). See SBS function.
-       var parsed = this.parseQueryParams(str);           // Parse key-value pairs  
-       return this.objectify(parsed);                     // Making an object from parsed key/values.
+       return this.parseQueryParams(str);                 // Making an object from parsed key/values.
    }
   
    Authorize.prototype.parseQueryParams = function (str){
@@ -786,7 +825,7 @@
              });
      
       console.log(arr);
-      return arr;   // arr is now array of arrays
+      return  this.objectify(arr);               // makes an object from query string parametars
    }
 
    Authorize.prototype.objectify = function(array){ // makes new object with props and values from array's 
@@ -805,6 +844,28 @@
       
       return data;
    } 
+   
+   OAuth.prototype.authorize = function(data){
+      console.log('callback_confirmed: ', data.callback_confirmed)
+      if(!data.callback_confirmed) throw new Error(this.messages.callbackNotConfirmed);
+
+      if(!data.oauth_verifier) throw new Error(this.messages.verifierNotFound);
+      if(!data.oauth_token) throw new Error(this.messages.tokenNotFound);
+      
+      if(data.oauth_token !== this.loadRequestToken()) throw new Error(this.messages.tokenMissmatch);
+
+   }
+
+   OAuth.prototype.loadRequestToken = function(){
+      if (!this.loadedRequestToken) throw new Error(this.messages.requestTokenNotSet);
+      return this.loadedRequestToken;
+   }
+   
+   OAuth.prototype.setRequestToken = function(tokenString){
+       
+      if(typeof tokenString !== string) throw new Error(this.messages.noStringProvided);
+      this.loadedRequestToken = tokenString; // request token that user provided 
+   }
    
 
    function twizClient (){
@@ -937,7 +998,8 @@
       return {
           getRequestToken : r.getRequestToken.bind(r),
           getSessionData:   r.getSessionData.bind(r),
-          accessTwitter:    r.accessTwitter.bind(r)
+          setRequestToken: r.setRequestToken.bind(r),
+          accessTwitter:    r.accessTwitter.bind(r),
       } 
    }
    

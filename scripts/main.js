@@ -276,9 +276,14 @@
                                             */
                                          }
                                       },
-                                      'callback_func': function(error, data){
-                                            if(error) console.log('error (callback_func): ', error)
-                                             console.log('returned twitter DAta:',  data)
+                                      'callback_func': function(o){
+                                            if(o.error) console.log('error (callback_func): ', error)
+                                             
+                                            if(o.window){
+                                               console.log('has Window: ', o.window);
+                                               o.window.token = o.token; // put request token in new window
+                                            }
+
                                       }
                               }
 
@@ -286,7 +291,7 @@
               var p =  twty.getRequestToken(options);
               if(p) p.then(function onFulfilled(w){
                            console.log("Promised: ", w)
-                            if (!w.error){
+                            if (!w.error && w.data){
                                userID = w.data[0]['id_str']; 
                                console.log('userID:', userID)
                               return new Promise(function(res, rej){
@@ -318,13 +323,13 @@
                                     })
                               })
                            }
-                         
+                          
                       }
-                    ).then(function(w){
-                         if(!w.error) console.log('after direct mesage',w);
-                         else console.log("success: ", w)
-                    })
-              else console.log('NO Promise available')
+                    ).then(function(o){
+                                            })
+              else{ console.log('NO Promise available')
+                
+              }
        })
      
   })

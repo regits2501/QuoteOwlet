@@ -39,7 +39,9 @@
  whenPageReady(function addQuoteData_SendOnClick(){
     var secondPhase = twizClient();
     var sessionData = secondPhase.getSessionData();
-
+ 
+    secondPhase.setRequestToken(window.token);        // laods request token
+ 
     textArea.insertQuote.call(textArea, sessionData);
     var tweetBtn = document.querySelectorAll('.twittButton')[0];
     var options = { 
