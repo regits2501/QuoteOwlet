@@ -790,7 +790,7 @@
       this.messages.verifierNotFound = '"oauth_verifier" string was not found in redirection(callback) url.';
       this.messages.tokenNotFound = '"oauth_token" string was not found in redirection(callback) url.';
       this.messages.tokenMissmatch = 'Request token and token from redirection(callback) url do not match. Aborted.';
-      this.messages.requesTokenNotSet = 'Request token was not set. You must set request token before you make your request.'
+      this.messages.requestTokenNotSet = 'Request token was not set. You must set request token before you make your request.'
       this.messages.requestTokenNotSaved = 'Request token was not saved. Check that page url from which you make request match your url in redirection_url.'
    }
   
@@ -883,7 +883,7 @@
    Authorize.prototype.loadRequestToken_Site = function(sent){
 
      var checkPoint = window.opener.__checkPoint;
-     if(!checkPoint) throw new Error(this.messages.tokenNotSaved);
+     if(!checkPoint) throw new Error(this.messages.tokenNotSaved);  // DEAL WITH NULL
                                                       
      this.loadedRequestToken = checkPoint[sent.oauth_token]; 
      
