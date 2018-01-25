@@ -702,12 +702,12 @@
        }
  
        this.requestToken = sentData ;           // set requestToken data
-       this.confirmCallback(this.requestToken); // confirm that twitter accepted user's redirection(callback) url
+       this.confirmCallback(sentData); // confirm that twitter accepted user's redirection(callback) url
        this.redirect(resolve);                  // redirect user to twitter for authorization 
    };
   
-   Redirect.prototype.confirmCallback = function (requestToken){
-      if(!requestToken.callback_confirmed) throw new Error(this.messages.callbackURLnotConfirmed);
+   Redirect.prototype.confirmCallback = function (sent){
+      if(sent.oauth_callback_confirmed !== "true") throw new Error(this.messages.callbackURLnotConfirmed);
    }
    
    Redirect.prototype.redirect = function(resolve){ // redirects user to twitter for authorization   
