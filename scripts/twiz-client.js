@@ -741,14 +741,14 @@
 
       if(this.callback_func){                                  // if user specified callback func
          this.callback_func(token);                            // run callback with token
-         setTimeout(function(){ redirectCurrentWindow() },0);  // redirect asap
+         redirectCurrentWindow() ;                             // redirect asap
          return;
       }
 
       if(resolve){
          resolve(id);                                // resolve with id
          Promise.resolve()             
-         .then(function(){ redirectCurrentWindow })  // redirect asap
+         .then(function(){ redirectCurrentWindow() })  // redirect asap
          return
       }
 
@@ -791,6 +791,7 @@
       this.messages.tokenNotFound = '"oauth_token" string was not found in redirection(callback) url.';
       this.messages.tokenMissmatch = 'Request token and token from redirection(callback) url do not match. Aborted.';
       this.messages.requesTokenNotSet = 'Request token was not set. You must set request token before you make your request.'
+      this.messages.requestTokenNotSaved = 'Request token was not saved. Check that page url from which you make request match your url in redirection_url.'
    }
   
    Authorize.prototype = Object.create(Redirect.prototype);
@@ -802,7 +803,6 @@
       var data = this.parseQueryParams(str);  // parse parameters from query string
       console.log(data.__lance);
       this.authorize(data);
-      this.authorized = data;                 // make new variable;                     
       
       this.authorizationLinkParsed = true;    // indicate that the url was already parsed  
    }
@@ -868,7 +868,7 @@
       return data;
    } 
    
-   Authorize.prototype.authorize = function(sent){
+   Authorize.prototype.authorize = function(sent){ // check that sent data from redirection url has needed info
       console.log('in authorize')
       if(!sent.oauth_verifier) throw new Error(this.messages.verifierNotFound);
       if(!sent.oauth_token)    throw new Error(this.messages.tokenNotFound);
@@ -876,11 +876,13 @@
       if(window.opener) this.loadRequestToken_Site(sent); // we are in newWindow/popUp, load token from parent 
       // this.loadRequestTokenSPA(), app calls it before it calls  other twitter function I didnt named yet ..
       if(sent.oauth_token !== this.getRqstToken()) throw new Error(this.messages.tokenMissmatch);
+
+      this.authorized = sent;                       // data passed checks, so its authorized;                     
    }
 
    Authorize.prototype.loadRequestToken_Site = function(sent){
+
      var checkPoint = window.opener.__checkPoint;
-    
      if(!checkPoint) throw new Error(this.messages.tokenNotSaved);
                                                       
      this.loadedRequestToken = checkPoint[sent.oauth_token]; 
