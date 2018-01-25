@@ -779,7 +779,7 @@
    Redirect.prototype.saveRequestToken = function(token){ // puts request token in object (of current window) 
       if(!window.__checkPoint) window.__checkPoint = {}; // make tokenBoard
       
-      window.__tokenBoard[token] = token;
+      window.__checkPoint[token] = token;
    }
   
    function Authorize (){
