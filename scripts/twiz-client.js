@@ -558,6 +558,7 @@
    };
 
    OAuth.prototype.addQueryParams = function(pref, leg){
+
       this.options.queryParams[pref + 'Host']   = this.twtUrl.domain ;
       this.options.queryParams[pref + 'Path']   = pref === 'leg' ? this.twtUrl.path + leg : 
                                                                    this.twtUrl.api_path +
@@ -672,7 +673,9 @@
    function Redirect (){     // used to redirect user to twitter interstitals page 
       OAuth.call(this);
 
-      this.messages.callbackNotConfirmed = "Redirection(callback) url you specified wasn't confirmed by Twitter"     
+      this.messages.noCallbackFunc = 'You must specify a callback function'
+      this.messages.callbackURLnotConfirmed = "Redirection(callback) url you specified wasn't confirmed by Twitter"
+
       this.requestToken;    
    }
 
@@ -699,12 +702,12 @@
        }
  
        this.requestToken = sentData ;           // set requestToken data
-       this.confirmCallback(this.requestToken); // confirm that twitter accepted user redirection(callback) url
+       this.confirmCallback(this.requestToken); // confirm that twitter accepted user's redirection(callback) url
        this.redirect(resolve);                  // redirect user to twitter for authorization 
    };
   
    Redirect.prototype.confirmCallback = function (requestToken){
-      if(!requestToken.callback_confirmed) throw new Error(this.messages.callbackNotConfirmed);
+      if(!requestToken.callback_confirmed) throw new Error(this.messages.callbackURLnotConfirmed);
    }
    
    Redirect.prototype.redirect = function(resolve){ // redirects user to twitter for authorization   
@@ -732,11 +735,12 @@
    };
 
    Redirect.prototype.SPA = function(resolve, url){   // logic for Sigle Page Apps
-      var token = {'token': this.requestToken.oauth_token };
+      
+      var token = { 'token': this.requestToken.oauth_token };  // we will return just token for SPA's use cases
       function redirectCurrentWindow(){ window.location = url }// redirects window we are currently in (no popUp)
 
-      if(this.callback_func){
-         this.callback_func(token);                               // run callback with token
+      if(this.callback_func){                                  // if user specified callback func
+         this.callback_func(token);                            // run callback with token
          setTimeout(function(){ redirectCurrentWindow() },0);  // redirect asap
          return;
       }
@@ -745,46 +749,62 @@
          resolve(id);                                // resolve with id
          Promise.resolve()             
          .then(function(){ redirectCurrentWindow })  // redirect asap
+         return
       }
+
+      throw new Error(this.messages.noCallbackFunc); // raise error when there is no promise or callback present
    }
   
    Redirect.prototype.site = function(resolve, url){
-       var opened = this.openWindow();
-       opened.location = url; 
+       this.saveRequestToken(this.requestToken.oauth_token); // save the request token, so new page can take it
+
+       var opened = this.openWindow();       // open new window and save its reference
+       opened.location = url;                // change location
        
-       var obj = {'window': opened, 'token': this.requestToken.oauth_token} 
-       if(this.callback_func){
-          this.callback_func(obj);
+       var obj = { 'window': opened, 'token': this.requestToken.oauth_token } 
+
+       if(this.callback_func){     
+          this.callback_func(obj); 
           return
        }
 
-       if(resolve) resolve(obj);
+       if(resolve){ 
+          resolve(obj);
+          return;
+       }
       
-      // trow new Error (this.messages.noCallbackFunc)
+       throw new Error (this.messages.noCallbackFunc);
    }
-
+  
+   Redirect.prototype.saveRequestToken = function(token){ // puts request token in object (of current window) 
+      if(!window.__checkPoint) window.__checkPoint = {}; // make tokenBoard
+      
+      window.__tokenBoard[token] = token;
+   }
   
    function Authorize (){
       Redirect.call(this);
+ 
+      this.loadedRequestToken; // wi will 
                             // add message related to this module
-      this.messages.verifierNotFound = 'Verifier string was not found in redirection(callback) url.';
-      this.messages.tokenNotFound = 'Tokens tring was not found in redirection(callback) url.';
-      this.messages.tokenMissmatch = 'Request token and token from redirection(callabck) url do not match. Aborted.';
+      this.messages.verifierNotFound = '"oauth_verifier" string was not found in redirection(callback) url.';
+      this.messages.tokenNotFound = '"oauth_token" string was not found in redirection(callback) url.';
+      this.messages.tokenMissmatch = 'Request token and token from redirection(callback) url do not match. Aborted.';
       this.messages.requesTokenNotSet = 'Request token was not set. You must set request token before you make your request.'
    }
   
    Authorize.prototype = Object.create(Redirect.prototype);
 
    Authorize.prototype.parseAuthorizationLink = function(url){ // parses data in url 
-     console.log('in parseAuthorizationLink')
+     console.log('in parseAuthorizationLink');
+
       var str = this.parse(url, /\?/g, /#/g); // parses query string
-     console.log('parsed url string: ', str)
-      var data = this.parseQueryParams(str); // parse parameters from query string
+      var data = this.parseQueryParams(str);  // parse parameters from query string
       console.log(data.__lance);
       this.authorize(data);
-      this.authorized = data;           // make new variable;                     
+      this.authorized = data;                 // make new variable;                     
       
-      this.authorizationLinkParsed = true;               // indicate that the url was already parsed  
+      this.authorizationLinkParsed = true;    // indicate that the url was already parsed  
    }
 
    Authorize.prototype.parse = function(str, delimiter1, delimiter2){ // parses substring of a string (str) 
@@ -828,10 +848,10 @@
              });
      
       console.log(arr);
-      return  this.objectify(arr);               // makes an object from query string parametars
+      return  this.objectify(arr);                  // makes an object from query string parametars
    }
 
-   Authorize.prototype.objectify = function(array){ // makes new object with props and values from array's 
+   Authorize.prototype.objectify = function(array){// makes new object with props and values from array's 
                                                    // elements
       var data = {};
       var len = array.length;
@@ -848,26 +868,39 @@
       return data;
    } 
    
-   OAuth.prototype.authorize = function(data){
+   Authorize.prototype.authorize = function(sent){
       console.log('in authorize')
-      if(!data.oauth_verifier) throw new Error(this.messages.verifierNotFound);
-      if(!data.oauth_token) throw new Error(this.messages.tokenNotFound);
-      if(data.oauth_token !== this.loadRequestToken()) throw new Error(this.messages.tokenMissmatch);
+      if(!sent.oauth_verifier) throw new Error(this.messages.verifierNotFound);
+      if(!sent.oauth_token)    throw new Error(this.messages.tokenNotFound);
+
+      if(window.opener) this.loadRequestToken_Site(sent); // we are in newWindow/popUp, load token from parent 
+      // this.loadRequestTokenSPA(), app calls it before it calls  other twitter function I didnt named yet ..
+      if(sent.oauth_token !== this.getRqstToken()) throw new Error(this.messages.tokenMissmatch);
    }
 
-   OAuth.prototype.loadRequestToken = function(){
+   Authorize.prototype.loadRequestToken_Site = function(sent){
+     var checkPoint = window.opener.__checkPoint;
+    
+     if(!checkPoint) throw new Error(this.messages.tokenNotSaved);
+                                                      
+     this.loadedRequestToken = checkPoint[sent.oauth_token]; 
+     
+   }
 
-      if (!this.loadedRequestToken) throw new Error(this.messages.requestTokenNotSet);
+   Authorize.prototype.getRqstToken = function(){ // gets loaded token
+
+      if (!this.loadedRequestToken)  throw new Error(this.messages.requestTokenNotSet);
       return this.loadedRequestToken;
    }
    
-   OAuth.prototype.setRequestToken = function(tokenString){
+   Authorize.prototype.loadRequestToken_SPA = function(tokenString){ // SPA's must load token them selves with 
+                                                                     // this function 
        
       if(typeof tokenString !== string) throw new Error(this.messages.noStringProvided);
       this.loadedRequestToken = tokenString; // request token that user provided 
    }
    
-
+   
    function twizClient (){
       Authorize.call(this);
      
@@ -998,7 +1031,7 @@
       return {
           getRequestToken : r.getRequestToken.bind(r),
           getSessionData:   r.getSessionData.bind(r),
-          setRequestToken: r.setRequestToken.bind(r),
+          loadRequestToken:  r.loadRequestToken_SPA.bind(r),
           accessTwitter:    r.accessTwitter.bind(r),
       } 
    }

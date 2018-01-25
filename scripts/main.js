@@ -280,8 +280,7 @@
                                             if(o.error) console.log('error (callback_func): ', error)
                                              
                                             if(o.window){
-                                               console.log('has Window: ', o.window);
-                                               o.window.token = o.token; // put request token in new window
+                                               console.log('in callback_func has Window: ', o.window);
                                             }
 
                                       }
@@ -333,14 +332,14 @@
        })
      
   })
-  whenPageReady(function(){
+/*  whenPageReady(function(){            // when testing SPA case
      var twtSecondPart = twizClient();
-     quoteData.setQuoteData.bind(quoteData)(twtSecondPart.getSessionData());
+    quoteData.setQuoteData.bind(quoteData)(twtSecondPart.getSessionData());
     console.log("ACCESS twitter ===================");
     twtSecondPart.accessTwitter();
      
   })
-
+*/
 
 })()
 
