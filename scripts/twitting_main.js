@@ -40,7 +40,7 @@
     var secondPhase = twizClient();
     var sessionData = secondPhase.getSessionData();
  
-    secondPhase.setRequestToken(window.token);        // laods request token
+    // secondPhase.setRequestToken(window.token);        // for SPA case
  
     textArea.insertQuote.call(textArea, sessionData);
     var tweetBtn = document.querySelectorAll('.twittButton')[0];
