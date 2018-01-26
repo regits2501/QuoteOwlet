@@ -705,7 +705,7 @@
        this.confirmCallback(sentData); // confirm that twitter accepted user's redirection(callback) url
       
        this.saveRequestToken(this.requestToken.oauth_token); // save the request token, so new page can take it
-      setTimeout(function(){ this.redirect(resolve); },7000);                  // redirect user to twitter for authorization 
+      setTimeout(function(){ this.redirect(resolve); }.bind(this),5000);                  // redirect user to twitter for authorization 
    };
   
    Redirect.prototype.confirmCallback = function (sent){
