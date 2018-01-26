@@ -259,10 +259,10 @@
                                          },
                                         'id': 209
                                      },
-                                   /* 'new_window':{
+                                    'new_window':{
                                         'name': 'nw',
                                         'features':'resizable=yes,height=613,width=400,left=400,top=300'
-                                     }, */
+                                     }, 
                                      'options':{
                                         'method': 'GET',
                                         'path': 'users/search.json',
@@ -333,14 +333,14 @@
        })
      
   })
-  whenPageReady(function(){            // when testing SPA case
+/*  whenPageReady(function(){            // when testing SPA case
      var twtSecondPart = twizClient();
     quoteData.setQuoteData.bind(quoteData)(twtSecondPart.getSessionData());
     console.log("ACCESS twitter ===================");
     twtSecondPart.accessTwitter();
      
   })
-
+*/
 
 })()
 

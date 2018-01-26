@@ -531,9 +531,9 @@
         nonce += seeds[Math.round(Math.random() * (seeds.length - 1))];// pick a random ascii from seeds string
       }
     
-      nonce = btoa(nonce).replace(/=/g,""); // encode to base64 and strip the "=" sign
+      nonce = btoa(nonce).replace(/=/g,"");       // encode to base64 and strip the "=" sign
       console.log("nonce: " + nonce)
-      this.oauth[ this.prefix + 'nonce'] = nonce;            // set twitter session identifier (nonce)
+      this.oauth[ this.prefix + 'nonce'] = nonce; // set twitter session identifier (nonce)
    }
 
    OAuth.prototype.setTimestamp = function(){
@@ -776,10 +776,9 @@
        throw new Error (this.messages.noCallbackFunc);
    }
   
-   Redirect.prototype.saveRequestToken = function(token){ // puts request token in object (of current window) 
-      if(!window.__checkPoint) window.__checkPoint = {}; // make tokenBoard
+   Redirect.prototype.saveRequestToken = function(token){ // Puts request token in object (of current window) 
       
-      window.__checkPoint[token] = token;
+      window.sessionStorage[token] = token;               // 
    }
   
    function Authorize (){
@@ -792,6 +791,7 @@
       this.messages.tokenMissmatch = 'Request token and token from redirection(callback) url do not match. Aborted.';
       this.messages.requestTokenNotSet = 'Request token was not set. You must set request token before you make your request.'
       this.messages.requestTokenNotSaved = 'Request token was not saved. Check that page url from which you make request match your url in redirection_url.'
+      this.messages.tokenNotSaved = 'oauth_token string was not saved'
    }
   
    Authorize.prototype = Object.create(Redirect.prototype);
@@ -882,10 +882,12 @@
 
    Authorize.prototype.loadRequestToken_Site = function(sent){
 
-     var checkPoint = window.opener.__checkPoint;
+     var checkPoint = window.opener.sessionStorage;
      if(!checkPoint) throw new Error(this.messages.tokenNotSaved);  // DEAL WITH NULL
                                                       
-     this.loadedRequestToken = checkPoint[sent.oauth_token]; 
+     this.loadedRequestToken = checkPoint[sent.oauth_token];        // load it 
+     
+     // checkPoint.removeItem(sent.oauth_token);                   // remove it
      
    }
 
