@@ -778,7 +778,7 @@
   
    Redirect.prototype.saveRequestToken = function(token){ // Puts request token in object (of current window) 
       
-      window.sessionStorage[token] = token;               // 
+      window.localStorage[token] = token;               // 
    }
   
    function Authorize (){
@@ -873,7 +873,7 @@
       if(!sent.oauth_verifier) throw new Error(this.messages.verifierNotFound);
       if(!sent.oauth_token)    throw new Error(this.messages.tokenNotFound);
 
-      if(window.opener) this.loadRequestToken_Site(sent); // we are in newWindow/popUp, load token from parent 
+      /*if(window.opener)*/ this.loadRequestToken_Site(sent); // we are in newWindow/popUp, load token from parent 
       // this.loadRequestTokenSPA(), app calls it before it calls  other twitter function I didnt named yet ..
       if(sent.oauth_token !== this.getRqstToken()) throw new Error(this.messages.tokenMissmatch);
 
@@ -882,12 +882,12 @@
 
    Authorize.prototype.loadRequestToken_Site = function(sent){
 
-     var checkPoint = window.opener.sessionStorage;
+     var checkPoint = window.opener.localStorage;
      if(!checkPoint) throw new Error(this.messages.tokenNotSaved);  // DEAL WITH NULL
                                                       
      this.loadedRequestToken = checkPoint[sent.oauth_token];        // load it 
      
-     // checkPoint.removeItem(sent.oauth_token);                   // remove it
+     checkPoint.removeItem(sent.oauth_token);                       // remove it
      
    }
 
