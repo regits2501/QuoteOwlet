@@ -779,6 +779,8 @@
    Redirect.prototype.saveRequestToken = function(token){ // Puts request token in object (of current window) 
       
       window.localStorage[token] = token;               // 
+     console.log('localStorage before', window.localStorage);
+
    }
   
    function Authorize (){
@@ -882,7 +884,8 @@
 
    Authorize.prototype.loadRequestToken_Site = function(sent){
 
-     var checkPoint = window.localStorage;  
+     var checkPoint = window.localStorage;
+     console.log('localStorage after: ', window.localStorage);  
      if(!checkPoint) throw new Error(this.messages.tokenNotSaved);  // DEAL WITH NULL
                                                       
      this.loadedRequestToken = checkPoint[sent.oauth_token];        // load it 
