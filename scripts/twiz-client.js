@@ -882,7 +882,7 @@
 
    Authorize.prototype.loadRequestToken_Site = function(sent){
 
-     var checkPoint = window.opener.localStorage;
+     var checkPoint = window.localStorage;
      if(!checkPoint) throw new Error(this.messages.tokenNotSaved);  // DEAL WITH NULL
                                                       
      this.loadedRequestToken = checkPoint[sent.oauth_token];        // load it 
