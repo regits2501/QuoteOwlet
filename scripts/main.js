@@ -249,7 +249,8 @@
                 
            console.log("Taking this data: ====",textContent(quoteData.quoteEl), textContent(quoteData.authorEl))
               var options = {      "server_url":  'https://quoteowlet.herokuapp.com',//'http://localhost:5000',
-                                   "redirection_url":"https://gits2501.github.io/QuoteOwlet/pages/tweeting.html",
+                                   "redirection_url":"https://gits2501.github.io/QuoteOwlet/index.html",//"https://gits2501.github.io/QuoteOwlet/pages/tweeting.html",
+      
                                     "session_data": { // redirection data
                                         'quote': textContent(quoteData.quoteEl), 
                                         'author': textContent(quoteData.authorEl), 
@@ -259,10 +260,10 @@
                                          },
                                         'id': 209
                                      },
-                                    'new_window':{
+                                   /* 'new_window':{
                                         'name': 'nw',
                                         'features':'resizable=yes,height=613,width=400,left=400,top=300'
-                                     }, 
+                                    */ }, 
                                      'options':{
                                         'method': 'GET',
                                         'path': 'users/search.json',
@@ -333,14 +334,14 @@
        })
      
   })
-/*  whenPageReady(function(){            // when testing SPA case
+  whenPageReady(function(){            // when testing SPA case
      var twtSecondPart = twizClient();
     quoteData.setQuoteData.bind(quoteData)(twtSecondPart.getSessionData());
     console.log("ACCESS twitter ===================");
     twtSecondPart.accessTwitter();
      
   })
-*/
+
 
 })()
 
