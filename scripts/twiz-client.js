@@ -725,7 +725,7 @@
          return
 
       }                         
-      this.site(resolve, url)
+      this.site(resolve, url);
     /*  var opened = this.openWindow();
       opened.location = url;
                                        // resolve({window: openedWindow, tokenStr: '7gg97gg88y' })
@@ -759,7 +759,9 @@
    }
    Redirect.prototype.saveRequestToken = function(storage, token){ // save token to storage
       storage.checkPoint_; 
-      storage.checkPoint_ = JSON.stringify({}[token] = token);     // make checkPoint object as a token stash
+      var obj = {};                  
+      storage.checkPoint_ = JSON.stringify((obj[token] = token, obj));// Save token in checkPoint
+                                                                      // Used comma operator
       console.log('storage before: ', storage); 
    }
 
