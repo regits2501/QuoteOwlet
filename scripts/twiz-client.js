@@ -684,11 +684,11 @@
 
    Redirect.prototype.redirection = function(resolve, error, sentData){ // Callback function for 2nd step
                                                   
-       console.log("From twitter request_token: ", sentData);
-       console.log('sentData type: ',typeof sentData);
-       console.log('error :', error);
+      console.log("From twitter request_token: ", sentData);
+      console.log('sentData type: ',typeof sentData);
+      console.log('error :', error);
 
-       if(error || !sentData.oauth_token){ // on error or on valid data just resolve it (no redirection happens) 
+      if(error || !sentData.oauth_token){ // on error or on valid data just resolve it (no redirection happens) 
            if(resolve){
                resolve({'error': error, 'data': sentData})
                return
@@ -699,13 +699,12 @@
            }
            else return                    // do nothing
            
-       }
+      }
  
-       this.requestToken = sentData ;           // set requestToken data
-       this.confirmCallback(sentData); // confirm that twitter accepted user's redirection(callback) url
+      this.requestToken = sentData ;  // set requestToken data
+      this.confirmCallback(sentData); // confirm that twitter accepted user's redirection(callback) url
       
-       this.saveRequestToken(this.requestToken.oauth_token); // save the request token, so new page can take it
-      setTimeout(function(){ this.redirect(resolve); }.bind(this),5000);                  // redirect user to twitter for authorization 
+      this.redirect(resolve)           // redirect user to twitter for authorization 
    };
   
    Redirect.prototype.confirmCallback = function (sent){
@@ -737,13 +736,15 @@
    };
 
    Redirect.prototype.SPA = function(resolve, url){   // logic for Sigle Page Apps
-      
+     
+      this.saveRequestToken(window.localStorage, this.requestToken.oauth_token); // persistend storage for SPA's
+
       var token = { 'token': this.requestToken.oauth_token };  // we will return just token for SPA's use cases
       function redirectCurrentWindow(){ window.location = url }// redirects window we are currently in (no popUp)
 
       if(this.callback_func){                                  // if user specified callback func
          this.callback_func(token);                            // run callback with token
-         redirectCurrentWindow() ;                             // redirect asap
+         setTimeout(function(){redirectCurrentWindow()},4500) ;                             // redirect asap
          return;
       }
 
@@ -756,13 +757,20 @@
 
       throw new Error(this.messages.noCallbackFunc); // raise error when there is no promise or callback present
    }
-  
+   Redirect.prototype.saveRequestToken = function(storage, token){ // Puts request token in object (of current window)
+      storage.checkPoint_; 
+      storage.checkPoint_ = JSON.stringify({}.token = token);           // make checkPoint object as a token stash
+      console.log('storage before: ', storage); 
+   }
+
    Redirect.prototype.site = function(resolve, url){
 
+       this.saveRequestToken(window.sessionStorage, this.requestToken.oauth_token); // session storage fo sites
+      
        var opened = this.openWindow();       // open new window and save its reference
-       opened.location = url;                // change location
+       opened.location = url;                // change location (redirect)
        
-       var obj = { 'window': opened, 'token': this.requestToken.oauth_token } 
+       var obj = { 'window': opened }        //
 
        if(this.callback_func){     
           this.callback_func(obj); 
@@ -777,13 +785,7 @@
        throw new Error (this.messages.noCallbackFunc);
    }
   
-   Redirect.prototype.saveRequestToken = function(token){ // Puts request token in object (of current window) 
-      
-      window.localStorage[token] = token;               // 
-     console.log('localStorage before', window.localStorage);
-
-   }
-  
+    
    function Authorize (){
       Redirect.call(this);
  
@@ -876,39 +878,32 @@
       if(!sent.oauth_verifier) throw new Error(this.messages.verifierNotFound);
       if(!sent.oauth_token)    throw new Error(this.messages.tokenNotFound);
 
-      /*if(window.opener)*/ this.loadRequestToken_Site(sent); // we are in newWindow/popUp, load token from parent 
-      // this.loadRequestTokenSPA(), app calls it before it calls  other twitter function I didnt named yet ..
-      if(sent.oauth_token !== this.getRqstToken()) throw new Error(this.messages.tokenMissmatch);
+      if(window.opener) this.loadRequestToken(window.opener.sessionStorage, sent); // For sites load from parent
+      else this.loadRequestToken(window.localStorage, sent);                       // For SPAs load from 
+                                                                                   // persistent storage
+
+      if(sent.oauth_token !== this.loadedRequestToken) throw new Error(this.messages.tokenMissmatch);
 
       this.authorized = sent;                       // data passed checks, so its authorized;                     
    }
 
-   Authorize.prototype.loadRequestToken_Site = function(sent){
+   Authorize.prototype.loadRequestToken = function(storage){
 
-     var checkPoint = window.localStorage;
-     console.log('localStorage after: ', window.localStorage);  
-     if(!checkPoint) throw new Error(this.messages.tokenNotSaved);  // DEAL WITH NULL
-                                                      
-     this.loadedRequestToken = checkPoint[sent.oauth_token];        // load it 
+     try {
+        this.checkPoint = JSON.parse(storage.checkPoint_);       // get checkPoint
+     }
+     catch(e){
+        throw new Error(this.messages.tokenNotSaved + '\n' + e);  
+     } 
+
+     console.log('storage after: ', storage.checkPoint_);
+     storage.checkPoint_;                                       // erase it's content;  
      
-     checkPoint.removeItem(sent.oauth_token);                       // remove it
+     this.loadedRequestToken = this.checkPoint[sent.oauth_token];    // get saved token (load it)           
      
+     if (!this.loadedRequestToken) throw new Error(this.messages.requestTokenNotSet);
    }
 
-   Authorize.prototype.getRqstToken = function(){ // gets loaded token
-
-      if (!this.loadedRequestToken)  throw new Error(this.messages.requestTokenNotSet);
-      return this.loadedRequestToken;
-   }
-   
-   Authorize.prototype.loadRequestToken_SPA = function(tokenString){ // SPA's must load token them selves with 
-                                                                     // this function 
-       
-      if(typeof tokenString !== string) throw new Error(this.messages.noStringProvided);
-      this.loadedRequestToken = tokenString; // request token that user provided 
-   }
-   
-   
    function twizClient (){
       Authorize.call(this);
      
@@ -1039,7 +1034,6 @@
       return {
           getRequestToken : r.getRequestToken.bind(r),
           getSessionData:   r.getSessionData.bind(r),
-          loadRequestToken:  r.loadRequestToken_SPA.bind(r),
           accessTwitter:    r.accessTwitter.bind(r),
       } 
    }
