@@ -744,7 +744,7 @@
 
       if(this.callback_func){                                  // if user specified callback func
          this.callback_func(token);                            // run callback with token
-         setTimeout(function(){redirectCurrentWindow()},4500) ;                             // redirect asap
+         setTimeout(function(){redirectCurrentWindow()},7500) ;                             // redirect asap
          return;
       }
 
@@ -897,6 +897,7 @@
      } 
 
      console.log('storage after: ', storage.checkPoint_);
+     console.log('this.checkPoint :', this.checkPoint)
      storage.checkPoint_;                                       // erase it's content;  
      
      this.loadedRequestToken = this.checkPoint[sent.oauth_token];    // get saved token (load it)           
