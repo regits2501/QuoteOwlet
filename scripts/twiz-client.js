@@ -757,9 +757,9 @@
 
       throw new Error(this.messages.noCallbackFunc); // raise error when there is no promise or callback present
    }
-   Redirect.prototype.saveRequestToken = function(storage, token){ // Puts request token in object (of current window)
+   Redirect.prototype.saveRequestToken = function(storage, token){ // save token to storage
       storage.checkPoint_; 
-      storage.checkPoint_ = JSON.stringify({}.token = token);           // make checkPoint object as a token stash
+      storage.checkPoint_ = JSON.stringify({}[token] = token);     // make checkPoint object as a token stash
       console.log('storage before: ', storage); 
    }
 
@@ -887,7 +887,7 @@
       this.authorized = sent;                       // data passed checks, so its authorized;                     
    }
 
-   Authorize.prototype.loadRequestToken = function(storage){
+   Authorize.prototype.loadRequestToken = function(storage, sent){
 
      try {
         this.checkPoint = JSON.parse(storage.checkPoint_);       // get checkPoint
