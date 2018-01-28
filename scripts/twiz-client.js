@@ -758,7 +758,8 @@
       throw new Error(this.messages.noCallbackFunc); // raise error when there is no promise or callback present
    }
    Redirect.prototype.saveRequestToken = function(storage, token){ // save token to storage
-      storage.checkPoint_ = null;                                     // erase any previous tokens
+      storage.checkPoint_ = null;                                  // erase any previous tokens, note null is
+                                                                   // actualy transformed to string "null"
       var obj = {};                  
       storage.checkPoint_ = JSON.stringify((obj[token] = token, obj));// Save token in checkPoint
                                                                       // Used comma operator
@@ -891,8 +892,6 @@
 
    Authorize.prototype.loadRequestToken = function(storage, sent){
 
-      console.log('before null check storage.checkPoint_: ', storage.checkPoint_)
-     if(storage.checkPoint_ === null) throw "Warning: cannot make another request with same callback url ";
      
      try {
         this.checkPoint = JSON.parse(storage.checkPoint_);       // get checkPoint
@@ -900,10 +899,15 @@
      catch(e){
         throw new Error(this.messages.tokenNotSaved + '\n' + e);  
      } 
-
+     
+     if(storage.checkPoint_ === "null")                                    // checkPoint we be "null" only when
+     throw "Warning: cannot make another request with same callback url "; // this function run twice on same
+                                                                           // redirection(callback) url.
+                                              
      console.log('storage after: ', storage.checkPoint_);
-     console.log('this.checkPoint :', this.checkPoint)
-     storage.checkPoint_ = null;                                       // erase it's content;
+     console.log('this.checkPoint :', this.checkPoint);
+
+     storage.checkPoint_ = null;                                           // erase it's content
 
      console.log('after erasing storage.checkPoint :', storage.checkPoint_);  
      
