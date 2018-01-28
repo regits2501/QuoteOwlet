@@ -901,7 +901,7 @@
    Authorize.prototype.loadRequestToken = function(storage, sent){
      
      if(!storage.hasOwnProperty('requestToken_')) 
-        throw new Error(this.messages.tokenNotSaved + '\n' + e);  
+        throw new Error(this.messages.tokenNotSaved);  
 
      this.loadedRequestToken = storage.requestToken_;           // load token from storage
 
