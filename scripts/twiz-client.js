@@ -891,6 +891,7 @@
 
    Authorize.prototype.loadRequestToken = function(storage, sent){
 
+      console.log('before null check storage.checkPoint_: ', storage.checkPoint_)
      if(storage.checkPoint_ === null) throw "Warning: cannot make another request with same callback url ";
      
      try {
