@@ -758,7 +758,7 @@
       throw new Error(this.messages.noCallbackFunc); // raise error when there is no promise or callback present
    }
    Redirect.prototype.saveRequestToken = function(storage, token){ // save token to storage
-      storage.checkPoint_; 
+      storage.checkPoint_ = null;                                     // erase any previous tokens
       var obj = {};                  
       storage.checkPoint_ = JSON.stringify((obj[token] = token, obj));// Save token in checkPoint
                                                                       // Used comma operator
@@ -900,7 +900,7 @@
 
      console.log('storage after: ', storage.checkPoint_);
      console.log('this.checkPoint :', this.checkPoint)
-     storage.checkPoint_;                                       // erase it's content;
+     storage.checkPoint_ = null;                                       // erase it's content;
 
      console.log('after erasing storage.checkPoint :', storage.checkPoint_);  
      
