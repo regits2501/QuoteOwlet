@@ -703,14 +703,22 @@
  
       this.requestToken = sentData ;  // set requestToken data
       this.confirmCallback(sentData); // confirm that twitter accepted user's redirection(callback) url
-      
+      this.saveRequestToken(window.localStorage, sentData.oauth_token); 
       this.redirect(resolve)           // redirect user to twitter for authorization 
    };
   
-   Redirect.prototype.confirmCallback = function (sent){
+   Redirect.prototype.confirmCallback = function (sent){ // makes sure that twitter is ok with redirection url
       if(sent.oauth_callback_confirmed !== "true") throw new Error(this.messages.callbackURLnotConfirmed);
    }
-   
+ 
+   Redirect.prototype.saveRequestToken = function(storage, token){ // save token to storage
+      storage.requestToken_ = null;                                  // erase any previous tokens, note null is
+                                                                   // actualy transformed to string "null"
+               
+      storage.requestToken_ =  token;                             // save token to storage
+      console.log('storage before: ', storage); 
+   }
+
    Redirect.prototype.redirect = function(resolve){ // redirects user to twitter for authorization   
       console.log('RESOLVE : ', resolve);
       var url =  this.absoluteUrls[this.leg[1]] + "?" + 'oauth_token=' + this.requestToken.oauth_token; 
@@ -737,8 +745,6 @@
 
    Redirect.prototype.SPA = function(resolve, url){   // logic for Sigle Page Apps
      
-      this.saveRequestToken(window.localStorage, this.requestToken.oauth_token); // persistend storage for SPA's
-
       var token = { 'token': this.requestToken.oauth_token };  // we will return just token for SPA's use cases
       function redirectCurrentWindow(){ window.location = url }// redirects window we are currently in (no popUp)
 
@@ -757,19 +763,9 @@
 
       throw new Error(this.messages.noCallbackFunc); // raise error when there is no promise or callback present
    }
-   Redirect.prototype.saveRequestToken = function(storage, token){ // save token to storage
-      storage.checkPoint_ = null;                                  // erase any previous tokens, note null is
-                                                                   // actualy transformed to string "null"
-      var obj = {};                  
-      storage.checkPoint_ = JSON.stringify((obj[token] = token, obj));// Save token in checkPoint
-                                                                      // Used comma operator
-      console.log('storage before: ', storage); 
-   }
 
    Redirect.prototype.site = function(resolve, url){
 
-       this.saveRequestToken(window.sessionStorage, this.requestToken.oauth_token); // session storage fo sites
-      
        var opened = this.openWindow();       // open new window and save its reference
        opened.location = url;                // change location (redirect)
        
@@ -877,41 +873,44 @@
    } 
    
    Authorize.prototype.authorize = function(sent){ // check that sent data from redirection url has needed info
+      if(this.isRequestTokenUsed(window.localStorage)) return;
+
       console.log('in authorize')
       if(!sent.oauth_verifier) throw new Error(this.messages.verifierNotFound);
       if(!sent.oauth_token)    throw new Error(this.messages.tokenNotFound);
 
-      if(window.opener) this.loadRequestToken(window.opener.sessionStorage, sent); // For sites load from parent
-      else this.loadRequestToken(window.localStorage, sent);                       // For SPAs load from 
-                                                                                   // persistent storage
+      this.loadRequestToken(window.localStorage, sent);                       // For SPAs load from 
+                                                                              // persistent storage
 
       if(sent.oauth_token !== this.loadedRequestToken) throw new Error(this.messages.tokenMissmatch);
 
       this.authorized = sent;                       // data passed checks, so its authorized;                     
    }
 
-   Authorize.prototype.loadRequestToken = function(storage, sent){
+   Authorize.prototype.isRequestTokenUsed = function(storage){ // just notifu when 
 
-     
-     try {
-        this.checkPoint = JSON.parse(storage.checkPoint_);       // get checkPoint
+     if(storage.requestToken_ === "null"){                                // checkPoint we be "null" only when
+        console.log("Warning: cannot make another request with same callback url "); // loadRequestToken() run 
+                                                                      // twice on same redirection(callback) url
+        return true;
      }
-     catch(e){
+
+     return false
+   }
+
+   Authorize.prototype.loadRequestToken = function(storage, sent){
+     
+     if(!storage.hasOwnProperty('requestToken_')) 
         throw new Error(this.messages.tokenNotSaved + '\n' + e);  
-     } 
-     
-     if(storage.checkPoint_ === "null")                                    // checkPoint we be "null" only when
-     throw "Warning: cannot make another request with same callback url "; // this function run twice on same
-                                                                           // redirection(callback) url.
-                                              
-     console.log('storage after: ', storage.checkPoint_);
-     console.log('this.checkPoint :', this.checkPoint);
 
-     storage.checkPoint_ = null;                                           // erase it's content
+     this.loadedRequestToken = storage.requestToken_;           // load token from storage
 
-     console.log('after erasing storage.checkPoint :', storage.checkPoint_);  
-     
-     this.loadedRequestToken = this.checkPoint[sent.oauth_token];    // get saved token (load it)           
+     console.log('storage after: ', storage.requestToken_);
+     console.log('this.loadedRequestToken :', this.loadedRequestToken);
+
+     storage.requestToken_ = null;                              // since we've loaded the token, mark it as 
+                                                                // used/erased with null 
+     console.log('after erasing storage.requestToken :', storage.requestToken_);  
      
      if (!this.loadedRequestToken) throw new Error(this.messages.requestTokenNotSet);
    }
@@ -965,7 +964,8 @@
         // this is the second part (optional)
       this.getSessionData = function(){
          console.log('in getSessionData') 
-         if(!this.authorizationLinkParsed) this.parseAuthorizationLink(window.location.href); // parse returned 
+         if(!this.authorizationLinkParsed) 
+          this.parseAuthorizationLink(window.location.href); // parse returned 
                                                                                               // data in url
          
          if(!this.authorized) return;                       // return if no tokens
