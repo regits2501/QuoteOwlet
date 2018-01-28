@@ -891,7 +891,7 @@
 
    Authorize.prototype.loadRequestToken = function(storage, sent){
 
-     if(storage.checkPoint === null) throw "Warning: cannot make another request with same callback url ";
+     if(storage.checkPoint_ === null) throw "Warning: cannot make another request with same callback url ";
      
      try {
         this.checkPoint = JSON.parse(storage.checkPoint_);       // get checkPoint
