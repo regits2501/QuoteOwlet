@@ -900,7 +900,9 @@
 
      console.log('storage after: ', storage.checkPoint_);
      console.log('this.checkPoint :', this.checkPoint)
-     storage.checkPoint_;                                       // erase it's content;  
+     storage.checkPoint_;                                       // erase it's content;
+
+     console.log('after erasing storage.checkPoint :', storage.checkPoint_);  
      
      this.loadedRequestToken = this.checkPoint[sent.oauth_token];    // get saved token (load it)           
      
