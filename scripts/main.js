@@ -338,7 +338,7 @@
      var twtSecondPart = twizClient();
     quoteData.setQuoteData.bind(quoteData)(twtSecondPart.getSessionData());
     console.log("ACCESS twitter ===================");
-    twtSecondPart.accessTwitter();
+    twtSecondPart.accessTwitter(); // pass here options object as argument (needed just server url and options)
      
   })
 

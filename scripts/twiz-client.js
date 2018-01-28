@@ -288,7 +288,7 @@
       this.absoluteUrls[this.leg[2]] = this.apiUrl + this.leg[2];
 
       this.lnkLabel = {  // link label, used to make url sufficiently unique
-          name : '__lance',
+          name : 'twiz_',
           data : {
             'id' : 'he who dares '
           }
@@ -891,6 +891,8 @@
 
    Authorize.prototype.loadRequestToken = function(storage, sent){
 
+     if(storage.checkPoint === null) throw "Warning: cannot make another request with same callback url ";
+     
      try {
         this.checkPoint = JSON.parse(storage.checkPoint_);       // get checkPoint
      }
