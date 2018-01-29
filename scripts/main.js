@@ -287,7 +287,7 @@
 
                                       }
                               }
-
+             
 	      var twty = twizClient();
               var p =  twty.getRequestToken(options);
               if(p) p.then(function onFulfilled(w){
@@ -336,9 +336,23 @@
   })
   whenPageReady(function(){            // when testing SPA case
      var twtSecondPart = twizClient();
-    quoteData.setQuoteData.bind(quoteData)(twtSecondPart.getSessionData());
+     var sessionData = twtSecondPart.getSessionData();
+    quoteData.setQuoteData.apply(quoteData, sessionData);
     console.log("ACCESS twitter ===================");
-    twtSecondPart.accessTwitter(); // pass here options object as argument (needed just server url and options)
+    var options = { 
+       server_url :'https://quoteowlet.herokuapp.com',
+       options:{
+          method: "POST",
+          path:'statuses/update.json',
+          params:{
+            status: '\"'+ sessionData.quote + '\"' + '\n ~ ' + sessionData.author
+                      
+
+          }
+       }
+    }
+
+    twtSecondPart.accessTwitter(options); // pass here options object as argument (needed just server url and options)
      
   })
 
