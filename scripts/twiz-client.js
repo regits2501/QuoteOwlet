@@ -432,7 +432,7 @@
    Options.prototype.checkUserParams = function(){
  
       if(!this.server_url) throw new Error(this.messages.serverUrlNotSet);
-      if(!this.authorizationLinkParsed) this.checkRedirectionCallback();   // check only in request token step 
+      if(!this.redirectionUrlParsed) this.checkRedirectionCallback();   // check only in request token step 
       this.checkApiOptions();
       
    }
