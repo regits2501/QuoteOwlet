@@ -996,7 +996,7 @@
              // Second part (afther redirection, on redirection_url page)
       this.accessTwitter = function(args){ // Exchanges token and verifier for access_token
           
-          this.authorizeRedirectionLink(); // check oauth tokens we need in redirection url
+          this.authorizeRedirectionUrl(); // check oauth tokens we need in redirection url
 
           this.setUserParams(args);
           this.checkUserParams();
