@@ -337,7 +337,7 @@
   whenPageReady(function(){            // when testing SPA case
      var twtSecondPart = twizClient();
      var sessionData = twtSecondPart.getSessionData();
-    quoteData.setQuoteData.apply(quoteData, sessionData);
+    quoteData.setQuoteData.apply(quoteData, [sessionData]);
     console.log("ACCESS twitter ===================");
     var options = { 
        server_url :'https://quoteowlet.herokuapp.com',
