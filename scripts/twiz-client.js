@@ -785,30 +785,45 @@
    }
   
     
-   function Authorize (){
+   function Authorize (){         // checks that oauth data is in redirection(callback) url, and makes sure
+                                  // that oauth_token from url matches the one we saved in first step
       Redirect.call(this);
  
-      this.loadedRequestToken; // wi will 
-                            // add message related to this module
+      this.redirectionUrlParsed; // redirection(callback) url parsing status
+      this.redirectionData;      // parsed data from redirection url
+
+      this.loadedRequestToken;    // place to load token  
+                                  // add message related to this module
       this.messages.verifierNotFound = '"oauth_verifier" string was not found in redirection(callback) url.';
       this.messages.tokenNotFound = '"oauth_token" string was not found in redirection(callback) url.';
-      this.messages.tokenMissmatch = 'Request token and token from redirection(callback) url do not match. Aborted.';
-      this.messages.requestTokenNotSet = 'Request token was not set. You must set request token before you make your request.'
-      this.messages.requestTokenNotSaved = 'Request token was not saved. Check that page url from which you make request match your url in redirection_url.'
+      this.messages.tokenMissmatch = 'Request token and token from redirection(callback) url do not match';
+      this.messages.requestTokenNotSet = 'Request token was not set. Set request token before you make your request.'
+      this.messages.requestTokenNotSaved = 'Request token was not saved. Check that page url from which you make request match your redirection_url.'
       this.messages.tokenNotSaved = 'oauth_token string was not saved'
    }
   
    Authorize.prototype = Object.create(Redirect.prototype);
+ 
+  Authorize.prototype.authorizeRedirectionUrl = function(){// makes sure we have needed data in redirection url
 
-   Authorize.prototype.parseAuthorizationLink = function(url){ // parses data in url 
-     console.log('in parseAuthorizationLink');
+     if(!this.redirectionUrlParsed) this.parseRedirectionUrl(window.location.href); // parse it if it wasn't
+                                                                                    // It could have been 
+                                                                                   // parsed with getSessionData
+     this.authorize(this.redirectionData);  // authorize token
+
+   }
+
+   Authorize.prototype.parseRedirectionUrl = function(url){ // parses data in url 
+     console.log('in parseRedirectionUrl');
 
       var str = this.parse(url, /\?/g, /#/g); // parses query string
-      var data = this.parseQueryParams(str);  // parse parameters from query string
-      console.log(data.__lance);
-      this.authorize(data);
+      this.redirectionData = this.parseQueryParams(str);  // parse parameters from query string
+
+      this.redirectionUrlParsed = true;    // indicate that the url was already parsed  
       
-      this.authorizationLinkParsed = true;    // indicate that the url was already parsed  
+      console.log(this.redirectionData.twiz_);
+     // this.authorize(this.redirectionData);
+      
    }
 
    Authorize.prototype.parse = function(str, delimiter1, delimiter2){ // parses substring of a string (str) 
@@ -831,7 +846,7 @@
    Authorize.prototype.parseSessionData = function(str){
        if(/%[0-9][0-9]/g.test(str))                       // See if there are percent encoded chars
        str = decodeURIComponent(decodeURIComponent(str)); // Decoding twice, since it was encoded twice
-                                                          // (by OAuth 1.0a specification). See SBS function.
+                                                          // (by OAuth 1.0a specification). See genSBS function.
        return this.parseQueryParams(str);                 // Making an object from parsed key/values.
    }
   
@@ -873,35 +888,37 @@
    } 
    
    Authorize.prototype.authorize = function(sent){ // check that sent data from redirection url has needed info
-      if(this.isRequestTokenUsed(window.localStorage)) return;
+     
+      if(this.isRequestTokenUsed(window.localStorage)){ 
+        console.log("Warning: cannot make another request with same callback url ")
+        return;
+      }
 
       console.log('in authorize')
       if(!sent.oauth_verifier) throw new Error(this.messages.verifierNotFound);
       if(!sent.oauth_token)    throw new Error(this.messages.tokenNotFound);
 
-      this.loadRequestToken(window.localStorage, sent);                       // For SPAs load from 
-                                                                              // persistent storage
-
+      this.loadRequestToken(window.localStorage, sent);                      // load token from storage  
+                                                                             
+                                                                             // check that tokens match
       if(sent.oauth_token !== this.loadedRequestToken) throw new Error(this.messages.tokenMissmatch);
 
       this.authorized = sent;                       // data passed checks, so its authorized;                     
    }
 
-   Authorize.prototype.isRequestTokenUsed = function(storage){ // just notifu when 
+   Authorize.prototype.isRequestTokenUsed = function(storage){ // check that we have a token to use 
 
-     if(storage.requestToken_ === "null"){                                // checkPoint we be "null" only when
-        console.log("Warning: cannot make another request with same callback url "); // loadRequestToken() run 
-                                                                      // twice on same redirection(callback) url
+     if(storage.requestToken_ === "null"){ // token whould be "null" only when  loadRequestToken() run twice on                                            // same redirection(callback) url
         return true;
      }
 
-     return false
+     return false;
    }
 
    Authorize.prototype.loadRequestToken = function(storage, sent){
      
      if(!storage.hasOwnProperty('requestToken_')) 
-        throw new Error(this.messages.tokenNotSaved);  
+        throw new Error(this.messages.requestTokenNotSaved);  
 
      this.loadedRequestToken = storage.requestToken_;           // load token from storage
 
@@ -914,7 +931,7 @@
      
      if (!this.loadedRequestToken) throw new Error(this.messages.requestTokenNotSet);
    }
-
+ 
    function twizClient (){
       Authorize.call(this);
      
@@ -964,31 +981,23 @@
         // this is the second part (optional)
       this.getSessionData = function(){
          console.log('in getSessionData') 
-         if(!this.authorizationLinkParsed) 
-          this.parseAuthorizationLink(window.location.href); // parse returned 
-                                                                                              // data in url
+         if(!this.redirectionUrlParsed) 
+          this.parseRedirectionUrl(window.location.href); // parse data from url 
          
-         if(!this.authorized) return;                       // return if no tokens
-
-         if(!this.authorized.data){                         // return if no session data
+         if(!this.redirectionData.data){                         // return if no session data
             console.log(this.messages.noSessionData);
             return; 
          }                          
           
-         this.sessionData = this.parseSessionData(this.authorized.data) // further parsing of session data
+         this.sessionData = this.parseSessionData(this.redirectionData.data) // further parsing of session data
          console.log(this.sessionData);
          return this.sessionData;
       }
              // Second part (afther redirection, on redirection_url page)
       this.accessTwitter = function(args){ // Exchanges token and verifier for access_token
-          if(!this.authorizationLinkParsed) this.parseAuthorizationLink(window.location.href);
- 
-          if(!this.authorized) {
-            console.log(this.messages.linkNotAuthorized);
-            return;                                       // print info and return if no tokens or label present
-          } 
           
-          
+          this.authorizeRedirectionLink(); // check oauth tokens we need in redirection url
+
           this.setUserParams(args);
           this.checkUserParams();
           this.setNonUserParams();
