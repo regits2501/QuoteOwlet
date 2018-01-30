@@ -352,7 +352,14 @@
        }
     }
 
-    twtSecondPart.accessTwitter(options); // pass here options object as argument (needed just server url and options)
+   var p = twtSecondPart.accessTwitter(options); // pass here options object as argument 
+                                          //(needed just server url and options)
+   if(p) p.then(function(o){
+      if(o.error) console.log("error in promise: ", error)
+       
+      if(o.data)console.log("data in promise:", o.data);
+  
+   })
      
   })
 
