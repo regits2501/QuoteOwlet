@@ -161,31 +161,30 @@
        contentType = contentType.split(';')[0]; // get just type , in case there is charset specified 
        if(!contentType) throw new Error(this.messages.noContentType);
        switch(contentType){              // get request data from apropriate property, parse it if indicated  
-                 case "application/json":   
-                   try{
-                      if(this.parse) temp = JSON.parse(this.request.responseText); // parse json data
-                      else temp = this.request.responseText;
-                   }
-                   catch(e){
-                      console.log(this.messages.notJSON + " \n"+ e); // if parsing failed note it
-                   }
-                 break;
-                 case "application/xml":
-                   temp = this.request.responseXML; // responceXML already parsed as a DOM object
-                 break;
-                 case "application/x-www-url-formencoded":
-                   temp =  {};
-                   this.request.responseText.trim().split("&").forEach(function(el, i){ // split on &
+           case "application/json":   
+              try{
+                 if(this.parse) temp = JSON.parse(this.request.responseText); // parse json data
+                 else temp = this.request.responseText;
+              }
+              catch(e){
+                  console.log(this.messages.notJSON + " \n"+ e); // if parsing failed note it
+              }
+           break;   
+           case "application/xml":
+              temp = this.request.responseXML; // responceXML already parsed as a DOM object
+           break;
+           case "application/x-www-url-formencoded":
+              temp =  {};
+              this.request.responseText.trim().split("&").forEach(function(el, i){ // split on &
                    
-                         var pairs = el.split('=');                  
-                         var header = decodeURIComponent(pairs[0]); // decode header name
-                         var value  = decodeURIComponent(pairs[1]); // decode value
-                          temp[header] = value; // adds to data header name and its value
-  
-                   }, temp)
-                 break;
-                 default:
-                   temp = this.request.responseText;// text/html , text/css and others are treated as text
+                  var pairs = el.split('=');                  
+                  var header = decodeURIComponent(pairs[0]); // decode header name
+                  var value  = decodeURIComponent(pairs[1]); // decode value
+                  temp[header] = value; // adds to data header name and its value
+              }, temp)
+           break;
+           default:
+              temp = this.request.responseText;// text/html , text/css and others are treated as text
        }
 
        if(statusCode !== 200) error = { status: statusCode, statusText: this.request.statusText, data: temp }
@@ -445,7 +444,7 @@
    Options.prototype.checkApiOptions = function(){
       for(var opt in this.apiOptions){
           if(opt === 'path' && opt == 'method' ){ // mandatory params set by user
-            if(!this.apiOptions[opt])                  // check that is set
+            if(!this.apiOptions[opt])             // check that is set
                throw new Error( opt + this.messages.optionNotSet)
           }
       }     
@@ -573,7 +572,7 @@
    OAuth.prototype.genSignatureBaseString = function(leg){ // generates SBS  
          this.signatureBaseString = '';
          var a = [];
-         for(var name in this.oauth){                            // takes every oauth params name
+         for(var name in this.oauth){                         // takes every oauth params name
             if(this.oauth.hasOwnProperty(name)) a.push(name); // and pushes them to array
          } 
      
@@ -688,34 +687,38 @@
       console.log('sentData type: ',typeof sentData);
       console.log('error :', error);
 
-      if(error || !sentData.oauth_token){ // on error or on valid data just resolve it (no redirection happens) 
-           if(resolve){
-               resolve({'error': error, 'data': sentData})
-               return
-           }
-           else if(this.callback_func) {   // when no promise is avalable invoke callback
-               this.callback_func(error, sentData);
-               return
-           }
-           else return                    // do nothing
-           
+      if(error || !sentData.oauth_token){ // on error or on valid data deliver it to user 
+         this.deliverData(error, sentData);
+         return;
       }
  
-      this.requestToken = sentData ;  // set requestToken data
-      this.confirmCallback(sentData); // confirm that twitter accepted user's redirection(callback) url
+      this.requestToken = sentData ;     // set requestToken data
+      this.confirmCallback(sentData);    // confirm that twitter accepted user's redirection(callback) url
       this.saveRequestToken(window.localStorage, sentData.oauth_token); 
-      this.redirect(resolve)           // redirect user to twitter for authorization 
+      this.redirect(resolve)             // redirect user to twitter for authorization 
    };
-  
+   
+   Redirect.prototype.deliverData = function(resolve, error, sentData){ // delivers data to user by promise or
+                                                                        // by callback function
+      
+      if(resolve){
+          resolve({'error': error, 'data': sentData});
+      }
+      else if(this.callback_func) {             // when no promise is avalable invoke callback
+          this.callback_func(error, sentData);
+      }                                       
+                             
+   }
+
    Redirect.prototype.confirmCallback = function (sent){ // makes sure that twitter is ok with redirection url
       if(sent.oauth_callback_confirmed !== "true") throw new Error(this.messages.callbackURLnotConfirmed);
    }
  
    Redirect.prototype.saveRequestToken = function(storage, token){ // save token to storage
-      storage.requestToken_ = null;                                  // erase any previous tokens, note null is
+      storage.requestToken_ = null;                                // erase any previous tokens, note null is
                                                                    // actualy transformed to string "null"
                
-      storage.requestToken_ =  token;                             // save token to storage
+      storage.requestToken_ =  token;                              // save token to storage
       console.log('storage before: ', storage); 
    }
 
@@ -724,22 +727,13 @@
       var url =  this.absoluteUrls[this.leg[1]] + "?" + 'oauth_token=' + this.requestToken.oauth_token; 
                                                                                   // assemble url for second leg
 
-      if(!this.newWindow){ // SPA
+      if(!this.newWindow){ // single page app
          this.SPA(resolve, url);
-        /*     // resolve({tokenStr:'e0fhe0h0fhe0h'})  // resolve just with token string
-         window.location = url; // redirect current window if no newWindow; 
-         return;
-         */
          return
 
-      }                         
+      }
+                         
       this.site(resolve, url);
-    /*  var opened = this.openWindow();
-      opened.location = url;
-                                       // resolve({window: openedWindow, tokenStr: '7gg97gg88y' })
-      if(resolve) resolve(openedWindow);       // if promise is there, resolve it with a window reference
-      else if (this.callback_func) this.callback_func(openedWindow); // if not invoke user callback function
-   */
       
    };
 
@@ -755,7 +749,7 @@
       }
 
       if(resolve){
-         resolve(id);                                // resolve with id
+         resolve(id);                                  // resolve with id
          Promise.resolve()             
          .then(function(){ redirectCurrentWindow() })  // redirect asap
          return
@@ -804,7 +798,7 @@
   
    Authorize.prototype = Object.create(Redirect.prototype);
  
-  Authorize.prototype.authorizeRedirectionUrl = function(){// makes sure we have needed data in redirection url
+  Authorize.prototype.authorizeRedirectionUrl = function(){ // makes sure we have needed data in redirection url
 
      if(!this.redirectionUrlParsed) this.parseRedirectionUrl(window.location.href); // parse it if it wasn't
                                                                                     // It could have been 
@@ -819,11 +813,9 @@
       var str = this.parse(url, /\?/g, /#/g); // parses query string
       this.redirectionData = this.parseQueryParams(str);  // parse parameters from query string
 
-      this.redirectionUrlParsed = true;    // indicate that the url was already parsed  
+      this.redirectionUrlParsed = true;       // indicate that the url was already parsed  
       
       console.log(this.redirectionData.twiz_);
-     // this.authorize(this.redirectionData);
-      
    }
 
    Authorize.prototype.parse = function(str, delimiter1, delimiter2){ // parses substring of a string (str) 
@@ -957,16 +949,11 @@
          // logic for removing and and adding oauth params for api call
          
          this.paramsOAuth('remove', this.oauth, this[this.leg[0]]) // removes 'callback' param from oauth 
-
-         console.log('before adding apiCall ')
          this.paramsOAuth('add', this.oauth, this.apiCall)         // adds 'token' param for call to some twitter api
-         
-         console.log('before adding apiOptions.params')
          if(this.apiOptions.params)  // if there are parametars, add oauth parmas to them 
          this.oauth = this.paramsOAuth('add', this.apiOptions.params, this.oauth) // oauth now has all apiOptions
                                                                                   // params
          this.addQueryParams('api', this.apiOptions) //  
-         // this.setApiParams(this.options)
 
          var resolve;
          var promised;
@@ -981,10 +968,10 @@
         // this is the second part (optional)
       this.getSessionData = function(){
          console.log('in getSessionData') 
-         if(!this.redirectionUrlParsed) 
+         if(!this.redirectionUrlParsed); 
           this.parseRedirectionUrl(window.location.href); // parse data from url 
          
-         if(!this.redirectionData.data){                         // return if no session data
+         if(!this.redirectionData.data){                  // return if no session data
             console.log(this.messages.noSessionData);
             return; 
          }                          
@@ -994,7 +981,8 @@
          return this.sessionData;
       }
              // Second part (afther redirection, on redirection_url page)
-      this.accessTwitter = function(args){ // Exchanges token and verifier for access_token
+      this.accessTwitter = function(args){ // Sets token and verifier for access_token step, server gets token
+                                           // and makes api call to twitter
           
           this.authorizeRedirectionUrl(); // check oauth tokens we need in redirection url
      
@@ -1024,8 +1012,14 @@
                                                                                   //user's api call params
           console.log('this.oauth: ',this.oauth);
           this.addQueryParams('api', this.apiOptions);
- 
-          this.sendRequest(this.accessToken.bind(this), this.options);  
+         
+          var resolve;
+          var promised;
+         
+          if(Promise) promised = new Promise(function(rslv, rjt){ resolve = rslv; }) // if can, make a Promise
+                                                                                     // remember it's resolve
+          this.sendRequest(this.accessToken.bind(this, resolve), this.options);  
+          if(promised) return promised;
       }
 
    }
@@ -1042,10 +1036,13 @@
       request(options);  
    }
 
-   twizClient.prototype.accessToken = function(error, sentData){ // should be done by server
+   twizClient.prototype.accessToken = function(resolve, error, sentData){ // 
         
        if(error)console.log('after access_token (error):', error)
        else console.log('after access_token (data):', sentData);
+
+       this.deliverData(resolve, error, sentData);    // delivers data to user     
+
    
    }
 
