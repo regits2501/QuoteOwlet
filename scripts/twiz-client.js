@@ -993,7 +993,8 @@
           this.setUserParams(args);
           this.checkUserParams();
           this.setNonUserParams();
-                                 console.log('accessToken callback:', this[this.leg[0]])    
+                                 console.log('accessToken callback:', this[this.leg[0]])   
+                                 console.log('accessToken this.oauth: ', this.oauth); 
           this.paramsOAuth('remove', this.oauth, this[this.leg[0]]); // Remove request token param
         //  this.paramsOAuth('remove', this.oauth, this.apiCall)       // remove param for api call
          
