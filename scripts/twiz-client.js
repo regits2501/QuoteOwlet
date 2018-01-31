@@ -989,7 +989,7 @@
           this.authorizeRedirectionUrl(); // check oauth tokens we need in redirection url
      
           if(!this.authorized) return;
-
+                                         console.log('accessToken before this.oauth:', this.oauth)
           this.setUserParams(args);
           this.checkUserParams();
           this.setNonUserParams();
