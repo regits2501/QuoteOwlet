@@ -270,7 +270,6 @@
                                         'params':{
                                           
                                           q:"DaiMokuroku"
-                                          
                                            
                                           /*status: '\"'+ textContent(document.querySelector('.showQuote')) +'\"'
                                                     +'\n ~ ' + textContent(document.querySelector('.showAuthor'))
@@ -278,8 +277,8 @@
                                          }
                                       },
                                       'callback_func': function(o){
-                                            if(o.error) console.log('error (callback_func): ', error)
-                                             
+                                            if(o.error) console.log('error (callback_func): ', o.error)
+                                            if(o.data) console.log('data in callback_func: ', o.data) 
                                             if(o.window){
                                                console.log('in callback_func has Window: ', o.window);
                                             }
@@ -291,6 +290,7 @@
 	      var twty = twizClient();
               var p =  twty.getRequestToken(options);
               if(p) p.then(function onFulfilled(w){
+                           if(w.redirection){console.log('no token on server: Redirection'); return}
                            console.log("Promised: ", w)
                             if (!w.error && w.data){
                                userID = w.data[0]['id_str']; 
@@ -327,7 +327,8 @@
                           
                       }
                     ).then(function(o){
-                                            })
+                        
+                    })
               else{ console.log('NO Promise available')
                 
               }

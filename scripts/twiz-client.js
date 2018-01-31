@@ -307,7 +307,7 @@
          encoding: ''
       }
     
-      this.options = {};  // request options we send to server
+      this.options = {};        // request options we send to server
       this.options.url = '';
       this.options.method = '';
       this.options.queryParams = {
@@ -442,7 +442,7 @@
    }
 
    Options.prototype.checkApiOptions = function(){
-      for(var opt in this.apiOptions){
+      for(var opt in this.apiOptions) {
           if(opt === 'path' && opt == 'method' ){ // mandatory params set by user
             if(!this.apiOptions[opt])             // check that is set
                throw new Error( opt + this.messages.optionNotSet)
@@ -453,7 +453,7 @@
    Options.prototype.setGeneralOptions = function(leg){
       this.options.url        = this.server_url;            // server address
       this.options.method     = this.httpMethods[leg];      // method for reqest is method for this leg
-      this.options.body       = this.apiOptions.body // only api call can have body, oauth dance requires no body
+      this.options.body       = this.apiOptions.body; // only api call can have body, oauth dance requires no body
       this.options.encoding   = this.apiOptions.encoding;   // encoding of a body
       this.options.beforeSend = this.apiOptions.beforeSend; // manipulates request before it is sent
    }
@@ -675,7 +675,7 @@
       this.messages.noCallbackFunc = 'You must specify a callback function'
       this.messages.callbackURLnotConfirmed = "Redirection(callback) url you specified wasn't confirmed by Twitter"
 
-      this.requestToken;    
+      this.requestToken;    // data from request token step   
    }
 
    Redirect.prototype = Object.create(OAuth.prototype);
@@ -739,43 +739,44 @@
 
    Redirect.prototype.SPA = function(resolve, url){   // logic for Sigle Page Apps
      
-      var token = { 'token': this.requestToken.oauth_token };  // we will return just token for SPA's use cases
       function redirectCurrentWindow(){ window.location = url }// redirects window we are currently in (no popUp)
-
-      if(this.callback_func){                                  // if user specified callback func
-         this.callback_func(token);                            // run callback with token
-         setTimeout(function(){redirectCurrentWindow()},7500) ;                             // redirect asap
-         return;
-      }
-
+      var obj = { 'redirection': true } // since there is no newWindow reference, just indicate redirection
+     
       if(resolve){
-         resolve(id);                                  // resolve with id
-         Promise.resolve()             
+         resolve(obj);                                 // resolve with 
+         Promise.resolve(obj)             
          .then(function(){ redirectCurrentWindow() })  // redirect asap
          return
       }
 
+      if(this.callback_func){                                // if user specified callback func
+         this.callback_func(obj);                            // run callback with token
+         setTimeout(function(){redirectCurrentWindow()},7500) ;                             // redirect asap
+         return;
+      }
+
+      
       throw new Error(this.messages.noCallbackFunc); // raise error when there is no promise or callback present
    }
 
    Redirect.prototype.site = function(resolve, url){
 
-       var opened = this.openWindow();       // open new window and save its reference
-       opened.location = url;                // change location (redirect)
+      var opened = this.openWindow();       // open new window and save its reference
+      opened.location = url;                // change location (redirect)
        
-       var obj = { 'window': opened }        //
+      var obj = { 'window': opened }        // newWindow reference
 
-       if(this.callback_func){     
-          this.callback_func(obj); 
-          return
-       }
+      if(resolve){ 
+         resolve(obj);
+         return;
+      }
 
-       if(resolve){ 
-          resolve(obj);
-          return;
-       }
-      
-       throw new Error (this.messages.noCallbackFunc);
+      if(this.callback_func){     
+         this.callback_func(obj); 
+         return
+      }
+
+      throw new Error (this.messages.noCallbackFunc);
    }
   
     
@@ -793,12 +794,12 @@
       this.messages.tokenMissmatch = 'Request token and token from redirection(callback) url do not match';
       this.messages.requestTokenNotSet = 'Request token was not set. Set request token before you make your request.'
       this.messages.requestTokenNotSaved = 'Request token was not saved. Check that page url from which you make request match your redirection_url.'
-      this.messages.tokenNotSaved = 'oauth_token string was not saved'
+      this.messages.sameRedirectionUrl = "Cannot make another request with same redirection(callback) url"
    }
   
    Authorize.prototype = Object.create(Redirect.prototype);
  
-  Authorize.prototype.authorizeRedirectionUrl = function(){ // makes sure we have needed data in redirection url
+   Authorize.prototype.authorizeRedirectionUrl = function(){// makes sure we have needed data in redirection url
 
      if(!this.redirectionUrlParsed) this.parseRedirectionUrl(window.location.href); // parse it if it wasn't
                                                                                     // It could have been 
@@ -810,7 +811,7 @@
    Authorize.prototype.parseRedirectionUrl = function(url){ // parses data in url 
      console.log('in parseRedirectionUrl');
 
-      var str = this.parse(url, /\?/g, /#/g); // parses query string
+      var str = this.parse(url, /\?/g, /#/g);             // parses query string
       this.redirectionData = this.parseQueryParams(str);  // parse parameters from query string
 
       this.redirectionUrlParsed = true;       // indicate that the url was already parsed  
@@ -881,8 +882,8 @@
    
    Authorize.prototype.authorize = function(sent){ // check that sent data from redirection url has needed info
      
-      if(this.isRequestTokenUsed(window.localStorage)){ 
-        console.log("Warning: cannot make another request with same callback url ")
+      if(this.isRequestTokenUsed(window.localStorage)){           
+        console.log("Info: " + this.messages.sameRedirectionUrl)
         return;
       }
 
