@@ -700,12 +700,13 @@
    
    Redirect.prototype.deliverData = function(resolve, error, sentData){ // delivers data to user by promise or
                                                                         // by callback function
-      
+      var obj = {'error': error, 'data': sentData}
+
       if(resolve){
-          resolve({'error': error, 'data': sentData});
+          resolve(obj);
       }
       else if(this.callback_func) {             // when no promise is avalable invoke callback
-          this.callback_func(error, sentData);
+          this.callback_func(obj);
       }                                       
                              
    }
@@ -993,8 +994,8 @@
           this.checkUserParams();
           this.setNonUserParams();
                                      
-          this.paramsOAuth('remove', this.oauth, this[this.leg[0]]); // Remove request token param
-          this.paramsOAuth('remove', this.oauth, this.apiCall)       // remove param for api call
+        //  this.paramsOAuth('remove', this.oauth, this[this.leg[0]]); // Remove request token param
+        //  this.paramsOAuth('remove', this.oauth, this.apiCall)       // remove param for api call
          
           //adds params for access token leg explicitly 
           this.oauth[this.prefix + 'verifier'] = this.authorized.oauth_verifier // Put authorized verifier
