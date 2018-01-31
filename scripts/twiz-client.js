@@ -474,7 +474,7 @@
       
       this.oauth = {}                                // Holds parameters that are used to generate SBS and AH
       this.oauth[ this.prefix + 'consumer_key'] = "";// This is very sensitive data. Server sets the value.
-      this.oauth[ this.prefix + 'signature'] = "";   // This value also sets the server.
+      this.oauth[ this.prefix + 'signature'] = "";   // This value is also inserted in server code.
       this.oauth[ this.prefix + 'nonce'] =  "";     // Session id, twitter api uses this to determines duplicates
       this.oauth[ this.prefix + 'signature_method'] = ""; // Signature method we are using
       this.oauth[ this.prefix + 'timestamp'] = "";   // Unix epoch timestamp
@@ -482,7 +482,7 @@
       
       this[this.leg[0]] = {};                        // oauth param for request token step
       this[this.leg[0]][ this.prefix + 'callback'] = ""; // User is return to this link, if approval is confirmed   
-      // this[this.leg[1]] = {}                     // there is no oauth params for authorize step. request_token                                                    // is sent as part of redirection url query parameter.
+      // this[this.leg[1]] = {}                     // there is no oauth params for authorize step. request_token                                                    // is sent as redirection url query parameter.
                                
       this[this.leg[2]] = {}                        // oauth params for access token step
       this[this.leg[2]][ this.prefix + 'token'] = '';  
@@ -993,7 +993,7 @@
           this.setUserParams(args);
           this.checkUserParams();
           this.setNonUserParams();
-                                     
+                                 console.log('accessToken callback:', this[this.leg[0]])    
           this.paramsOAuth('remove', this.oauth, this[this.leg[0]]); // Remove request token param
         //  this.paramsOAuth('remove', this.oauth, this.apiCall)       // remove param for api call
          
