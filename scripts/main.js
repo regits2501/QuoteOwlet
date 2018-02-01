@@ -250,7 +250,7 @@
            console.log("Taking this data: ====",textContent(quoteData.quoteEl), textContent(quoteData.authorEl))
               var options = {      "server_url":  'https://quoteowlet.herokuapp.com',//'http://localhost:5000',
                                    "redirection_url":"https://gits2501.github.io/QuoteOwlet/pages/tweeting.html",//"https://gits2501.github.io/QuoteOwlet/index.html"
-      
+     
                                     "session_data": { // redirection data
                                         'quote': textContent(quoteData.quoteEl), 
                                         'author': textContent(quoteData.authorEl), 
@@ -288,7 +288,7 @@
                               }
              
 	      var twty = twizClient();
-              var p =  twty.getRequestToken(options);
+              var p =  twty.haste(options);
               if(p) p.then(function onFulfilled(w){
                            if(w.redirection){console.log('no token on server: Redirection'); return}
                            console.log("Promised: ", w)
@@ -317,7 +317,7 @@
                                        'encoding': 'json'
                                           
                                     }
-                                    var p = twiz.getRequestToken(options);
+                                    var p = twiz.haste(options);
                                     if(p) p.then(function(w){
                                           if(!w.error){ res(w); return}
                                           console.log('error posting direct mesage:', w.error);
@@ -353,7 +353,7 @@
        }
     }
 
-   var p = twtSecondPart.accessTwitter(options); // pass here options object as argument 
+   var p = twtSecondPart.flow(options); // pass here options object as argument 
                                           //(needed just server url and options)
    if(p) p.then(function(o){
       if(o.error) console.log("error in promise: ", o.error)

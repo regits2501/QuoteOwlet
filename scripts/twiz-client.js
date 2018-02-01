@@ -982,31 +982,34 @@
          console.log(this.sessionData);
          return this.sessionData;
       }
-             // Second part (afther redirection, on redirection_url page)
-      this.accessTwitter = function(args){ // Sets token and verifier for access_token step, server gets token
-                                           // and makes api call to twitter
+      this.twizard = function(args, leg, cb){// Sets token and verifier for access_token step, server gets token
+                                             // and makes api call to twitter
           console.log('accessToken before all this.oauth: ', this.oauth);
-          if(!this.authorizeRedirectionUrl()) return; // check oauth tokens we need in redirection url
+          if(leg === this.leg[2]) 
+           if(!this.authorizeRedirectionUrl()) return; // check oauth tokens we need in redirection url
      
-                                         console.log('accessToken before this.oauth:', this.oauth)
+                                     console.log('accessToken before this.oauth:', this.oauth)
           this.setUserParams(args);
           this.checkUserParams();
           this.setNonUserParams();
                                  console.log('accessToken callback:', this[this.leg[0]])   
                                  console.log('accessToken this.oauth: ', this.oauth); 
-          this.paramsOAuth('add', this.oauth, this[this.leg[2]]); // Remove request token param
-         
+          this.paramsOAuth('add', this.oauth, this[leg]); // Remove request token param
+        
+          if(leg === this.leg[2]){ 
           //adds params for access token leg explicitly 
-          this.oauth[this.prefix + 'verifier'] = this.authorized.oauth_verifier // Put authorized verifier
-          this.oauth[this.prefix + 'token']    = this.authorized.oauth_token;   // Authorized token
+           this.oauth[this.prefix + 'verifier'] = this.authorized.oauth_verifier // Put authorized verifier
+           this.oauth[this.prefix + 'token']    = this.authorized.oauth_token;   // Authorized token
+          }
+          
+          if(leg === this.leg[0]) this.appendToCallback(this.lnkLabel.data, this.lnkLabel.name); // adds 
+                                                                                // uniqueness to redirection url
          
-         // this.genSignatureBaseString(vault,this.leg[2]);   // generate SBS // check if y
-       
-          this.setGeneralOptions(this.leg[2]);                // set general options for access token leg
-          this.addQueryParams('leg', this.leg[2])             // add query params for this leg
+          this.setGeneralOptions(leg);                // set general options for access token leg
+          this.addQueryParams('leg', leg)             // add query params for this leg
           
 
-          this.paramsOAuth('remove', this.oauth, this[this.leg[2]]) // removes oauth params for acess token leg
+          this.paramsOAuth('remove', this.oauth, this[leg]) // removes oauth params for acess token leg
           this.paramsOAuth('add', this.oauth, this.apiCall)         // add param needed for api call (oauth_token)
           if(this.apiOptions.params)  // if there are parametars, add oauth params to them 
           this.oauth = this.paramsOAuth('add', this.apiOptions.params, this.oauth)// adds all oauth params to 
@@ -1019,13 +1022,18 @@
          
           if(Promise) promised = new Promise(function(rslv, rjt){ resolve = rslv; }) // if can, make a Promise
                                                                                      // remember it's resolve
-          this.sendRequest(this.accessToken.bind(this, resolve), this.options);  
+          this.sendRequest(cb.bind(this, resolve), this.options);  
           if(promised) return promised;
       }
      
-      this.haste = function(){
-        // this.
+      this.haste = function(args){ // Brings data immediately ( when access token is present on server), or
+                               // brings request token (when no access token is present on server) and redirects
+         this.twizard(args, this.leg[0], this.redirection);
 
+      }
+
+      this.flow = function(){ // Authorizes redirection and continues OAuth flow 
+         this.twizard(args, this.leg[2], this.accessToken);
       }
    }
 
@@ -1057,9 +1065,9 @@
       var r = new twizClient(); 
       
       return {
-          getRequestToken : r.getRequestToken.bind(r),
-          getSessionData:   r.getSessionData.bind(r),
-          accessTwitter:    r.accessTwitter.bind(r),
+          haste :         r.haste.bind(r),
+          flow:           r.flow.bind(r),
+          getSessionData: r.getSessionData.bind(r),
       } 
    }
    
