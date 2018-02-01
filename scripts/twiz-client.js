@@ -996,7 +996,7 @@
                                  console.log('accessToken callback:', this[this.leg[0]])   
                                  console.log('accessToken this.oauth: ', this.oauth); 
           this.paramsOAuth('remove', this.oauth, this[this.leg[0]]); // Remove request token param
-        //  this.paramsOAuth('remove', this.oauth, this.apiCall)       // remove param for api call
+          this.paramsOAuth('remove', this.oauth, this.apiCall)       // remove param for api call
          
           //adds params for access token leg explicitly 
           this.oauth[this.prefix + 'verifier'] = this.authorized.oauth_verifier // Put authorized verifier
