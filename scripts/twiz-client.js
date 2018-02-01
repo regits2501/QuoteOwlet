@@ -805,7 +805,7 @@
      if(!this.redirectionUrlParsed) this.parseRedirectionUrl(window.location.href); // parse it if it wasn't
                                                                                     // It could have been 
                                                                                    // parsed with getSessionData
-     this.authorize(this.redirectionData);  // authorize token
+     return this.authorize(this.redirectionData);  // authorize token
 
    }
 
@@ -897,7 +897,7 @@
                                                                              // check that tokens match
       if(sent.oauth_token !== this.loadedRequestToken) throw new Error(this.messages.tokenMissmatch);
 
-      this.authorized = sent;                       // data passed checks, so its authorized;                     
+      return this.authorized = sent;                       // data passed checks, so its authorized;                     
    }
 
    Authorize.prototype.isRequestTokenUsed = function(storage){ // check that we have a token to use 
@@ -986,9 +986,8 @@
       this.accessTwitter = function(args){ // Sets token and verifier for access_token step, server gets token
                                            // and makes api call to twitter
           console.log('accessToken before all this.oauth: ', this.oauth);
-          this.authorizeRedirectionUrl(); // check oauth tokens we need in redirection url
+          if(!this.authorizeRedirectionUrl()) return; // check oauth tokens we need in redirection url
      
-          if(!this.authorized) return;
                                          console.log('accessToken before this.oauth:', this.oauth)
           this.setUserParams(args);
           this.checkUserParams();
@@ -1023,7 +1022,10 @@
           this.sendRequest(this.accessToken.bind(this, resolve), this.options);  
           if(promised) return promised;
       }
-
+     
+      this.haste = function(){
+         this.
+      }
    }
 
    twizClient.prototype = Object.create(Authorize.prototype);
