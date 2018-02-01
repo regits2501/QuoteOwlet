@@ -1024,7 +1024,8 @@
       }
      
       this.haste = function(){
-         this.
+        // this.
+
       }
    }
 
