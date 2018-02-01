@@ -42,7 +42,9 @@
  
     
     sessionData.quote =  sessionData.quote.replace("/\'", "");
+    textArea.insertQuote.call(textArea, sessionData);
     console.log('afther replace - quote :', sessionData.quote)
+
     var tweetBtn = document.querySelectorAll('.twittButton')[0];
     var options = { 
        server_url :'https://quoteowlet.herokuapp.com',
