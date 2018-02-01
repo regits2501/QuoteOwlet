@@ -44,33 +44,26 @@
 
  whenPageReady(function addQuoteData_SendOnClick(){
     var secondPhase = twizClient();
-    var sessionData = secondPhase.getSessionData();
+    var sessionData = secondPhase.getSessionData();     // get session data from url
  
     
-    textArea.insertQuote.call(textArea, sessionData);
-
+    textArea.insertQuote.call(textArea, sessionData);     // insert into text area quote text we got from url
    
-    console.log('afther replace - quote :', sessionData.quote)
-
     var tweetBtn = document.querySelectorAll('.twittButton')[0];
     var options = { 
        server_url :'https://quoteowlet.herokuapp.com',
        options:{
           method: "POST",
           path:'statuses/update.json',
+          params:{
+            status: textArea.getQuote.call(textArea)
+         }
+
        }
     }
     addEvent(tweetBtn, 'click', function(){
 
-       /*  if(document.querySelectorAll('.remove')[0].checked){
-             textArea.insertQuote(textArea.getQuote().replace(/\'/g,"\'"));
-         }
-      */
-         console.log('quote:', textArea.getQuote.call(textArea))
-         options.options.params = {
-            status: textArea.getQuote.call(textArea)
-         }
-         secondPhase.accessTwitter(options);
+          secondPhase.accessTwitter(options);
     });
  });
 
