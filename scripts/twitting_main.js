@@ -28,7 +28,13 @@
  }
  textArea.insertQuote = function(sessionData){           // inserts received data from redirection (callback) url
     console.log('sessionData =====', sessionData);
-    textContent(this.textEl, "\" " + sessionData.quote + '\"\n~ ' + sessionData.author);
+    if (typeof sessionData !== 'string'){
+          textContent(this.textEl, "\" " + sessionData.quote + '\"\n~ ' + sessionData.author);
+          return
+    }
+   
+   textContent(this.textEl, sessionData)
+    
  }
  textArea.getQuote = function(){
    return textContent(this.textEl);
@@ -41,8 +47,9 @@
     var sessionData = secondPhase.getSessionData();
  
     
-    sessionData.quote =  sessionData.quote.replace("\'", "");
     textArea.insertQuote.call(textArea, sessionData);
+
+   
     console.log('afther replace - quote :', sessionData.quote)
 
     var tweetBtn = document.querySelectorAll('.twittButton')[0];
@@ -54,6 +61,10 @@
        }
     }
     addEvent(tweetBtn, 'click', function(){
+
+         if(document.querySelectorAll('.remove')[0].checked){
+             textArea.insertQuote(textArea.getQuote().replace("\'",""));
+         }
          console.log('quote:', textArea.getQuote.call(textArea))
          options.options.params = {
             status: textArea.getQuote.call(textArea)
