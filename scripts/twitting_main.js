@@ -41,7 +41,7 @@
     var sessionData = secondPhase.getSessionData();
  
     
-    sessionData.quote =  sessionData.quote.replace("/\'", "");
+    sessionData.quote =  sessionData.quote.replace("\'", "");
     textArea.insertQuote.call(textArea, sessionData);
     console.log('afther replace - quote :', sessionData.quote)
 
