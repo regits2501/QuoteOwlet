@@ -40,7 +40,6 @@
     var secondPhase = twizClient();
     var sessionData = secondPhase.getSessionData();
  
-    // secondPhase.setRequestToken(window.token);        // for SPA case
  
     textArea.insertQuote.call(textArea, sessionData);
     var tweetBtn = document.querySelectorAll('.twittButton')[0];
@@ -52,6 +51,7 @@
        }
     }
     addEvent(tweetBtn, 'click', function(){
+         console.log('quote:', textArea.getQuote.call(textArea))
          options.params = {
             status: textArea.getQuote.call(textArea)
          }
