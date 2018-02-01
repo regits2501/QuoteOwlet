@@ -34,7 +34,7 @@
    return textContent(this.textEl);
  }
 
- whenPageReady(textArea.init.bind(textArea, '.twittText')) // when DOM is ready initialoze the object
+ whenPageReady(textArea.init.bind(textArea, '.twittText')) // when DOM is ready initialize the object
 
  whenPageReady(function addQuoteData_SendOnClick(){
     var secondPhase = twizClient();
@@ -49,12 +49,12 @@
        options:{
           method: "POST",
           path:'statuses/update.json',
-          params:{
-            status: textArea.getQuote.call(textArea)
-          }
        }
     }
     addEvent(tweetBtn, 'click', function(){
+         options.params = {
+            status: textArea.getQuote.call(textArea);
+         }
          secondPhase.accessTwitter(options);
     });
  });
