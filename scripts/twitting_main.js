@@ -63,7 +63,7 @@
     }
     addEvent(tweetBtn, 'click', function(){
 
-          secondPhase.accessTwitter(options);
+          secondPhase.flow(options);
     });
  });
 
