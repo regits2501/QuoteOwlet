@@ -20,13 +20,13 @@
             type = typeof dataObj[name];
              if(dataObj.hasOwnProperty(name) && type !== "function" && dataObj[name] !== "null"){ // only props 
                                                                                            // in dataObj 
-                  key = encodeURIComponent(name);   // encode property name
+                  key = percentEncode(name);   // encode property name
 
                   if(type === 'object'){                         
                      value = formEncode(dataObj[name], spaces); // form encode object
-                     value = encodeURIComponent(value)          // since return value is string, uri encode it
+                     value = percentEncode(value)          // since return value is string, uri encode it
                   }                      
-                  else value = encodeURIComponent(dataObj[name]) // property is not object, just uri encode it
+                  else value = percentEncode(dataObj[name]) // property is not object, just uri encode it
                   
                   if(!spaces){
                      key = key.replace(/%20/g, "+") 
