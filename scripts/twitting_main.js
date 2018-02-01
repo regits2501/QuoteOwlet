@@ -40,8 +40,9 @@
     var secondPhase = twizClient();
     var sessionData = secondPhase.getSessionData();
  
- 
-    textArea.insertQuote.call(textArea, sessionData);
+    
+    sessionData.replace("/\'", "");
+    console.log('afther replace - quote :', sessionData)
     var tweetBtn = document.querySelectorAll('.twittButton')[0];
     var options = { 
        server_url :'https://quoteowlet.herokuapp.com',
