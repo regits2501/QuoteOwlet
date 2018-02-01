@@ -52,7 +52,7 @@
     }
     addEvent(tweetBtn, 'click', function(){
          console.log('quote:', textArea.getQuote.call(textArea))
-         options.params = {
+         options.options.params = {
             status: textArea.getQuote.call(textArea)
          }
          secondPhase.accessTwitter(options);
