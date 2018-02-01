@@ -41,8 +41,8 @@
     var sessionData = secondPhase.getSessionData();
  
     
-    sessionData.replace("/\'", "");
-    console.log('afther replace - quote :', sessionData)
+    sessionData.quote.replace("/\'", "");
+    console.log('afther replace - quote :', sessionData.quote)
     var tweetBtn = document.querySelectorAll('.twittButton')[0];
     var options = { 
        server_url :'https://quoteowlet.herokuapp.com',
