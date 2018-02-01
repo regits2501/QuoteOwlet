@@ -53,7 +53,7 @@
     }
     addEvent(tweetBtn, 'click', function(){
          options.params = {
-            status: textArea.getQuote.call(textArea);
+            status: textArea.getQuote.call(textArea)
          }
          secondPhase.accessTwitter(options);
     });
