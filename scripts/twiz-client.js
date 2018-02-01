@@ -995,12 +995,11 @@
           this.setNonUserParams();
                                  console.log('accessToken callback:', this[this.leg[0]])   
                                  console.log('accessToken this.oauth: ', this.oauth); 
-          this.paramsOAuth('remove', this.oauth, this[this.leg[0]]); // Remove request token param
-          this.paramsOAuth('remove', this.oauth, this.apiCall)       // remove param for api call
+          this.paramsOAuth('add', this.oauth, this[this.leg[2]]); // Remove request token param
          
           //adds params for access token leg explicitly 
           this.oauth[this.prefix + 'verifier'] = this.authorized.oauth_verifier // Put authorized verifier
-          this.oauth[this.prefix + 'token'] = this.authorized.oauth_token;      // Authorized token
+          this.oauth[this.prefix + 'token']    = this.authorized.oauth_token;   // Authorized token
          
          // this.genSignatureBaseString(vault,this.leg[2]);   // generate SBS // check if y
        
