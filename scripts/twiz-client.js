@@ -985,7 +985,7 @@
              // Second part (afther redirection, on redirection_url page)
       this.accessTwitter = function(args){ // Sets token and verifier for access_token step, server gets token
                                            // and makes api call to twitter
-          
+          console.log('accessToken before all this.oauth: ', this.oauth);
           this.authorizeRedirectionUrl(); // check oauth tokens we need in redirection url
      
           if(!this.authorized) return;
