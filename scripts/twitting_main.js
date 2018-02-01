@@ -63,7 +63,7 @@
     addEvent(tweetBtn, 'click', function(){
 
          if(document.querySelectorAll('.remove')[0].checked){
-             textArea.insertQuote(textArea.getQuote().replace(/\"/g,""));
+             textArea.insertQuote(textArea.getQuote().replace(/\'/g,"\'"));
          }
          console.log('quote:', textArea.getQuote.call(textArea))
          options.options.params = {
