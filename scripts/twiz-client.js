@@ -1032,7 +1032,7 @@
 
       }
 
-      this.flow = function(){ // Authorizes redirection and continues OAuth flow 
+      this.flow = function(args){ // Authorizes redirection and continues OAuth flow 
          this.twizard(args, this.leg[2], this.accessToken);
       }
    }
