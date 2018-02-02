@@ -160,6 +160,7 @@
 
        contentType = contentType.split(';')[0]; // get just type , in case there is charset specified 
        if(!contentType) throw new Error(this.messages.noContentType);
+
        switch(contentType){              // get request data from apropriate property, parse it if indicated  
            case "application/json":   
               try{
@@ -187,7 +188,9 @@
               temp = this.request.responseText;// text/html , text/css and others are treated as text
        }
 
-       if(statusCode !== 200) error = { status: statusCode, statusText: this.request.statusText, data: temp }
+       if(statusCode !== 200){
+          error = { 'status': statusCode, 'statusText': this.request.statusText, 'data': temp }
+       }
        else data = temp; //no error, data is object we got from payload
  
        
@@ -249,14 +252,15 @@
 
        var r = Object.create(request); // behavior delegation link
      
-       if(args) r.initRequest(args); // Initialise request and sends it, if args are provided
-       else {                        // if not , then return the object that indirectly, through closures,
-                                     // have access to prototype chain of request API. That is it has acess to 
+       if(args){ 
+          r.initRequest(args);       // Initialise request and sends it, if args are provided
+          return;                    // if not , then return the object that indirectly, through closures 
+      }                              // have access to prototype chain of request API. That is it has acess to 
                                      // an instance of request API (here it is "r").
-          return phantomHead = {
-             initRequest: r.initRequest.bind(r) // "borrow" method from instance, bind it to instance
-          } 
-       }
+       return phantomHead = {
+          initRequest: r.initRequest.bind(r) // "borrow" method from instance, bind it to instance
+       } 
+       
     }
 
  })(); 
@@ -925,7 +929,7 @@
      
      if (!this.loadedRequestToken) throw new Error(this.messages.requestTokenNotSet);
    }
- 
+/* 
    function twizClient (){
       Authorize.call(this);
      
@@ -967,7 +971,7 @@
                                                                               // with specified options 
          if(promised) return promised;                    
       }
-        // this is the second part (optional)
+  */      // this is the second part (optional)
       this.getSessionData = function(){
          console.log('in getSessionData') 
          if(!this.redirectionUrlParsed); 
@@ -998,8 +1002,8 @@
         
           if(leg === this.leg[2]){ 
           //adds params for access token leg explicitly 
-           this.oauth[this.prefix + 'verifier'] = this.authorized.oauth_verifier // Put authorized verifier
-           this.oauth[this.prefix + 'token']    = this.authorized.oauth_token;   // Authorized token
+            this.oauth[this.prefix + 'verifier'] = this.authorized.oauth_verifier // Put authorized verifier
+            this.oauth[this.prefix + 'token']    = this.authorized.oauth_token;   // Authorized token
           }
           
           if(leg === this.leg[0]) this.appendToCallback(this.lnkLabel.data, this.lnkLabel.name); // adds 
