@@ -158,12 +158,12 @@
        var data;
        var temp;
 
-       contentType = contentType.split(';')[0]; // get just type , in case there is charset specified 
+       var contentType = contentType.split(';')[0]; // get just type , in case there is charset specified 
        if(!contentType) throw new Error(this.messages.noContentType);
-
+       console.log('content-type: ', contentType)
        switch(contentType){              // get request data from apropriate property, parse it if indicated  
            case "application/json":   
-              try{ console.log('content-encoding is application/json')
+              try{ console.log('content-type is application/json')
                  if(this.parse) temp = JSON.parse(this.request.responseText); // parse json data
                  else temp = this.request.responseText;
                  console.log('temp afther JSON parsing: ', temp)
