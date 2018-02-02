@@ -24,9 +24,9 @@
 
                   if(type === 'object'){                         
                      value = formEncode(dataObj[name], spaces); // form encode object
-                     value = percentEncode(value)          // since return value is string, uri encode it
+                     value = percentEncode(value)          // since return value is string, percent encode it
                   }                      
-                  else value = percentEncode(dataObj[name]) // property is not object, just uri encode it
+                  else value = percentEncode(dataObj[name]) // property is not object, percent encode it
                   
                   if(!spaces){
                      key = key.replace(/%20/g, "+") 
@@ -188,17 +188,17 @@
               temp = this.request.responseText;// text/html , text/css and others are treated as text
        }
 
-       if(statusCode !== 200){
+       if(statusCode !== 200){             // on error create error object
           error = { 'status': statusCode, 'statusText': this.request.statusText, 'data': temp }
        }
-       else data = temp; //no error, data is object we got from payload
+       else data = temp;                   // no error, data is object we got from payload
  
        
        callback(error, data)   // invoke callback
 
     }
 
-    request.setHeader = function(header, value){    // set the request header 
+    request.setHeader = function(header, value){     // set the request header 
        this.request.setRequestHeader(header, value);  
     };
 
@@ -250,24 +250,22 @@
    
     return function(args){  // modul returns this function as API
 
-       var r = Object.create(request); // behavior delegation link
+      var r = Object.create(request); // behavior delegation link
      
        if(args){ 
           r.initRequest(args);       // Initialise request and sends it, if args are provided
           return;                    // if not , then return the object that indirectly, through closures 
       }                              // have access to prototype chain of request API. That is it has acess to 
                                      // an instance of request API (here it is "r").
-       return phantomHead = {
-          initRequest: r.initRequest.bind(r) // "borrow" method from instance, bind it to instance
-       } 
        
+      return phantomHead = { initRequest: r.initRequest.bind(r) } // "borrow" method from instance, bind it to instance
     }
 
  })(); 
     
    function Options (){ 
       
-      this.leg = ["request_token","authorize","access_token"] // Names of each leg (step) in 3-leg authentication
+      this.leg = ["request_token","authorize","access_token"]// Names of each leg (step) in 3-leg authentication
                                                              // to twitter. Names are also url path ends:
                                                              // http://api.twitter.com/oauth/request_token
       
@@ -819,7 +817,7 @@
       var str = this.parse(url, /\?/g, /#/g);             // parses query string
       this.redirectionData = this.parseQueryParams(str);  // parse parameters from query string
 
-      this.redirectionUrlParsed = true;       // indicate that the url was already parsed  
+      this.redirectionUrlParsed = true;                   // indicate that the url was already parsed  
       
       console.log(this.redirectionData.twiz_);
    }
@@ -929,13 +927,13 @@
      
      if (!this.loadedRequestToken) throw new Error(this.messages.requestTokenNotSet);
    }
-/* 
+
    function twizClient (){
       Authorize.call(this);
      
       this.alreadyCalled = false; // Control flag. Protection against multiple calls to twitter from same 
                                   // instance
-      // first part (maybe call it UserAuthorization)
+/*      // first part (maybe call it UserAuthorization)
       this.getRequestToken = function(args){  // Add leg argument check to see which leg, act acording
          console.log('IN getREQUESTtoken')
          if(this.alreadyCalled) return;       // Just return, in case of subsequent call.
@@ -1017,7 +1015,7 @@
           this.paramsOAuth('add', this.oauth, this.apiCall)         // add param needed for api call (oauth_token)
           if(this.apiOptions.params)  // if there are parametars, add oauth params to them 
           this.oauth = this.paramsOAuth('add', this.apiOptions.params, this.oauth)// adds all oauth params to 
-                                                                                  //user's api call params
+                                                                                  // user's api call params
           console.log('this.oauth: ',this.oauth);
           this.addQueryParams('api', this.apiOptions);
          
