@@ -163,9 +163,10 @@
 
        switch(contentType){              // get request data from apropriate property, parse it if indicated  
            case "application/json":   
-              try{
+              try{ console.log('content-encoding is application/json')
                  if(this.parse) temp = JSON.parse(this.request.responseText); // parse json data
                  else temp = this.request.responseText;
+                 console.log('temp afther JSON parsing: ', temp)
               }
               catch(e){
                   console.log(this.messages.notJSON + " \n"+ e); // if parsing failed note it
