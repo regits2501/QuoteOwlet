@@ -919,7 +919,7 @@
 
      var err = Error(message);
      err['name'] = name;
-     return err;
+     return 'lol !!';
    }
 
 
