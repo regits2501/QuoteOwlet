@@ -67,7 +67,7 @@
            var p = secondPhase.flow(options);
            if(p)p.then(function(o){
                   if(o.error) console.log('error (twitter)', o.error);
-                  if(o.data) conosole.log('success data: ', o.data)
+                  if(o.data) console.log('success data: ', o.data)
            }).catch(function(e){
                console.log('error in promise: ', e )
            })
