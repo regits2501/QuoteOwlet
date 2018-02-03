@@ -894,7 +894,7 @@
      
       if(this.isRequestTokenUsed(window.localStorage)){           
         console.log(this.messages.type('Warninig', 'sameRedirectionUrl'))
-        throw {'name': noRepeat , 'message': this.messages.sameRedirectionUrl};
+        throw {'name': 'noRepeat' , 'message': this.messages.sameRedirectionUrl};
         return;
       }
 
