@@ -892,9 +892,9 @@
    
    Authorize.prototype.authorize = function(sent){ // check that sent data from redirection url has needed info
      
-      if(this.isRequestTokenUsed(window.localStorage)){           
+      if(this.isRequestTokenUsed(window.localStorage))          
         throw this.CustomError('noRepeat', this.messages.sameRedirectionUrl);
-      }
+      
 
       console.log('in authorize')
       if(!sent.oauth_verifier) throw new Error(this.messages.verifierNotFound);

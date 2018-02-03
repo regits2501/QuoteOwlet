@@ -353,16 +353,19 @@
        }
     }
 
-   var p = twtSecondPart.flow(options); // pass here options object as argument 
+    try{  var p = twtSecondPart.flow(options); // pass here options object as argument 
                                           //(needed just server url and options)
-   if(p) p.then(function(o){
-      if(o.error) console.log("error in promise: ", o.error)
-       
-      if(o.data)console.log("data in promise:", o.data);
+      if(p) p.then(function(o){
+        if(o.error) console.log("error in promise: ", o.error)
+         
+        if(o.data)console.log("data in promise:", o.data);
   
-   })
+      })
      
-  })
+    }catch(e){
+      console.log(e)
+    }
+}
 
 
 })()
