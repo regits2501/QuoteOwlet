@@ -63,12 +63,13 @@
     }
     addEvent(tweetBtn, 'click', function(){
 
-        try{  secondPhase.flow(options);
+        try{  
+          secondPhase.flow(options);
         }catch(e){
           console.log(e);
         }
     });
- });
+ })
 
 
 })()
