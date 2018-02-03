@@ -326,8 +326,8 @@
                            }
                           
                       }
-                    ).then(function(o){
-                        
+                    ).catch(function(e){
+                        console.log('error in promise: ', e)
                     })
               else{ console.log('NO Promise available')
                 
@@ -362,10 +362,12 @@
          
         if(o.data)console.log("data in promise:", o.data);
   
+      }).catch(function(e){
+         console.log('error in promise:', e)
       })
      
     }catch(e){
-      console.log(e)
+      console.log('error in try-catch: ', e)
     }
 })
 

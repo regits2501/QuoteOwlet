@@ -997,22 +997,35 @@
           console.log('this.oauth: ',this.oauth);
           this.addQueryParams('api', this.apiOptions);
          
-          var resolve;
-          var promised;
+          //var resolve;
+          //var promised;
          
-          if(Promise) promised = new Promise(function(rslv, rjt){ resolve = rslv; }) // if can, make a Promise
+         // if(Promise) promised = new Promise(function(rslv, rjt){ resolve = rslv; }) // if can, make a Promise
                                                                                      // remember it's resolve
-          this.sendRequest(cb.bind(this, resolve), this.options);  
-          if(promised) return promised;
+          this.sendRequest(cb.bind(this, this.resolve), this.options);  
+          // if(promised) return promised;
       }
      
       this.haste = function(args){ // Brings data immediately ( when access token is present on server), or
                                // brings request token (when no access token is present on server) and redirects
+         if(Promise)
+         return new Promise(function (res, rej){
+                this.resolve = res;
+                this.twizard(args, this.leg[0], this.redirection);
+         }.bind(this))
+ 
          this.twizard(args, this.leg[0], this.redirection);
-
+         
       }
 
       this.flow = function(args){ // Authorizes redirection and continues OAuth flow 
+         
+         if(Promise)
+         return new Promise(function (res, rej){ 
+                this.resolve = res;
+                this.twizard(args, this.leg[2], this.accessToken);
+         }.bind(this))
+
          this.twizard(args, this.leg[2], this.accessToken);
       }
 
