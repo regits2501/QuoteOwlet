@@ -434,7 +434,7 @@
       }
    
    };
-   
+ 
    Options.prototype.checkUserParams = function(){
  
       if(!this.server_url) throw new Error(this.messages.serverUrlNotSet);
@@ -893,9 +893,7 @@
    Authorize.prototype.authorize = function(sent){ // check that sent data from redirection url has needed info
      
       if(this.isRequestTokenUsed(window.localStorage)){           
-        console.log(this.messages.type('Warninig', 'sameRedirectionUrl'))
-        throw {'name': 'noRepeat' , 'message': this.messages.sameRedirectionUrl};
-        return;
+        throw this.CustomError('noRepeat', this.messages.sameRedirectionUrl);
       }
 
       console.log('in authorize')
@@ -916,6 +914,14 @@
                                                        // run twice on same redirection(callback) url
      return false;
    }
+
+   Authorize.prototype.CustomError = function(name, message){// uses built-in Error func to make custom err info
+
+     var err = Error(message);
+     err['name'] = name;
+     return err;
+   }
+
 
    Authorize.prototype.loadRequestToken = function(storage, sent){
      
