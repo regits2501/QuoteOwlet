@@ -423,12 +423,16 @@
    }
 
    Options.prototype.messages = {
+
       callbackNotSet: "You must provide a callback url to which users are redirected.",
       noStringProvided: "You must provide a string as an argument." ,
-      noSessionData: "No session data was found.",
-      linkNotAuthorized: "Appears that obtained url doesn't have necessary data.",
-      serverUrlNotSet: "You must proivide twiz server url to which request will be sent",
-      optionNotSet: " option must be set"
+      serverUrlNotSet: "You must proivide server url to which request will be sent",
+      optionNotSet: " option must be set",
+
+      type: function(type, message){
+          return type + ': ' + this[message];
+      }
+   
    };
    
    Options.prototype.checkUserParams = function(){
@@ -675,10 +679,11 @@
    function Redirect (){     // used to redirect user to twitter interstitals page 
       OAuth.call(this);
 
+      this.requestToken;    // data from request token step   
+      
       this.messages.noCallbackFunc = 'You must specify a callback function'
       this.messages.callbackURLnotConfirmed = "Redirection(callback) url you specified wasn't confirmed by Twitter"
 
-      this.requestToken;    // data from request token step   
    }
 
    Redirect.prototype = Object.create(OAuth.prototype);
@@ -695,7 +700,7 @@
          return;
       }
  
-      this.requestToken = sentData ;     // set requestToken data
+      this.requestToken = sentData;      // set requestToken data
       this.confirmCallback(sentData);    // confirm that twitter accepted user's redirection(callback) url
       this.saveRequestToken(window.localStorage, sentData.oauth_token); 
       this.redirect(resolve)             // redirect user to twitter for authorization 
@@ -791,14 +796,15 @@
       this.redirectionUrlParsed; // redirection(callback) url parsing status
       this.redirectionData;      // parsed data from redirection url
 
-      this.loadedRequestToken;    // place to load token  
+      this.loadedRequestToken;    // place to load token 
+      this.authorized;            // redirection data that was autorized; 
                                   // add message related to this module
-      this.messages.verifierNotFound = '"oauth_verifier" string was not found in redirection(callback) url.';
+      this.messages.verifierNotFound ='"oauth_verifier" string was not found in redirection(callback) url.';
       this.messages.tokenNotFound = '"oauth_token" string was not found in redirection(callback) url.';
       this.messages.tokenMissmatch = 'Request token and token from redirection(callback) url do not match';
-      this.messages.requestTokenNotSet = 'Request token was not set. Set request token before you make your request.'
-      this.messages.requestTokenNotSaved = 'Request token was not saved. Check that page url from which you make request match your redirection_url.'
-      this.messages.sameRedirectionUrl = "Cannot make another request with same redirection(callback) url"
+      this.messages.requestTokenNotSet = 'Request token was not set. Set request token before you make your request.';
+      this.messages.requestTokenNotSaved = 'Request token was not saved. Check that page url from which you make request match your redirection_url.';
+      this.messages.sameRedirectionUrl = "Cannot make another request with same redirection(callback) url";
    }
   
    Authorize.prototype = Object.create(Redirect.prototype);
@@ -815,10 +821,10 @@
    Authorize.prototype.parseRedirectionUrl = function(url){ // parses data in url 
      console.log('in parseRedirectionUrl');
 
-      var str = this.parse(url, /\?/g, /#/g);             // parses query string
-      this.redirectionData = this.parseQueryParams(str);  // parse parameters from query string
+      var str = this.parse(url, /\?/g, /#/g);              // parses query string
+      this.redirectionData = this.parseQueryParams(str);   // parse parameters from query string
 
-      this.redirectionUrlParsed = true;                   // indicate that the url was already parsed  
+      this.redirectionUrlParsed = true;                    // indicate that the url was already parsed  
       
       console.log(this.redirectionData.twiz_);
    }
@@ -887,7 +893,7 @@
    Authorize.prototype.authorize = function(sent){ // check that sent data from redirection url has needed info
      
       if(this.isRequestTokenUsed(window.localStorage)){           
-        console.log("Info: " + this.messages.sameRedirectionUrl)
+        console.log(this.messages.type('Warninig', 'sameRedirectionUrl'))
         return;
       }
 
@@ -905,10 +911,8 @@
 
    Authorize.prototype.isRequestTokenUsed = function(storage){ // check that we have a token to use 
 
-     if(storage.requestToken_ === "null"){ // token whould be "null" only when  loadRequestToken() run twice on                                            // same redirection(callback) url
-        return true;
-     }
-
+     if(storage.requestToken_ === "null") return true; // token whould be "null" only when  loadRequestToken() 
+                                                       // run twice on same redirection(callback) url
      return false;
    }
 
@@ -932,45 +936,10 @@
    function twizClient (){
       Authorize.call(this);
      
-      this.alreadyCalled = false; // Control flag. Protection against multiple calls to twitter from same 
-                                  // instance
-/*      // first part (maybe call it UserAuthorization)
-      this.getRequestToken = function(args){  // Add leg argument check to see which leg, act acording
-         console.log('IN getREQUESTtoken')
-         if(this.alreadyCalled) return;       // Just return, in case of subsequent call.
-         else this.alreadyCalled = true;      
-        
-         this.setUserParams(args);        // Sets user supplied parameters like: 'redirection_url' ...
-         this.checkUserParams();          // Check that needed params are set
-         this.setNonUserParams();         // Sets non user-suppliead params: timestamp, nonce, sig. method
+      this.alreadyCalled = false; 
 
-         this.paramsOAuth('add', this.oauth, this[this.leg[0]]) // add oauth param (callback) for reqest_token step
-        
-         this.appendToCallback(this.lnkLabel.data, this.lnkLabel.name); // adds uniqueness to redirection_url
-         
-         this.setGeneralOptions(this.leg[0])           // sets host, path etc... for this request
-         this.addQueryParams('leg', this.leg[0])              // add leg params for leg[0] (request_token)
-
-         // logic for removing and and adding oauth params for api call
-         
-         this.paramsOAuth('remove', this.oauth, this[this.leg[0]]) // removes 'callback' param from oauth 
-         this.paramsOAuth('add', this.oauth, this.apiCall)         // adds 'token' param for call to some twitter api
-         if(this.apiOptions.params)  // if there are parametars, add oauth parmas to them 
-         this.oauth = this.paramsOAuth('add', this.apiOptions.params, this.oauth) // oauth now has all apiOptions
-                                                                                  // params
-         this.addQueryParams('api', this.apiOptions) //  
-
-         var resolve;
-         var promised;
-         
-         if(Promise) promised = new Promise(function(rslv, rjt){ resolve = rslv; }) // if can, make a Promise
-                                                                                      // remember it's resolve
-         console.log('authorize FUNC: ', this.authorize);
-         this.sendRequest(this.redirection.bind(this, resolve), this.options);// sets callback, sends request
-                                                                              // with specified options 
-         if(promised) return promised;                    
-      }
-  */      // this is the second part (optional)
+      this.messages.noSessionData = "No session data was found."
+      
       this.getSessionData = function(){
          console.log('in getSessionData') 
          if(!this.redirectionUrlParsed); 
@@ -985,6 +954,7 @@
          console.log(this.sessionData);
          return this.sessionData;
       }
+      
       this.twizard = function(args, leg, cb){// Sets token and verifier for access_token step, server gets token
                                              // and makes api call to twitter
           console.log('accessToken before all this.oauth: ', this.oauth);
@@ -1038,6 +1008,8 @@
       this.flow = function(args){ // Authorizes redirection and continues OAuth flow 
          this.twizard(args, this.leg[2], this.accessToken);
       }
+
+
    }
 
    twizClient.prototype = Object.create(Authorize.prototype);
@@ -1048,7 +1020,7 @@
       options.callback = cb // sets callback function
       console.log("OPTIONS ->", options);
       
-
+ 
       request(options);  
    }
 
