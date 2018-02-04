@@ -92,9 +92,9 @@
          }    
       }
  
-      if(!this.url) throw new Error(this.messages.urlNotSet); // Throw error if url was not provided in args
+      if(!this.url) throw CustomError('urlNotSet'); // Throw error if url was not provided in args
       if(!this.method) this.method = "GET"; // Defaults to "GET" method if one was not provided in args object
-      if (!this.request.onreadystatechange) throw new Error(this.messages.callbackNotProvided); // cb missing
+      if (!this.request.onreadystatechange) throw CustomError('callbackNotProvided'); // cb missing
       
      // console.log("request Instance:", this, typeof this) 
       console.log(args);
@@ -135,7 +135,7 @@
           
          if(this.request.readyState === 4){
               if(alreadyCalled){
-                  console.log(this.messages.cbAlreadyCalled);
+                  console.log('cbAlreadyCalled');
                   return;
               }
              
@@ -159,7 +159,7 @@
        var temp;
 
        var contentType = contentType.split(';')[0]; // get just type , in case there is charset specified 
-       if(!contentType) throw new Error(this.messages.noContentType);
+       if(!contentType) throw CustomError('noContentType');
        console.log('content-type: ', contentType)
        switch(contentType){              // get request data from apropriate property, parse it if indicated  
            case "application/json":   
@@ -169,7 +169,7 @@
                  console.log('temp afther JSON parsing: ', temp)
               }
               catch(e){
-                  console.log(this.messages.notJSON + " \n"+ e); // if parsing failed note it
+                  console.log('notJSON' + " \n"+ e); // if parsing failed note it
               }
            break;   
            case "application/xml":
@@ -224,7 +224,7 @@
                        this.setHeader("Content-Type", 'text/plain;charset=utf-8');
                     break;
                     default:
-                      throw new Error(this.messages.encodingNotSupported);
+                      throw CustomError('encodingNotSupported');
                }
           }
         }
@@ -437,21 +437,21 @@
 
    Options.prototype.CustomError = function(name){// uses built-in Error func to make custom err info
 
-     var err = Error(this.messages[name]);        // take message text
+     var err = Error(this.messages['name']);        // take message text
      err['name'] = name;                          // set error name
      return err; 
    }
  
    Options.prototype.checkUserParams = function(){
  
-      if(!this.server_url) throw new Error(this.messages.serverUrlNotSet);
+      if(!this.server_url) throw CustomError('serverUrlNotSet');
       if(!this.redirectionUrlParsed) this.checkRedirectionCallback();   // check only in request token step 
       this.checkApiOptions();
       
    }
 
    Options.prototype.checkRedirectionCallback = function (){ // checks for the url user is returned to
-      if(!this[this.leg[0]].oauth_callback) throw new Error(this.messages.callbackNotSet);
+      if(!this[this.leg[0]].oauth_callback) throw CustomError('callbackNotSet');
                                                                 // throw an error if one is not set
    }
 
@@ -459,7 +459,7 @@
       for(var opt in this.apiOptions) {
           if(opt === 'path' && opt == 'method' ){ // mandatory params set by user
             if(!this.apiOptions[opt])             // check that is set
-               throw new Error( opt + this.messages.optionNotSet)
+               throw CustomError( opt + 'optionNotSet')
           }
       }     
    }
@@ -727,7 +727,7 @@
    }
 
    Redirect.prototype.confirmCallback = function (sent){ // makes sure that twitter is ok with redirection url
-      if(sent.oauth_callback_confirmed !== "true") throw new Error(this.messages.callbackURLnotConfirmed);
+      if(sent.oauth_callback_confirmed !== "true") throw CustomError('callbackURLnotConfirmed');
    }
  
    Redirect.prototype.saveRequestToken = function(storage, token){ // save token to storage
@@ -772,7 +772,7 @@
       }
 
       
-      throw new Error(this.messages.noCallbackFunc); // raise error when there is no promise or callback present
+      throw CustomError('noCallbackFunc'); // raise error when there is no promise or callback present
    }
 
    Redirect.prototype.site = function(resolve, url){
@@ -792,7 +792,7 @@
          return
       }
 
-      throw new Error (this.messages.noCallbackFunc);
+      throw CustomError ('noCallbackFunc');
    }
   
     
@@ -839,7 +839,7 @@
    Authorize.prototype.parse = function(str, delimiter1, delimiter2){ // parses substring of a string (str) 
                                                                      
        if(!str){ 
-          console.log(this.messages.noStringProvided);
+          console.log('noStringProvided');
           return;
        }
        var start = str.search(delimiter1);   // calculate from which index to take 
@@ -863,7 +863,7 @@
    Authorize.prototype.parseQueryParams = function (str){
       var arr  = [];
       if(!str){
-         console.log(this.messages.noStringProvided);
+         console.log('noStringProvided');
          return;
       }  
 
@@ -904,13 +904,13 @@
       
 
       console.log('in authorize')
-      if(!sent.oauth_verifier) throw new Error(this.messages.verifierNotFound);
-      if(!sent.oauth_token)    throw new Error(this.messages.tokenNotFound);
+      if(!sent.oauth_verifier) throw this.CustomError('verifierNotFound');
+      if(!sent.oauth_token)    throw this.CustomError('tokenNotFound');
 
       this.loadRequestToken(window.localStorage, sent);                      // load token from storage  
                                                                              
                                                                              // check that tokens match
-      if(sent.oauth_token !== this.loadedRequestToken) throw new Error(this.messages.tokenMissmatch);
+      if(sent.oauth_token !== this.loadedRequestToken) throw CustomError('tokenMissmatch');
 
       return this.authorized = sent;                       // data passed checks, so its authorized;                     
    }
@@ -927,7 +927,7 @@
    Authorize.prototype.loadRequestToken = function(storage, sent){
      
      if(!storage.hasOwnProperty('requestToken_')) 
-        throw new Error(this.messages.requestTokenNotSaved);  
+        throw CustomError('requestTokenNotSaved');  
 
      this.loadedRequestToken = storage.requestToken_;           // load token from storage
 
@@ -938,13 +938,12 @@
                                                                 // used/erased with null 
      console.log('after erasing storage.requestToken :', storage.requestToken_);  
      
-     if (!this.loadedRequestToken) throw new Error(this.messages.requestTokenNotSet);
+     if (!this.loadedRequestToken) throw CustomError('requestTokenNotSet');
    }
 
    function twizClient (){
       Authorize.call(this);
      
-      this.alreadyCalled = false; 
 
       this.messages.noSessionData = "No session data was found."
       
@@ -954,7 +953,7 @@
           this.parseRedirectionUrl(window.location.href); // parse data from url 
          
          if(!this.redirectionData.data){                  // return if no session data
-            console.log(this.messages.noSessionData);
+            console.log('noSessionData');
             return; 
          }                          
           
