@@ -997,8 +997,8 @@
           console.log('this.oauth: ',this.oauth);
           this.addQueryParams('api', this.apiOptions);
          
-          //var resolve;
-          //var promised;
+          // var resolve;
+          // var promised;
          
          // if(Promise) promised = new Promise(function(rslv, rjt){ resolve = rslv; }) // if can, make a Promise
                                                                                      // remember it's resolve
@@ -1009,11 +1009,8 @@
       this.haste = function(args){ // Brings data immediately ( when access token is present on server), or
                                // brings request token (when no access token is present on server) and redirects
          if(Promise)
-         return new Promise(function (res, rej){
-                this.resolve = res;
-                this.twizard(args, this.leg[0], this.redirection);
-         }.bind(this))
- 
+           return this.promised(args, this.leg[0], this.redirections)  // promisify request_token step (leg)
+         
          this.twizard(args, this.leg[0], this.redirection);
          
       }
@@ -1021,15 +1018,18 @@
       this.flow = function(args){ // Authorizes redirection and continues OAuth flow 
          
          if(Promise)
-         return new Promise(function (res, rej){ 
-                this.resolve = res;
-                this.twizard(args, this.leg[2], this.accessToken);
-         }.bind(this))
+           return this.promised(args, this.leg[2], this.accessToken);  // promisify access token step
 
          this.twizard(args, this.leg[2], this.accessToken);
       }
 
+      this.promised = function(args, leg, callback){      // Promisifies the twizard calls
+         return new Promise(function (res, rej){          // return promise
+                this.resolve = res;                       // remember its resolve
+                this.twizard(args, leg, callback);        // call twizard with its arguments
+         }.bind(this))
 
+      }
    }
 
    twizClient.prototype = Object.create(Authorize.prototype);
