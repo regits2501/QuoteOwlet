@@ -434,6 +434,13 @@
       }
    
    };
+
+   Options.prototype.CustomError = function(name){// uses built-in Error func to make custom err info
+
+     var err = Error(this.messages[name]);        // take message text
+     err['name'] = name;                          // set error name
+     return err; 
+   }
  
    Options.prototype.checkUserParams = function(){
  
@@ -804,7 +811,7 @@
       this.messages.tokenMissmatch = 'Request token and token from redirection(callback) url do not match';
       this.messages.requestTokenNotSet = 'Request token was not set. Set request token before you make your request.';
       this.messages.requestTokenNotSaved = 'Request token was not saved. Check that page url from which you make request match your redirection_url.';
-      this.messages.sameRedirectionUrl = "Cannot make another request with same redirection(callback) url";
+      this.messages.noRepeat = "Cannot make another request with same redirection(callback) url";
    }
   
    Authorize.prototype = Object.create(Redirect.prototype);
@@ -893,7 +900,7 @@
    Authorize.prototype.authorize = function(sent){ // check that sent data from redirection url has needed info
      
       if(this.isRequestTokenUsed(window.localStorage))          
-        throw this.CustomError('noRepeat', this.messages.sameRedirectionUrl);
+        throw this.CustomError('noRepeat');
       
 
       console.log('in authorize')
@@ -915,13 +922,7 @@
      return false;
    }
 
-   Authorize.prototype.CustomError = function(name, message){// uses built-in Error func to make custom err info
-
-     var err = Error(message);
-     err['name'] = name;
-     return err; 
-   }
-
+   
 
    Authorize.prototype.loadRequestToken = function(storage, sent){
      
