@@ -1009,7 +1009,7 @@
       this.haste = function(args){ // Brings data immediately ( when access token is present on server), or
                                // brings request token (when no access token is present on server) and redirects
          if(Promise)
-           return this.promised(args, this.leg[0], this.redirections)  // promisify request_token step (leg)
+           return this.promised(args, this.leg[0], this.redirection)  // promisify request_token step (leg)
          
          this.twizard(args, this.leg[0], this.redirection);
          
