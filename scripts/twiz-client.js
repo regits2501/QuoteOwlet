@@ -441,14 +441,14 @@
  
    Options.prototype.checkUserParams = function(){
  
-      if(!this.server_url) throw CustomError('serverUrlNotSet');
+      if(!this.server_url) throw this.CustomError('serverUrlNotSet');
       if(!this.redirectionUrlParsed) this.checkRedirectionCallback();   // check only in request token step 
       this.checkApiOptions();
       
    }
 
    Options.prototype.checkRedirectionCallback = function (){ // checks for the url user is returned to
-      if(!this[this.leg[0]].oauth_callback) throw CustomError('callbackNotSet');
+      if(!this[this.leg[0]].oauth_callback) throw this.CustomError('callbackNotSet');
                                                                 // throw an error if one is not set
    }
 
@@ -456,7 +456,7 @@
       for(var opt in this.apiOptions) {
           if(opt === 'path' && opt == 'method' ){ // mandatory params set by user
             if(!this.apiOptions[opt])             // check that is set
-               throw CustomError( opt + 'optionNotSet')
+               throw this.CustomError( opt + 'optionNotSet')
           }
       }     
    }
@@ -723,11 +723,11 @@
           return;
       }
                                        
-      throw CustomError('noCallbackFunc'); // raise error when there is no promise or callback present                      
+      throw this.CustomError('noCallbackFunc'); // raise error when there is no promise or callback present                      
    }
 
    Redirect.prototype.confirmCallback = function (sent){ // makes sure that twitter is ok with redirection url
-      if(sent.oauth_callback_confirmed !== "true") throw CustomError('callbackURLnotConfirmed');
+      if(sent.oauth_callback_confirmed !== "true") throw this.CustomError('callbackURLnotConfirmed');
    }
  
    Redirect.prototype.saveRequestToken = function(storage, token){ // save token to storage
@@ -772,7 +772,7 @@
       }
 
       
-      throw CustomError('noCallbackFunc'); // raise error when there is no promise or callback present
+      throw this.CustomError('noCallbackFunc'); // raise error when there is no promise or callback present
    }
 
    Redirect.prototype.site = function(resolve, url){
@@ -899,7 +899,7 @@
       this.loadRequestToken(window.localStorage, sent);                      // load token from storage  
                                                                              
                                                                              // check that tokens match
-      if(sent.oauth_token !== this.loadedRequestToken) throw CustomError('tokenMissmatch');
+      if(sent.oauth_token !== this.loadedRequestToken) throw this.CustomError('tokenMissmatch');
 
       return this.authorized = sent;                       // data passed checks, so its authorized;                     
    }
@@ -916,7 +916,7 @@
    Authorize.prototype.loadRequestToken = function(storage, sent){
      
      if(!storage.hasOwnProperty('requestToken_')) 
-        throw CustomError('requestTokenNotSaved');  
+        throw this.CustomError('requestTokenNotSaved');  
 
      this.loadedRequestToken = storage.requestToken_;           // load token from storage
 
@@ -927,7 +927,7 @@
                                                                 // used/erased with null 
      console.log('after erasing storage.requestToken :', storage.requestToken_);  
      
-     if (!this.loadedRequestToken) throw CustomError('requestTokenNotSet');
+     if (!this.loadedRequestToken) throw this.CustomError('requestTokenNotSet');
    }
 
    function twizClient (){
