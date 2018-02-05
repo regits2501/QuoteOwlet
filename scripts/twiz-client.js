@@ -713,6 +713,7 @@
    
    Redirect.prototype.deliverData = function(resolve, obj){ // delivers data to user by promise or
                                                                         // by callback function
+     console.log('in deliverData, obj:', obj)
       if(resolve){
           resolve(obj);
           return;
