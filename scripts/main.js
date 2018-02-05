@@ -311,7 +311,7 @@
                                                            "recipient_id": userID
                                                          },
                                                          "message_data": {
-                                                           "text": "In order to cover first you must show."
+                                                           "text": "Moshi hirakanto hossureba, mazu futa subeshi"
                                                          }
                                                       }
                                                   }
