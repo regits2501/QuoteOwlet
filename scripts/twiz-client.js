@@ -158,8 +158,9 @@
        var data;
        var temp;
 
-       var contentType = contentType.split(';')[0]; // get just type , in case there is charset specified 
        if(!contentType) throw new Error(this.messages.noContentType);
+       var contentType = contentType.split(';')[0]; // get just type , in case there is charset specified 
+
        console.log('content-type: ', contentType)
        switch(contentType){              // get request data from apropriate property, parse it if indicated  
            case "application/json":   
@@ -588,9 +589,9 @@
      
          a.sort();  // sorts alphabeticaly
 
-         var keyValue;
-         var key;
-         var value;    
+         var pair;  // key value pair
+         var key;   // parameter name
+         var value; // param value   
                                               // Collects oauth params
          for(var i = 0; i < a.length; i++){   // Percent encodes every key value, puts "=" between those, and
                                               // between each pair of key/value it puts "&" sign.
@@ -617,10 +618,10 @@
               default:
                 value = this.oauth[key];          // Takes value of that key
             }
-            keyValue = percentEncode(key) + "=" + percentEncode(value); // Encodes key value and inserts "="
-          console.log(keyValue)                                         // in between.
-            if(i !== a.length - 1) keyValue += "&"; // Dont append "&" on last pair    
-            this.signatureBaseString += keyValue;   // Add pair to SBS
+            pair = percentEncode(key) + "=" + percentEncode(value); // Encodes key value and inserts "="
+          console.log(pair)                                         // in between.
+            if(i !== a.length - 1) pair += "&"; // Dont append "&" on last pair    
+            this.signatureBaseString += pair;   // Add pair to SBS
          } 
 
          var method;  // Collecting the reqest method and url
@@ -657,7 +658,7 @@
       var headerString = this.leadPrefix; // Adding "OAuth " in front everthing
       var key;                            // Temp vars
       var value;
-      var keyValue;
+      var pair;
     
       for(var i = 0; i < a.length; i++){  // iterate oauth  
          
@@ -670,10 +671,10 @@
           key = percentEncode(key);  // Encode the key
           value = "\"" + percentEncode(value) + "\"";    // Adding double quotes to value
           
-          keyValue = key + "=" + value;                  // Adding "=" between
-          if(i !== (a.length - 1)) keyValue = keyValue + ", " // Add trailing comma and space, until end
+          pair = key + "=" + value;                  // Adding "=" between
+          if(i !== (a.length - 1)) pair = pair + ", " // Add trailing comma and space, until end
 
-          headerString += keyValue;       
+          headerString += pair;       
       } 
       console.log("header string: " + headerString); 
       return headerString;
@@ -748,25 +749,25 @@
 
       }
                          
-      this.site(resolve, url);
+      this.site(resolve, url); // site
       
    };
 
-   Redirect.prototype.SPA = function(resolve, url){   // logic for Sigle Page Apps
+   Redirect.prototype.SPA = function(resolve, url){   // logic for Single Page Apps
      
       function redirectCurrentWindow(){ window.location = url }// redirects window we are currently in (no popUp)
       var obj = { 'redirection': true } // since there is no newWindow reference, just indicate redirection
      
       if(resolve){
-         resolve(obj);                                 // resolve with 
-         Promise.resolve(obj)             
+         resolve(obj);                                 // resolve with obj
+         Promise.resolve()             
          .then(function(){ redirectCurrentWindow() })  // redirect asap
          return
       }
 
       if(this.callback_func){                                // if user specified callback func
          this.callback_func(obj);                            // run callback with token
-         setTimeout(function(){redirectCurrentWindow()},7500) ;                             // redirect asap
+         setTimeout(function(){redirectCurrentWindow()},2000) ;                             // redirect asap
          return;
       }
 

@@ -249,10 +249,10 @@
                 
            console.log("Taking this data: ====",textContent(quoteData.quoteEl), textContent(quoteData.authorEl))
               var options = {      "server_url":  'https://quoteowlet.herokuapp.com',//'http://localhost:5000',
-                                   "redirection_url":"https://gits2501.github.io/QuoteOwlet/pages/tweeting.html",//"https://gits2501.github.io/QuoteOwlet/index.html"
+                                   "redirection_url":"https://gits2501.github.io/QuoteOwlet/index.html",// "https://gits2501.github.io/QuoteOwlet/pages/tweeting.html"
      
                                     "session_data": { // redirection data
-                                        'quote': textContent(quoteData.quoteEl), 
+                                        'quote':  textContent(quoteData.quoteEl), 
                                         'author': textContent(quoteData.authorEl), 
                                         'hobbit':{
                                             'name': 'Peregrin',
