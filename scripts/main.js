@@ -320,7 +320,7 @@
                                           
                                     }
                                     var p = twiz.haste(options);
-                                    if(p) p.then(function(w){
+                                    if(p) p.then(function(w){ console.log('in promise (afther DirectMessage)')
                                           if(!w.error){ res(w); return}
                                           console.log('error posting direct mesage:', w.error);
                 
@@ -340,7 +340,7 @@
        })
      
   })
-  whenPageReady(function(){            // when testing SPA case
+/*  whenPageReady(function(){            // when testing SPA case
      var twtSecondPart = twizClient();
      var sessionData = twtSecondPart.getSessionData();
     quoteData.setQuoteData.apply(quoteData, [sessionData]);
@@ -374,7 +374,7 @@
     }catch(e){
       console.log('error in try-catch: ', e)
     }
-})
+})  */
 
 
 })()
