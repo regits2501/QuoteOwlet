@@ -289,9 +289,11 @@
              
 	      var twty = twizClient();
               var p =  twty.haste(options);
-              if(p) p.then(function onFulfilled(w){
-                           if(w.redirection){console.log('no token on server: Redirection'); return}
-                           console.log("Promised: ", w)
+              if(p) p.then(function onFulfilled(w){ console.log('in promise (main.js)')
+                           if(w.redirection){ console.log('no token on server: Redirection'); return }
+                           
+                            console.log("Promised: ", w)
+
                             if (!w.error && w.data){
                                userID = w.data[0]['id_str']; 
                                console.log('userID:', userID)
