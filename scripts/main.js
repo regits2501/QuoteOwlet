@@ -321,6 +321,9 @@
                                     if(p) p.then(function(w){
                                           if(!w.error){ res(w); return}
                                           console.log('error posting direct mesage:', w.error);
+                
+                                          if(w.data) console.log("success in promise:", w.data)
+                                          res(w)
                                     })
                               })
                            }
