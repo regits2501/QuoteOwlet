@@ -47,10 +47,10 @@
     request.messages = {
       cbAlreadyCalled: "Callback function has already been called.",
       cbWasNotCalled: "Calback function provided was not called.",
-      urlNotSet: "You must provide url for the reqest you make.",
+      urlNotSet: "You must provide url for the request you make.",
       callbackNotProvided: "Callback function was not provided.",
+      notJSON: 'Faileg to parse data as JSON',
       encodingNotSupported: "Encoding you provided is not supported",
-      notJSON: "Returned data is not JSON string",
       noContentType: "Failed to get content-type header from response"
     };
 
@@ -92,9 +92,9 @@
          }    
       }
  
-      if(!this.url) throw CustomError('urlNotSet'); // Throw error if url was not provided in args
+      if(!this.url) throw new Error(this.messages.urlNotSet); // Throw error if url was not provided in args
       if(!this.method) this.method = "GET"; // Defaults to "GET" method if one was not provided in args object
-      if (!this.request.onreadystatechange) throw CustomError('callbackNotProvided'); // cb missing
+      if (!this.request.onreadystatechange) throw new Error(this.messages.callbackNotProvided); // cb missing
       
      // console.log("request Instance:", this, typeof this) 
       console.log(args);
@@ -159,7 +159,7 @@
        var temp;
 
        var contentType = contentType.split(';')[0]; // get just type , in case there is charset specified 
-       if(!contentType) throw CustomError('noContentType');
+       if(!contentType) throw new Error(this.messages.noContentType);
        console.log('content-type: ', contentType)
        switch(contentType){              // get request data from apropriate property, parse it if indicated  
            case "application/json":   
@@ -169,7 +169,7 @@
                  console.log('temp afther JSON parsing: ', temp)
               }
               catch(e){
-                  console.log('notJSON' + " \n"+ e); // if parsing failed note it
+                  throw new Error(this.messages.notJSON + " \n"+ e); // if parsing failed note it
               }
            break;   
            case "application/xml":
@@ -224,7 +224,7 @@
                        this.setHeader("Content-Type", 'text/plain;charset=utf-8');
                     break;
                     default:
-                      throw CustomError('encodingNotSupported');
+                      throw new Error(this.messages.encodingNotSupported);
                }
           }
         }
@@ -310,11 +310,11 @@
          encoding: ''
       }
     
-      this.options = {};        // request options we send to server
+      this.options = {};           // request options we send to server
       this.options.url = '';
       this.options.method = '';
       this.options.queryParams = {
-        legHost: '',
+        legHost: '',               // oauth leg params     
         legPath: '',
         legMethod: '',
         legSBS: '',
@@ -429,10 +429,6 @@
       serverUrlNotSet: "You must proivide server url to which request will be sent",
       optionNotSet: " option must be set",
 
-      type: function(type, message){
-          return type + ': ' + this[message];
-      }
-   
    };
 
    Options.prototype.CustomError = function(name){// uses built-in Error func to make custom err info
@@ -703,7 +699,8 @@
       console.log('error :', error);
 
       if(error || !sentData.oauth_token){ // on error or on valid data deliver it to user 
-         this.deliverData(error, sentData);
+      
+         this.deliverData(resolve, {'error': error, 'data': sentData});
          return;
       }
  
@@ -713,17 +710,19 @@
       this.redirect(resolve)             // redirect user to twitter for authorization 
    };
    
-   Redirect.prototype.deliverData = function(resolve, error, sentData){ // delivers data to user by promise or
+   Redirect.prototype.deliverData = function(resolve, obj){ // delivers data to user by promise or
                                                                         // by callback function
-      var obj = {'error': error, 'data': sentData}
-
       if(resolve){
           resolve(obj);
+          return;
       }
-      else if(this.callback_func) {             // when no promise is avalable invoke callback
+      
+      if(this.callback_func) {             // when no promise is avalable invoke callback
           this.callback_func(obj);
-      }                                       
-                             
+          return;
+      }
+                                       
+      throw CustomError('noCallbackFunc'); // raise error when there is no promise or callback present                      
    }
 
    Redirect.prototype.confirmCallback = function (sent){ // makes sure that twitter is ok with redirection url
@@ -780,19 +779,8 @@
       var opened = this.openWindow();       // open new window and save its reference
       opened.location = url;                // change location (redirect)
        
-      var obj = { 'window': opened }        // newWindow reference
-
-      if(resolve){ 
-         resolve(obj);
-         return;
-      }
-
-      if(this.callback_func){     
-         this.callback_func(obj); 
-         return
-      }
-
-      throw CustomError ('noCallbackFunc');
+      this.deliverData(resolve, { 'window': opened })       // newWindow reference
+   
    }
   
     
@@ -863,7 +851,7 @@
    Authorize.prototype.parseQueryParams = function (str){
       var arr  = [];
       if(!str){
-         console.log('noStringProvided');
+         console.log(this.messages.noStringProvided);
          return;
       }  
 
@@ -953,7 +941,7 @@
           this.parseRedirectionUrl(window.location.href); // parse data from url 
          
          if(!this.redirectionData.data){                  // return if no session data
-            console.log('noSessionData');
+            console.log(this.messages.noSessionData);
             return; 
          }                          
           
@@ -974,7 +962,7 @@
           this.setNonUserParams();
                                  console.log('accessToken callback:', this[this.leg[0]])   
                                  console.log('accessToken this.oauth: ', this.oauth); 
-          this.paramsOAuth('add', this.oauth, this[leg]); // Remove request token param
+          this.paramsOAuth('add', this.oauth, this[leg]); // 
         
           if(leg === this.leg[2]){ 
           //adds params for access token leg explicitly 
@@ -997,13 +985,7 @@
           console.log('this.oauth: ',this.oauth);
           this.addQueryParams('api', this.apiOptions);
          
-          // var resolve;
-          // var promised;
-         
-         // if(Promise) promised = new Promise(function(rslv, rjt){ resolve = rslv; }) // if can, make a Promise
-                                                                                     // remember it's resolve
           this.sendRequest(cb.bind(this, this.resolve), this.options);  
-          // if(promised) return promised;
       }
      
       this.haste = function(args){ // Brings data immediately ( when access token is present on server), or
@@ -1049,7 +1031,7 @@
        if(error)console.log('after access_token (error):', error)
        else console.log('after access_token (data):', sentData);
 
-       this.deliverData(resolve, error, sentData);    // delivers data to user     
+       this.deliverData(resolve, { 'error': error, 'data': sentData });    // delivers data to user     
 
    
    }
