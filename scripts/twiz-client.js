@@ -980,7 +980,8 @@
           
 
           this.paramsOAuth('remove', this.oauth, this[leg]) // removes oauth params for acess token leg
-          this.paramsOAuth('add', this.oauth, this.apiCall)         // add param needed for api call (oauth_token)
+          this.paramsOAuth('add', this.oauth, this.apiCall) // add param needed for api call (oauth_token)
+
           if(this.apiOptions.params)  // if there are parametars, add oauth params to them 
           this.oauth = this.paramsOAuth('add', this.apiOptions.params, this.oauth)// adds all oauth params to 
                                                                                   // user's api call params

@@ -320,13 +320,13 @@
                                           
                                     }
                                     var p = twiz.haste(options);
-                                    if(p) p.then(function(w){ console.log('in promise (afther DirectMessage)')
-                                          if(!w.error){ res(w); return}
+                                    if(p) p.then(function(w){ console.log('in promise (afther DirectMessage)',w)
+                                                     
+                                          if(!w.error){ console.log(w.data); return}
+
                                           console.log('error posting direct mesage:', w.error);
                 
-                                          if(w.data) console.log("success in promise:", w.data)
-                                          res(w)
-                                    })
+                                    }, function(e)(conosle.log('error afther direct message:', e)))
                               })
                            }
                           
