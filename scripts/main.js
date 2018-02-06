@@ -265,7 +265,7 @@
                                         'features':'resizable=yes,height=613,width=400,left=400,top=300'
                                      }, */ 
                                      'options':{
-                                        'method': 'GET',
+                                        'method': 'POST',
                                         'path': 'statuses/update.json',
                                         'params':{
                                           
