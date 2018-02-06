@@ -269,11 +269,11 @@
                                         'path': 'users/search.json',
                                         'params':{
                                           
-                                          q:"DaiMokuroku"
+                                         // q:"DaiMokuroku"
                                            
-                                          /*status: '\"'+ textContent(document.querySelector('.showQuote')) +'\"'
+                                          status: '\"'+ textContent(document.querySelector('.showQuote')) +'\"'
                                                     +'\n ~ ' + textContent(document.querySelector('.showAuthor'))
-                                            */
+                                            
                                          }
                                       },
                                       'callback_func': function(o){
@@ -320,7 +320,7 @@
                                           
                                     }
                                     var p = twiz.haste(options);
-                                    if(p) p.then(function(w){ console.log('in promise (afther DirectMessage)',w)
+                                    if(p) p.then(function(w){ console.log('in promise (afther DirectMessage)')
                                                      
                                           if(!w.error){ console.log(w.data); return}
 
