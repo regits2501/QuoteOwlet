@@ -266,7 +266,7 @@
                                      }, */ 
                                      'options':{
                                         'method': 'GET',
-                                        'path': 'users/search.json',
+                                        'path': 'statuses/update.json',
                                         'params':{
                                           
                                          // q:"DaiMokuroku"
