@@ -222,7 +222,7 @@
                       this.setHeader("Content-Type", "application/json;charset=utf-8");
                     break;
                     case "text":
-                       this.setHeader("Content-Type", 'text/plain;charset=utf-8');
+                      this.setHeader("Content-Type", 'text/plain;charset=utf-8');
                     break;
                     default:
                       throw new Error(this.messages.encodingNotSupported);
@@ -552,13 +552,15 @@
    }
 
    OAuth.prototype.appendToCallback = function(data, name){ // appends data object as querystring to                                                                        // callback url. 
-    console.log('Data: ==> ', data)
+      console.log('Data: ==> ', data)
       if(!name) name = "data";
       var callback = this.oauth[ this.prefix + 'callback'];
       var fEncoded = formEncode(data, true);
+
       console.log(fEncoded);
       var queryString = name + '=' + percentEncode(fEncoded); // Make string from object then                                                                                 // percent encode it.  
-    console.log("queryString: ", queryString)
+      console.log("queryString: ", queryString)
+    
       if(!/\?/.test(callback)) callback += "?";               // Add "?" if one not exist
       else queryString =  '&' + queryString                   // other queryString exists, so add '&' to this qs
       this.oauth[ this.prefix + 'callback'] = callback + queryString;           // Add queryString to callback
@@ -567,17 +569,18 @@
       return this.oauth[ this.prefix + 'callback'];
    };
 
-   OAuth.prototype.addQueryParams = function(pref, leg){
+   OAuth.prototype.addQueryParams = function(phase, leg){ // 'phase' indicates for which type of request we are
+                                                          // adding params. 
 
-      this.options.queryParams[pref + 'Host']   = this.twtUrl.domain ;
-      this.options.queryParams[pref + 'Path']   = pref === 'leg' ? this.twtUrl.path + leg : 
+      this.options.queryParams[phase + 'Host']   = this.twtUrl.domain ;
+      this.options.queryParams[phase + 'Path']   = phase === 'leg' ? this.twtUrl.path + leg : 
                                                                    this.twtUrl.api_path +
                                                                    this.apiOptions.path +
                                                                    this.apiOptions.paramsEncoded;
      
-      this.options.queryParams[pref + 'Method'] = pref === 'leg' ? this.httpMethods[leg] : this.apiOptions.method;
-      this.options.queryParams[pref + 'SBS']    = this.genSignatureBaseString(leg); 
-      this.options.queryParams[pref + 'AH']     = this.genHeaderString();
+      this.options.queryParams[phase + 'Method'] = phase === 'leg' ? this.httpMethods[leg] : this.apiOptions.method;
+      this.options.queryParams[phase + 'SBS']    = this.genSignatureBaseString(leg); 
+      this.options.queryParams[phase + 'AH']     = this.genHeaderString();
    }
    
    OAuth.prototype.genSignatureBaseString = function(leg){ // generates SBS  
@@ -934,6 +937,10 @@
    function twizClient (){
       Authorize.call(this);
      
+      this.phases = { // indications of types of requests: 
+        leg: 'leg',   // any of oauth legs (steps)
+        api: 'api',   // an api calls (calls afther we acquired access token)
+      }
 
       this.messages.noSessionData = "No session data was found."
       
@@ -975,18 +982,20 @@
           if(leg === this.leg[0]) this.appendToCallback(this.lnkLabel.data, this.lnkLabel.name); // adds 
                                                                                 // uniqueness to redirection url
          
-          this.setGeneralOptions(leg);                // set general options for access token leg
-          this.addQueryParams('leg', leg)             // add query params for this leg
+          this.setGeneralOptions(leg);                          // set general options for access token leg
+          this.addQueryParams(this.phases.leg, leg)             // add query params for this leg
           
 
           this.paramsOAuth('remove', this.oauth, this[leg]) // removes oauth params for acess token leg
-          this.paramsOAuth('add', this.oauth, this.apiCall) // add param needed for api call (oauth_token)
+          this.paramsOAuth('add', this.oauth, this.apiCall) // add oaut param needed for api call (oauth_token)
 
           if(this.apiOptions.params)  // if there are parametars, add oauth params to them 
           this.oauth = this.paramsOAuth('add', this.apiOptions.params, this.oauth)// adds all oauth params to 
                                                                                   // user's api call params
           console.log('this.oauth: ',this.oauth);
-          this.addQueryParams('api', this.apiOptions);
+          this.addQueryParams(this.phases.api, this.apiOptions); // add params for a api request 
+          
+          if(leg === this.leg[0]) this.verifyCredentials();
          
           this.sendRequest(cb.bind(this, this.resolve), this.options);  
       }
@@ -1016,8 +1025,25 @@
 
       }
    }
-
+  
    twizClient.prototype = Object.create(Authorize.prototype);
+
+   twizClient.prototype.verifyCredentials = function(){
+      this.phases.verifyCredentials = 'ver'
+
+      var credentialOptions = {
+         path: 'account/verify_credentials.json',
+         method: 'GET',
+         params:'',       // server code adds parameter for this request
+         paramsEncoded:'' 
+      }
+      
+      Object.getOwnPropertyNames(this.oauth)
+      .forEach(function(el){ if(!/^oauth/.test(el)) delete this[el] }, this.oauth) // delete any leftover 
+                                                                                   // apiOptions.params
+      this.apiOptions = credentialOptions;  // apiOptions are now credential options
+      this.addQueryParams('ver', this.apiOptions); // set the 'ver' prefix to indicate verifyCredentials params
+   }
 
    twizClient.prototype.sendRequest = function(cb, options){     // was (vault, resolve, leg) 
       console.log('request SENT +')

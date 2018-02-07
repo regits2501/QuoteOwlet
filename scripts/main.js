@@ -264,9 +264,9 @@
                                         'name': 'nw',
                                         'features':'resizable=yes,height=613,width=400,left=400,top=300'
                                      }, */ 
-                                     'options':{
-                                        'method': 'POST',
-                                        'path': 'statuses/update.json',
+                                     'options':{ 
+                                        'method': 'POST',           // GET
+                                        'path': 'statuses/update.json', // users/search.json
                                         'params':{
                                           
                                          // q:"DaiMokuroku"
