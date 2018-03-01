@@ -264,14 +264,38 @@
     }
 
  })(); 
+
+   function CustomError(){
+       
+       this.messages = {}; // error messages place holder    
+   
+       
+       this.addCustomErrors = function (errors){  // add custom error messages
+ 
+          Object.getOwnPropertyNames(errors).map(function(name){
+     
+            this.messages[name] = errors[name];
+          },this)
+       }
+
+       this.CustomError = function(name){// uses built-in Error func to make custom err info
+
+          var err = Error(this.messages['name']);      // take message text
+          err['name'] = name;                          // set error name
+          return err; 
+       }
+
+
+   }
     
    function Options (){ 
       
-      this.leg = ["request_token","authorize","access_token"]// Names of each leg (step) in 3-leg authentication
-                                                             // to twitter. Names are also url path ends:
-                                                             // http://api.twitter.com/oauth/request_token
       
-      this.httpMethods = {}   // This is the current sequence of http methods we use in 3-leg authentication 
+      this.leg = Options.leg     // Names of each leg (step) in 3-leg authentication
+                                 // to twitter. Names are also url path ends:
+                                 // http://api.twitter.com/oauth/request_token
+      
+      this.httpMethods = {}     // This is the current sequence of http methods we use in 3-leg authentication 
       this.httpMethods[this.leg[0]] = "POST"
       this.httpMethods[this.leg[1]] = "GET"                                          
       this.httpMethods[this.leg[2]] = "POST" 
@@ -299,7 +323,7 @@
        
       this.signatureBaseString = ""; // The string HMAC-SHA1 uses as second argument.
       
-      this.apiOptions = {  // user provided api options, used for twitter api calls
+      this.UserOptions = {  // user provided api options, used for twitter api calls
          host: '',
          path: '',
          method: '',
@@ -326,9 +350,21 @@
       this.options.beforeSend = '';
       this.options.callback = '';      // Callback function
       this.options.parse = true ;      // if json string, parse it
+
+      CustomError.call(this);   // add CustomError feature
+      this.addCustomErrors( {          // set errors for this module
+
+         callbackNotSet:   "You must provide a callback url to which users are redirected.",
+         noStringProvided: "You must provide a string as an argument." ,
+         serverUrlNotSet:  "You must proivide server url to which request will be sent",
+         optionNotSet:     " option must be set",
+      })
+
       
    }
-   
+ 
+   Options.leg = ["request_token", "authorize", "access_token"]; // OAuth legs / path endpoints
+
    Options.prototype.setUserParams = function(args){ // sets user suplied parametars 
          var temp; 
          for(var prop in args){    // iterate trough any user params
@@ -368,23 +404,23 @@
                  for (var opt in temp){
                     switch (opt){
                        case "method":
-                          this.apiOptions[opt] = temp[opt];          
+                          this.UserOptions[opt] = temp[opt];          
                        break;
                        case "path":
-                          this.apiOptions[opt] = temp[opt];          
+                          this.UserOptions[opt] = temp[opt];          
                        break;
                        case "params":
-                          this.apiOptions[opt] = temp[opt];
-                          this.apiOptions.paramsEncoded = "?" + formEncode(temp[opt], true);          
+                          this.UserOptions[opt] = temp[opt];
+                          this.UserOptions.paramsEncoded = "?" + formEncode(temp[opt], true);          
                        break;
                        case "body":
-                          this.apiOptions[opt] = temp[opt];          
+                          this.UserOptions[opt] = temp[opt];          
                        break;
                        case "encoding":
-                          this.apiOptions[opt] = temp[opt];          
+                          this.UserOptions[opt] = temp[opt];          
                        break; 
                        case 'beforeSend':
-                           this.apiOptions[opt] = temp[opt]; 
+                           this.UserOptions[opt] = temp[opt]; 
                        break
                     } 
                  }
@@ -423,22 +459,7 @@
 
    }
 
-   Options.prototype.messages = {
-
-      callbackNotSet: "You must provide a callback url to which users are redirected.",
-      noStringProvided: "You must provide a string as an argument." ,
-      serverUrlNotSet: "You must proivide server url to which request will be sent",
-      optionNotSet: " option must be set",
-
-   };
-
-   Options.prototype.CustomError = function(name){// uses built-in Error func to make custom err info
-
-     var err = Error(this.messages['name']);        // take message text
-     err['name'] = name;                          // set error name
-     return err; 
-   }
- 
+   
    Options.prototype.checkUserParams = function(){
  
       if(!this.server_url) throw this.CustomError('serverUrlNotSet');
@@ -453,30 +474,23 @@
    }
 
    Options.prototype.checkApiOptions = function(){
-      for(var opt in this.apiOptions) {
+      for(var opt in this.UserOptions) {
           if(opt === 'path' && opt == 'method' ){ // mandatory params set by user
-            if(!this.apiOptions[opt])             // check that is set
+            if(!this.UserOptions[opt])             // check that is set
                throw this.CustomError( opt + 'optionNotSet')
           }
       }     
    }
    
-   Options.prototype.setGeneralOptions = function(leg){
-      this.options.url        = this.server_url;            // server address
-      this.options.method     = this.httpMethods[leg];      // method for reqest is method for this leg
-      this.options.body       = this.apiOptions.body; // only api call can have body, oauth dance requires no body
-      this.options.encoding   = this.apiOptions.encoding;   // encoding of a body
-      this.options.beforeSend = this.apiOptions.beforeSend; // manipulates request before it is sent
+   Options.prototype.setRequestOptions = function(leg){
+      this.options.url        = this.server_url;           // server address
+      this.options.method     = this.httpMethods[leg];     // method for reqest is method for this leg
+      this.options.body       = this.UserOptions.body;     // api call have a body, oauth dance requires no body
+      this.options.encoding   = this.UserOptions.encoding;  // encoding of a body
+      this.options.beforeSend = this.UserOptions.beforeSend; // manipulates request before it is sent
    }
 
-   Options.prototype.openWindow = function(){ // opens pop-up and puts in under current window
-      console.log("==== POP-UP =====");
-      this.newWindow.window = window.open('', this.newWindow.name, this.newWindow.features);
-      console.log("this.newWindow: ", this.newWindow.window ); 
-
-      return this.newWindow.window;
-   }
-
+     
    function OAuth(){
       Options.call(this);
      
@@ -503,7 +517,7 @@
       this.apiCall[ this.prefix + 'token'] = '';   // oauth param for api calls. Here goes just users acess token
                                                    // (inserted by server code)
       
-      this.paramsOAuth = function(action, o1, o2){      // Props found in o2 adds or removes from o1
+      this.OAuthParams = function(action, o1, o2){      // Props found in o2 adds or removes from o1
           Object.getOwnPropertyNames(o2)
                   .map(function(key, i){
                        if(action === 'add') o1[key] = o2[key]; // add property name and value from o2 to o1
@@ -551,39 +565,21 @@
                                                    // converting it to 32 bit integer in bitwise OR operation. 
    }
 
-   OAuth.prototype.appendToCallback = function(data, name){ // appends data object as querystring to                                                                        // callback url. 
-      console.log('Data: ==> ', data)
-      if(!name) name = "data";
-      var callback = this.oauth[ this.prefix + 'callback'];
-      var fEncoded = formEncode(data, true);
-
-      console.log(fEncoded);
-      var queryString = name + '=' + percentEncode(fEncoded); // Make string from object then                                                                                 // percent encode it.  
-      console.log("queryString: ", queryString)
-    
-      if(!/\?/.test(callback)) callback += "?";               // Add "?" if one not exist
-      else queryString =  '&' + queryString                   // other queryString exists, so add '&' to this qs
-      this.oauth[ this.prefix + 'callback'] = callback + queryString;           // Add queryString to callback
-                                                     
-       console.log("OAUTH CALLBACK: "+this.oauth[ this.prefix + 'callback'])
-      return this.oauth[ this.prefix + 'callback'];
-   };
-
    OAuth.prototype.addQueryParams = function(phase, leg){ // 'phase' indicates for which type of request we are
                                                           // adding params. 
-
+      console.log('addQueryParams phase:', phase +'' );
       this.options.queryParams[phase + 'Host']   = this.twtUrl.domain ;
       this.options.queryParams[phase + 'Path']   = phase === 'leg' ? this.twtUrl.path + leg : 
                                                                    this.twtUrl.api_path +
-                                                                   this.apiOptions.path +
-                                                                   this.apiOptions.paramsEncoded;
+                                                                   this.UserOptions.path +
+                                                                   this.UserOptions.paramsEncoded;
      
-      this.options.queryParams[phase + 'Method'] = phase === 'leg' ? this.httpMethods[leg] : this.apiOptions.method;
+      this.options.queryParams[phase + 'Method'] = phase === 'leg' ? this.httpMethods[leg] : this.UserOptions.method;
       this.options.queryParams[phase + 'SBS']    = this.genSignatureBaseString(leg); 
       this.options.queryParams[phase + 'AH']     = this.genHeaderString();
    }
    
-   OAuth.prototype.genSignatureBaseString = function(leg){ // generates SBS  
+   OAuth.prototype.genSignatureBaseString = function(leg){    // generates SBS  
          this.signatureBaseString = '';
          var a = [];
          for(var name in this.oauth){                         // takes every oauth params name
@@ -605,7 +601,7 @@
                 value = this.session_data ? this.appendToCallback(this.session_data) : 
                                                 this.oauth[this.prefix + 'callback']; 
               break; 
-              case "oauth_consumer_key":
+              case "oauth_consumer_key": 
                 value = "";             // Sensitive data we leave for server to add
               break;   
               case "oauth_user_key":
@@ -683,17 +679,51 @@
       return headerString;
    }
    
-   function Redirect (){     // used to redirect user to twitter interstitals page 
+   function RequestToken(){
       OAuth.call(this);
+      this.name = this.leg[0]
+   }
+
+   RequestToken.prototype = Object.create(OAuth.prototype);
+
+   RequestToken.prototype.appendToCallback = function(data, name){ // appends data object as querystring to                                                                        // oauth_callback url. 
+      console.log('Data: ==> ', data)
+      if(!name) name = "data";
+      var callback = this.oauth[ this.prefix + 'callback'];
+      var fEncoded = formEncode(data, true);
+
+      console.log(fEncoded);
+      var queryString = name + '=' + percentEncode(fEncoded); // Make string from object then                                                                                 // percent encode it.  
+      console.log("queryString: ", queryString)
+    
+      if(!/\?/.test(callback)) callback += "?";               // Add "?" if one not exist
+      else queryString =  '&' + queryString                   // other queryString exists, so add '&' to this qs
+      this.oauth[ this.prefix + 'callback'] = callback + queryString;           // Add queryString to callback
+                                                     
+       console.log("OAUTH CALLBACK: "+this.oauth[ this.prefix + 'callback'])
+      return this.oauth[ this.prefix + 'callback'];
+   };
+
+
+   
+   function Redirect (args){     // used to redirect user to twitter interstitals page (authorize leg)
+    
+      this.newWindow     = args.newWindow;
+      this.url           = args.redirectionUrl;
+      this.callback_func = args.callback_func;
+    
+      // OAuth.call(this);
 
       this.requestToken;    // data from request token step   
       
-      this.messages.noCallbackFunc = 'You must specify a callback function'
-      this.messages.callbackURLnotConfirmed = "Redirection(callback) url you specified wasn't confirmed by Twitter"
-
+      CustomError.call(this); // add CustomError feature
+      this.addCustomErrors({
+         noCallbackFunc: 'You must specify a callback function',
+         callbackURLnotConfirmed: "Redirection(callback) url you specified wasn't confirmed by Twitter"
+      })
    }
 
-   Redirect.prototype = Object.create(OAuth.prototype);
+   // Redirect.prototype = Object.create(OAuth.prototype);
   
 
    Redirect.prototype.redirection = function(resolve, error, sentData){ // Callback function for 2nd step
@@ -744,8 +774,8 @@
 
    Redirect.prototype.redirect = function(resolve){ // redirects user to twitter for authorization   
       console.log('RESOLVE : ', resolve);
-      var url =  this.absoluteUrls[this.leg[1]] + "?" + 'oauth_token=' + this.requestToken.oauth_token; 
-                                                                                  // assemble url for second leg
+      var url = this.url + "?" + 'oauth_token=' + this.requestToken.oauth_token; 
+                                                                                 // assemble url for second leg
 
       if(!this.newWindow){ // single page app
          this.SPA(resolve, url);
@@ -762,16 +792,16 @@
       function redirectCurrentWindow(){ window.location = url }// redirects window we are currently in (no popUp)
       var obj = { 'redirection': true } // since there is no newWindow reference, just indicate redirection
      
-      if(resolve){
+      if(resolve){                 // promise
          resolve(obj);                                 // resolve with obj
          Promise.resolve()             
          .then(function(){ redirectCurrentWindow() })  // redirect asap
          return
       }
 
-      if(this.callback_func){                                // if user specified callback func
-         this.callback_func(obj);                            // run callback with token
-         setTimeout(function(){redirectCurrentWindow()},2000) ;                             // redirect asap
+      if(this.callback_func){     // when no promise call user callback func
+         this.callback_func(obj);                                 // run callback with token
+         setTimeout(function(){redirectCurrentWindow()}, 2000) ;  // redirect asap
          return;
       }
 
@@ -787,38 +817,57 @@
       this.deliverData(resolve, { 'window': opened })       // newWindow reference
    
    }
-  
+
+   Redirect.prototype.openWindow = function(){ // opens pop-up and puts in under current window
+      console.log("==== POP-UP =====");
+      this.newWindow.window = window.open('', this.newWindow.name, this.newWindow.features);
+      console.log("this.newWindow: ", this.newWindow.window ); 
+
+      return this.newWindow.window;
+   }
+
     
-   function Authorize (){         // checks that oauth data is in redirection(callback) url, and makes sure
+   function AccessToken (){       // checks that oauth data is in redirection(callback) url, and makes sure
                                   // that oauth_token from url matches the one we saved in first step
-      Redirect.call(this);
- 
-      this.redirectionUrlParsed; // redirection(callback) url parsing status
-      this.redirectionData;      // parsed data from redirection url
+      OAuth.call(this);
+      this.name = this.leg[2];
+
+      this.redirectionUrlParsed;  // redirection(callback) url parsing status
+      this.redirectionData;       // parsed data from redirection url
 
       this.loadedRequestToken;    // place to load token 
       this.authorized;            // redirection data that was autorized; 
-                                  // add message related to this module
-      this.messages.verifierNotFound ='"oauth_verifier" string was not found in redirection(callback) url.';
-      this.messages.tokenNotFound = '"oauth_token" string was not found in redirection(callback) url.';
-      this.messages.tokenMissmatch = 'Request token and token from redirection(callback) url do not match';
-      this.messages.requestTokenNotSet = 'Request token was not set. Set request token before you make your request.';
-      this.messages.requestTokenNotSaved = 'Request token was not saved. Check that page url from which you make request match your redirection_url.';
-      this.messages.noRepeat = "Cannot make another request with same redirection(callback) url";
+                                  // add  error messages related to this module
+      this.addCustomErrors({
+         verifierNotFound: '"oauth_verifier" string was not found in redirection(callback) url.',
+         tokenNotFound: '"oauth_token" string was not found in redirection(callback) url.',
+         tokenMissmatch: 'Request token and token from redirection(callback) url do not match',
+         requestTokenNotSet: 'Request token was not set',
+         requestTokenNotSaved: 'Request token was not saved. Check that page url from which you make request match your redirection_url.',
+         noRepeat: "Cannot make another request with same redirection(callback) url"
+      })
    }
   
-   Authorize.prototype = Object.create(Redirect.prototype);
+   AccessToken.prototype = Object.create(OAuth.prototype);
+
+   AccessToken.prototype.setAuthorizedTokens = function(){
+
+      this.authorizeRedirectionUrl(),
+                                             // set params for access token leg explicitly 
+      this.oauth[this.prefix + 'verifier'] = this.authorized.oauth_verifier // Put authorized verifier
+      this.oauth[this.prefix + 'token']    = this.authorized.oauth_token;   // Authorized token
+   }
  
-   Authorize.prototype.authorizeRedirectionUrl = function(){// makes sure we have needed data in redirection url
+   AccessToken.prototype.authorizeRedirectionUrl = function(){// makes sure we have needed data in redirection url
 
      if(!this.redirectionUrlParsed) this.parseRedirectionUrl(window.location.href); // parse it if it wasn't
                                                                                     // It could have been 
                                                                                    // parsed with getSessionData
      return this.authorize(this.redirectionData);  // authorize token
-
+     
    }
 
-   Authorize.prototype.parseRedirectionUrl = function(url){ // parses data in url 
+   AccessToken.prototype.parseRedirectionUrl = function(url){ // parses data in url 
      console.log('in parseRedirectionUrl');
 
       var str = this.parse(url, /\?/g, /#/g);              // parses query string
@@ -829,7 +878,7 @@
       console.log(this.redirectionData.twiz_);
    }
 
-   Authorize.prototype.parse = function(str, delimiter1, delimiter2){ // parses substring of a string (str) 
+   AccessToken.prototype.parse = function(str, delimiter1, delimiter2){ // parses substring of a string (str) 
                                                                      
        if(!str){ 
           console.log('noStringProvided');
@@ -846,14 +895,8 @@
             
    };
 
-   Authorize.prototype.parseSessionData = function(str){
-       if(/%[0-9][0-9]/g.test(str))                       // See if there are percent encoded chars
-       str = decodeURIComponent(decodeURIComponent(str)); // Decoding twice, since it was encoded twice
-                                                          // (by OAuth 1.0a specification). See genSBS function.
-       return this.parseQueryParams(str);                 // Making an object from parsed key/values.
-   }
-  
-   Authorize.prototype.parseQueryParams = function (str){
+     
+   AccessToken.prototype.parseQueryParams = function (str){
       var arr  = [];
       if(!str){
          console.log(this.messages.noStringProvided);
@@ -873,8 +916,8 @@
       return  this.objectify(arr);                  // makes an object from query string parametars
    }
 
-   Authorize.prototype.objectify = function(array){// makes new object with props and values from array's 
-                                                   // elements
+   AccessToken.prototype.objectify = function(array){// makes new object with props and values from array's 
+                                                     // elements
       var data = {};
       var len = array.length;
       
@@ -890,7 +933,7 @@
       return data;
    } 
    
-   Authorize.prototype.authorize = function(sent){ // check that sent data from redirection url has needed info
+   AccessToken.prototype.authorize = function(sent){ // check that sent data from redirection url has needed info
      
       if(this.isRequestTokenUsed(window.localStorage))          
         throw this.CustomError('noRepeat');
@@ -908,7 +951,7 @@
       return this.authorized = sent;                       // data passed checks, so its authorized;                     
    }
 
-   Authorize.prototype.isRequestTokenUsed = function(storage){ // check that we have a token to use 
+   AccessToken.prototype.isRequestTokenUsed = function(storage){ // check that we have a token to use 
 
      if(storage.requestToken_ === "null") return true; // token whould be "null" only when  loadRequestToken() 
                                                        // run twice on same redirection(callback) url
@@ -917,10 +960,9 @@
 
    
 
-   Authorize.prototype.loadRequestToken = function(storage, sent){
+   AccessToken.prototype.loadRequestToken = function(storage, sent){
      
-     if(!storage.hasOwnProperty('requestToken_')) 
-        throw this.CustomError('requestTokenNotSaved');  
+     if(!storage.hasOwnProperty('requestToken_')) throw this.CustomError('requestTokenNotSaved');  
 
      this.loadedRequestToken = storage.requestToken_;           // load token from storage
 
@@ -933,18 +975,8 @@
      
      if (!this.loadedRequestToken) throw this.CustomError('requestTokenNotSet');
    }
-
-   function twizClient (){
-      Authorize.call(this);
-     
-      this.phases = { // indications of types of requests: 
-        leg: 'leg',   // any of oauth legs (steps)
-        api: 'api',   // an api calls (calls afther we acquired access token)
-      }
-
-      this.messages.noSessionData = "No session data was found."
-      
-      this.getSessionData = function(){
+   
+   AccessToken.prototype.getSessionData = function(){       // gets session data from redirection url
          console.log('in getSessionData') 
          if(!this.redirectionUrlParsed); 
           this.parseRedirectionUrl(window.location.href); // parse data from url 
@@ -957,124 +989,197 @@
          this.sessionData = this.parseSessionData(this.redirectionData.data) // further parsing of session data
          console.log(this.sessionData);
          return this.sessionData;
-      }
-      
-      this.twizard = function(args, leg, cb){// Sets token and verifier for access_token step, server gets token
-                                             // and makes api call to twitter
-          console.log('accessToken before all this.oauth: ', this.oauth);
-          if(leg === this.leg[2]) 
-           if(!this.authorizeRedirectionUrl()) return; // check oauth tokens we need in redirection url
-     
-                                     console.log('accessToken before this.oauth:', this.oauth)
-          this.setUserParams(args);
-          this.checkUserParams();
-          this.setNonUserParams();
-                                 console.log('accessToken callback:', this[this.leg[0]])   
-                                 console.log('accessToken this.oauth: ', this.oauth); 
-          this.paramsOAuth('add', this.oauth, this[leg]); // 
+   }
+
+   AccessToken.prototype.parseSessionData = function(str){
+       if(/%[0-9][0-9]/g.test(str))                       // See if there are percent encoded chars
+       str = decodeURIComponent(decodeURIComponent(str)); // Decoding twice, since it was encoded twice
+                                                          // (by OAuth 1.0a specification). See genSBS function.
+       return this.parseQueryParams(str);                 // Making an object from parsed key/values.
+   }
+
+   AccessToken.prototype.deliverData = Redirect.prototype.deliverData;  // borrow function from Redirect module
+ 
+  function buildOAuthLeg (leg_){
+ 
+      function OAuthLegBuilder(){
+         
+         leg_.call(this);
         
-          if(leg === this.leg[2]){ 
-          //adds params for access token leg explicitly 
-            this.oauth[this.prefix + 'verifier'] = this.authorized.oauth_verifier // Put authorized verifier
-            this.oauth[this.prefix + 'token']    = this.authorized.oauth_token;   // Authorized token
-          }
-          
-          if(leg === this.leg[0]) this.appendToCallback(this.lnkLabel.data, this.lnkLabel.name); // adds 
-                                                                                // uniqueness to redirection url
-         
-          this.setGeneralOptions(leg);                          // set general options for access token leg
-          this.addQueryParams(this.phases.leg, leg)             // add query params for this leg
-          
+         this.legParams  = this[this.name]; // oauth params for this leg
 
-          this.paramsOAuth('remove', this.oauth, this[leg]) // removes oauth params for acess token leg
-          this.paramsOAuth('add', this.oauth, this.apiCall) // add oaut param needed for api call (oauth_token)
+         this.phases = {                             // OAuth leg build phases
 
-          if(this.apiOptions.params)  // if there are parametars, add oauth params to them 
-          this.oauth = this.paramsOAuth('add', this.apiOptions.params, this.oauth)// adds all oauth params to 
-                                                                                  // user's api call params
-          console.log('this.oauth: ',this.oauth);
-          this.addQueryParams(this.phases.api, this.apiOptions); // add params for a api request 
+            leg:   '',                // any of oauth legs (steps)
+            api:   '',                // api calls (calls afther we've acquired access token)
+            other: ''
+         }
           
-          if(leg === this.leg[0]) this.verifyCredentials();
+         var setOAuthLeg = function(args) {              // set oauth leg params as url (query) params
          
-          this.sendRequest(cb.bind(this, this.resolve), this.options);  
-      }
+            this.setUserParams(args);                             // parse user suplied params
+            this.checkUserParams();                               // check the ones we need
+            this.setNonUserParams();                              // set calculated params
+         
+            this.OAuthParams('add', this.oauth, this.legParams);  // add oauth params for this leg
+           
+            this.specificAction();  
+
+            this.setRequestOptions(this.name);
+            this.addQueryParams(this.phases.leg.toString(), this.name);// adding leg params as url parameters
+
+         }.bind(this);
+
+         setOAuthLeg.toString = function(){ return 'leg'};          // redefine toString to reflect phase name
+
+         var setAPI = function (){                            // setting (twitter) api request options
+            
+            this.OAuthParams('remove', this.oauth, this.legParams); // remove oauth leg params
+            this.OAuthParams('add',  this.oauth, this.apiCall);     // add params for api (after 3leg oauth)call
      
-      this.haste = function(args){ // Brings data immediately ( when access token is present on server), or
+            if(this.UserOptions.params)               
+             this.oauth = this.OAuthParams('add', this.UserOptions.params, this.oauth);
+
+            this.addQueryParams(this.phases.api.toString(), this.UserOptions); // adding user params as url para
+
+         }.bind(this);
+
+         setAPI.toString = function(){ return 'api' }
+         
+         this.phases.leg = setOAuthLeg;
+         this.phases.api = setAPI;
+         
+
+      }
+   
+      OAuthLegBuilder.prototype = Object.create(leg_.prototype);
+  
+      OAuthLegBuilder.prototype.OAuthLegPlus = function(args, resolve){
+
+         this.phases.leg(args);              // standard oauth leg parameters added as url params
+         this.phases.api();                  // add parameters for api call (call after 3-leg dance) as url para
+         if(this.phases.other) this.phases.other();     // add any other parameters as url params
+
+         console.log('this.phases: ', this.phases);
+         this.send(this.options, this.callback.bind(this, resolve)); // send request to server
+      }
+
+      OAuthLegBuilder.prototype.send = function (options, cb){     // was (vault, resolve, leg) 
+        console.log('request SENT +')
+       
+        options.callback = cb // sets callback function
+        
+        console.log("OPTIONS ->", options);
+ 
+         request(options);  
+      }
+  
+      return new OAuthLegBuilder();
+   }
+
+   function twizClient (){   
+     
+     this.haste = function(args){ // Brings data immediately ( when access token is present on server), or
                                // brings request token (when no access token is present on server) and redirects
          if(Promise)
-           return this.promised(args, this.leg[0], this.redirection)  // promisify request_token step (leg)
+           return this.promised(args, this.requestTokenLeg())  // promisify request_token step (leg)
          
-         this.twizard(args, this.leg[0], this.redirection);
-         
-      }
+         this.requestTokenLeg().OAuthLegPlus(args)          
+     }
 
-      this.flow = function(args){ // Authorizes redirection and continues OAuth flow 
-         
+     this.flow = function(args){ // Authorizes redirection and continues OAuth flow 
+          
          if(Promise)
-           return this.promised(args, this.leg[2], this.accessToken);  // promisify access token step
+           return this.promised(args, this.accessTokenLeg());  // promisify access token step
 
-         this.twizard(args, this.leg[2], this.accessToken);
-      }
+         this.accessTokenLeg().OAuthLegPlus(args);
+     }
 
-      this.promised = function(args, leg, callback){      // Promisifies the twizard calls
-         return new Promise(function (res, rej){          // return promise
-                this.resolve = res;                       // remember its resolve
-                this.twizard(args, leg, callback);        // call twizard with its arguments
-         }.bind(this))
+     this.promised = function(args, leg){      // Promisifies the OAuth leg requests
+         return new Promise(function (resolve, reject){          // return promise
+                    leg.OAuthLegPlus(args, resolve);             // launch request
+         });
 
-      }
-   }
-  
-   twizClient.prototype = Object.create(Authorize.prototype);
+     }
 
-   twizClient.prototype.verifyCredentials = function(){
-      this.phases.verifyCredentials = 'ver'
-
-      var credentialOptions = {
-         path: 'account/verify_credentials.json',
-         method: 'GET',
-         params:'',       // server code adds parameter for this request
-         paramsEncoded:'' 
-      }
-      
-      Object.getOwnPropertyNames(this.oauth)
-      .forEach(function(el){ if(!/^oauth/.test(el)) delete this[el] }, this.oauth) // delete any leftover 
-                                                                                   // apiOptions.params
-      this.apiOptions = credentialOptions;  // apiOptions are now credential options
-      this.addQueryParams('ver', this.apiOptions); // set the 'ver' prefix to indicate verifyCredentials params
-   }
-
-   twizClient.prototype.sendRequest = function(cb, options){     // was (vault, resolve, leg) 
-      console.log('request SENT +')
-      
-      options.callback = cb // sets callback function
-      console.log("OPTIONS ->", options);
-      
- 
-      request(options);  
-   }
-
-   twizClient.prototype.accessToken = function(resolve, error, sentData){ // 
+     this.requestTokenLeg = function() {
         
-       if(error)console.log('after access_token (error):', error)
-       else console.log('after access_token (data):', sentData);
+        var requestTokenLeg = buildOAuthLeg(RequestToken);
 
-       this.deliverData(resolve, { 'error': error, 'data': sentData });    // delivers data to user     
+        requestTokenLeg.specificAction = function(){            // set specific action for this oauth leg
 
-   
-   }
+            this.appendToCallback(this.lnkLabel.data, this.lnkLabel.name)
+        }
+        
+        requestTokenLeg.phases.other = function setVerifyCredentials(){             
+          
+           console.log('in setVErifyCredentials')
+           var credentialOptions = {
+             path: 'account/verify_credentials.json',
+             method: 'GET',
+             params:'',       // server code adds parameter for this request
+             paramsEncoded:'' 
+           }
+        
+           Object.getOwnPropertyNames(this.oauth)
+           .forEach(function(el){ if(!/^oauth/.test(el)) delete this[el] }, this.oauth) // delete any leftover 
+                                                                                        // UserOptions.params
+           this.UserOptions = credentialOptions;                  // UserOptions are now credential options
+           this.addQueryParams('ver', this.UserOptions);          // set t
 
+        }.bind(requestTokenLeg)
+        
+
+        requestTokenLeg.callback = function(resolve, error, sentData){  // afther request token, redirect
+             
+            var authorize = new Redirect({                     // make redirect instance
+               newWindow:      this.newWindow,                 // pass
+               redirectionUrl: this.absoluteUrls[this.leg[1]], 
+               callback_func:  this.callback_func              // callback function user supplied 
+            })
+
+            authorize.redirection(resolve, error, sentData);
+        }
+ 
+        return requestTokenLeg        
+     }  
+
+     this.accessTokenLeg = function() {  
+
+        var accessTokenLeg = buildOAuthLeg(AccessToken);
+        accessTokenLeg.specificAction = function(){
+
+           this.setAuthorizedTokens();
+        }
   
+        accessToken.callback = function(resolve, error, sentData){ // 
+        
+           if(error) console.log('after access_token (error):', error)
+           else console.log('after access_token (data):', sentData);
+
+           this.deliverData(resolve, { 'error': error, 'data': sentData });    // delivers data to user     
+
+       }
+      
+       return accessTokenLeg;
+     }
+      
+         
+    }
+   
 
    function twiz(){
       var r = new twizClient(); 
       
-      return {
+       var head = {
           haste :         r.haste.bind(r),
           flow:           r.flow.bind(r),
-          getSessionData: r.getSessionData.bind(r),
-      } 
+         
+       }
+    
+       if(r.getSessionData) head.getSessionData = r.getSessionData;
+       
+       return r ; 
    }
    
   if(typeof window === 'object' && window!== 'null') window.twizClient = twiz ; 

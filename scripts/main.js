@@ -248,7 +248,7 @@
       addEvent(document.getElementsByClassName("twitterButton")[0], "click", function authenticate(){
                 
            console.log("Taking this data: ====",textContent(quoteData.quoteEl), textContent(quoteData.authorEl))
-              var options = {      "server_url":  'https://quoteowlet.herokuapp.com',//'http://localhost:5000',
+              var options = {      "server_url":'https://quoteowlet.herokuapp.com', //'http://localhost:5000'
                                    "redirection_url":"https://gits2501.github.io/QuoteOwlet/index.html",// "https://gits2501.github.io/QuoteOwlet/pages/tweeting.html"
      
                                     "session_data": { // redirection data
@@ -322,11 +322,11 @@
                                     var p = twiz.haste(options);
                                     if(p) p.then(function(w){ console.log('in promise (afther DirectMessage)')
                                                      
-                                          if(!w.error){ console.log(w.data); return}
+                                          if(!w.error){ console.log(w.data); return }
 
                                           console.log('error posting direct mesage:', w.error);
                 
-                                    }, function(e)(conosle.log('error afther direct message:', e)))
+                                    }, function(e){ conosle.log('error afther direct message:', e)})
                               })
                            }
                           
@@ -340,7 +340,7 @@
        })
      
   })
-/*  whenPageReady(function(){            // when testing SPA case
+ whenPageReady(function(){            // when testing SPA case
      var twtSecondPart = twizClient();
      var sessionData = twtSecondPart.getSessionData();
     quoteData.setQuoteData.apply(quoteData, [sessionData]);
@@ -374,7 +374,7 @@
     }catch(e){
       console.log('error in try-catch: ', e)
     }
-})  */
+})  
 
 
 })()

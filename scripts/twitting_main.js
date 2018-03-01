@@ -19,7 +19,7 @@
                {"events": ["mousedown","mouseup","touchstart","touchmove"],
                 "actions": ["add", "remove","add", "remove"]          
  }));
-
+ 
 
  ////////////////////////
  var textArea = {};
@@ -33,9 +33,10 @@
           return
     }
    
-   textContent(this.textEl, sessionData)
+   textContent(this.textEl, sessionData);
     
  }
+
  textArea.getQuote = function(){
    return textContent(this.textEl);
  }
@@ -43,6 +44,7 @@
  whenPageReady(textArea.init.bind(textArea, '.twittText')) // when DOM is ready initialize the object
 
  whenPageReady(function addQuoteData_SendOnClick(){
+
     var secondPhase = twizClient();
     var sessionData = secondPhase.getSessionData();     // get session data from url
  
