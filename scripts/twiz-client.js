@@ -859,10 +859,7 @@
    }
  
    AccessToken.prototype.authorizeRedirectionUrl = function(){// makes sure we have needed data in redirection url
-
-     if(!this.redirectionUrlParsed) this.parseRedirectionUrl(window.location.href); // parse it if it wasn't
-                                                                                    // It could have been 
-                                                                                   // parsed with getSessionData
+     this.parseRedirectionUrl(window.location.href); // parse it if it wasn't
      return this.authorize(this.redirectionData);  // authorize token
      
    }
@@ -1082,27 +1079,34 @@
      this.haste = function(args){ // Brings data immediately ( when access token is present on server), or
                                // brings request token (when no access token is present on server) and redirects
          if(Promise)
-           return this.promised(args, this.requestTokenLeg())  // promisify request_token step (leg)
+           return this.promised(args, this.RequestTokenLeg())  // promisify request_token step (leg)
          
-         this.requestTokenLeg().OAuthLegPlus(args)          
+         this.RequestTokenLeg().OAuthLegPlus(args)          
      }
 
+     
      this.flow = function(args){ // Authorizes redirection and continues OAuth flow 
           
          if(Promise)
-           return this.promised(args, this.accessTokenLeg());  // promisify access token step
+           return this.promised(args, this.AccessTokenLeg());  // promisify access token step
 
-         this.accessTokenLeg().OAuthLegPlus(args);
+         this.AccessTokenLeg().OAuthLegPlus(args);
      }
 
-     this.promised = function(args, leg){      // Promisifies the OAuth leg requests
+     this.promised = function(args, leg){                        // Promisifies the OAuth leg requests
          return new Promise(function (resolve, reject){          // return promise
                     leg.OAuthLegPlus(args, resolve);             // launch request
          });
 
      }
+     
+     this.getSessionData = function(){                           // Parse any session data from url
+                                                                 
+        this.accessTokenLeg = (this.accessTokenLeg || this.AccessTokenLeg()) // use same accessToken ref
+        return this.accessTokenLeg.getSessionData();
+     }
 
-     this.requestTokenLeg = function() {
+     this.RequestTokenLeg = function() {
         
         var requestTokenLeg = buildOAuthLeg(RequestToken);
 
@@ -1141,10 +1145,10 @@
             authorize.redirection(resolve, error, sentData);
         }
  
-        return requestTokenLeg        
+        return requestTokenLeg;       
      }  
 
-     this.accessTokenLeg = function() {  
+     this.AccessTokenLeg = function() {  
 
         var accessTokenLeg = buildOAuthLeg(AccessToken);
         accessTokenLeg.specificAction = function(){
@@ -1152,7 +1156,7 @@
            this.setAuthorizedTokens();
         }
   
-        accessToken.callback = function(resolve, error, sentData){ // 
+        accessTokenLeg.callback = function(resolve, error, sentData){ // 
         
            if(error) console.log('after access_token (error):', error)
            else console.log('after access_token (data):', sentData);
@@ -1160,26 +1164,24 @@
            this.deliverData(resolve, { 'error': error, 'data': sentData });    // delivers data to user     
 
        }
-      
-       return accessTokenLeg;
+
+       return  accessTokenLeg;
      }
       
          
-    }
+   }
    
 
    function twiz(){
       var r = new twizClient(); 
       
-       var head = {
-          haste :         r.haste.bind(r),
-          flow:           r.flow.bind(r),
-         
-       }
-    
-       if(r.getSessionData) head.getSessionData = r.getSessionData;
-       
-       return r ; 
+      var head = {
+         haste :         r.haste.bind(r),
+         flow:           r.flow.bind(r),
+         getSessionData: r.getSessionData.bind(r)
+      }
+      
+      return head ; 
    }
    
   if(typeof window === 'object' && window!== 'null') window.twizClient = twiz ; 
