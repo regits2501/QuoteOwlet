@@ -460,10 +460,10 @@
    }
 
    
-   Options.prototype.checkUserParams = function(){
+   Options.prototype.checkUserParams = function(leg){
  
       if(!this.server_url) throw this.CustomError('serverUrlNotSet');
-      if(!this.redirectionUrlParsed) this.checkRedirectionCallback();   // check only in request token step 
+      if(leg === this.leg[0]) this.checkRedirectionCallback();   // check only in request token step 
       this.checkApiOptions();
       
    }
@@ -974,7 +974,7 @@
    }
    
    AccessToken.prototype.getSessionData = function(){       // gets session data from redirection url
-         console.log('in getSessionData') 
+         console.log('in getSessionData')
          if(!this.redirectionUrlParsed); 
           this.parseRedirectionUrl(window.location.href); // parse data from url 
          
@@ -1015,7 +1015,7 @@
          var setOAuthLeg = function(args) {              // set oauth leg params as url (query) params
          
             this.setUserParams(args);                             // parse user suplied params
-            this.checkUserParams();                               // check the ones we need
+            this.checkUserParams(this.name);                      // check the ones we need for this leg
             this.setNonUserParams();                              // set calculated params
          
             this.OAuthParams('add', this.oauth, this.legParams);  // add oauth params for this leg
