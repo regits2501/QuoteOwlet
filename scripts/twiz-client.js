@@ -280,7 +280,7 @@
 
        this.CustomError = function(name){// uses built-in Error func to make custom err info
 
-          var err = Error(this.messages['name']);      // take message text
+          var err = Error(this.messages[name]);      // take message text
           err['name'] = name;                          // set error name
           return err; 
        }
@@ -1119,16 +1119,24 @@
           
            console.log('in setVErifyCredentials')
            var credentialOptions = {
-             path: 'account/verify_credentials.json',
-             method: 'GET',
-             params:'',       // server code adds parameter for this request
-             paramsEncoded:'' 
+              options:{
+                 path: 'account/verify_credentials.json',
+                 method: 'GET',
+                 params:{               // avalable params for this api endpoint (server decides which are used)
+                   include_entities: false,
+                   skip_status: true,
+                   include_email: true
+                 },
+                 paramsEncoded:'' 
+             }
            }
         
            Object.getOwnPropertyNames(this.oauth)
            .forEach(function(el){ if(!/^oauth/.test(el)) delete this[el] }, this.oauth) // delete any leftover 
                                                                                         // UserOptions.params
-           this.UserOptions = credentialOptions;                  // UserOptions are now credential options
+           this.setUserParams(credentialOptions); // use this function to set userParams;          
+           
+           this.oauth = this.OAuthParams('add', this.UserOptions.params, this.oauth);  // add params to oauth
            this.addQueryParams('ver', this.UserOptions);          // set t
 
         }.bind(requestTokenLeg)
