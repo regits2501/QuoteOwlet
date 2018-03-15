@@ -648,6 +648,9 @@
    OAuth.prototype.genHeaderString = function(){
       var a = [];
        
+      Object.getOwnPropertyNames(this.oauth)
+      .forEach(function(el){ if(!/^oauth/.test(el)) delete this[el] }, this.oauth) // delete non oauth params
+      
       for(var name in this.oauth){
           a.push(name);
       }
@@ -746,15 +749,15 @@
    
    Redirect.prototype.deliverData = function(resolve, obj){ // delivers data to user by promise or
                                                                         // by callback function
-     console.log('in deliverData, obj:', obj)
+      console.log('in deliverData, obj:', obj);
       if(resolve){ console.log('has promise')
-          resolve(obj);
-          return;
+         resolve(obj);
+         return;
       }
       
       if(this.callback_func) {             // when no promise is avalable invoke callback
-          this.callback_func(obj);
-          return;
+         this.callback_func(obj);
+         return;
       }
                                        
       throw this.CustomError('noCallbackFunc'); // raise error when there is no promise or callback present                      
@@ -1118,8 +1121,8 @@
         requestTokenLeg.phases.other = function setVerifyCredentials(){             
           
            console.log('in setVErifyCredentials')
-           var credentialOptions = {
-              options:{
+           var credentialOptions = {                    // verify credential(access token) options
+              options:{ 
                  path: 'account/verify_credentials.json',
                  method: 'GET',
                  params:{               // avalable params for this api endpoint (server decides which are used)
@@ -1131,13 +1134,10 @@
              }
            }
         
-           Object.getOwnPropertyNames(this.oauth)
-           .forEach(function(el){ if(!/^oauth/.test(el)) delete this[el] }, this.oauth) // delete any leftover 
-                                                                                        // UserOptions.params
            this.setUserParams(credentialOptions); // use this function to set userParams;          
            
            this.oauth = this.OAuthParams('add', this.UserOptions.params, this.oauth);  // add params to oauth
-           this.addQueryParams('ver', this.UserOptions);          // set t
+           this.addQueryParams('ver', this.UserOptions);          // add query params for this phase
 
         }.bind(requestTokenLeg)
         
@@ -1156,7 +1156,7 @@
         return requestTokenLeg;       
      }  
 
-     this.AccessTokenLeg = function() {  
+     this.AccessTokenLeg = function(){  
 
         var accessTokenLeg = buildOAuthLeg(AccessToken);
         accessTokenLeg.specificAction = function(){
@@ -1171,9 +1171,9 @@
 
            this.deliverData(resolve, { 'error': error, 'data': sentData });    // delivers data to user     
 
-       }
+        }
 
-       return  accessTokenLeg;
+        return  accessTokenLeg;
      }
       
          

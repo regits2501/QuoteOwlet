@@ -248,7 +248,7 @@
       addEvent(document.getElementsByClassName("twitterButton")[0], "click", function authenticate(){
                 
            console.log("Taking this data: ====",textContent(quoteData.quoteEl), textContent(quoteData.authorEl))
-              var options = {      "server_url": 'https://quoteowlet.herokuapp.com',//'http://localhost:5000'
+              var options = {      "server_url":'http://localhost:5000' ,//'https://quoteowlet.herokuapp.com'
                                    "redirection_url":"https://gits2501.github.io/QuoteOwlet/index.html",// "https://gits2501.github.io/QuoteOwlet/pages/tweeting.html"
      
                                     "session_data": { // redirection data
@@ -265,7 +265,7 @@
                                         'features':'resizable=yes,height=613,width=400,left=400,top=300'
                                      }, */ 
                                      'options':{ 
-                                        'method': 'POST',           // GET
+                                        'method': 'POST',               // GET
                                         'path': 'statuses/update.json', // users/search.json
                                         'params':{
                                           
