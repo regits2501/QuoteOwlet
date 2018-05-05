@@ -67,7 +67,7 @@
          this.phases.api();                  // add parameters for api call (call after 3-leg dance) as url para
          if(this.phases.other) this.phases.other();     // add any other parameters as url params
          
-         console.log('leg: ', this.name)
+         console.log('leg ', this.name)
          console.log('this.phases: ', this.phases);
          this.send(this.options, this.callback.bind(this, resolve)); // send request to server
       }
@@ -97,7 +97,6 @@
 
      
      this.flow = function(args){ // Authorizes redirection and continues OAuth flow (all 3 legs are hit) 
-         console.log('in flow ____') 
          if(Promise)
            return this.promised(args, this.AccessTokenLeg());  // promisify access token step
 
