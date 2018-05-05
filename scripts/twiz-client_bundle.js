@@ -314,11 +314,11 @@ var deliverData = require('twiz-client-redirect').prototype.deliverData;
    
    AccessToken.prototype.authorize = function(sent){ // check that sent data from redirection url has needed info
      
+       console.log('in authorize');
       if(this.isRequestTokenUsed(window.localStorage))          
         throw this.CustomError('noRepeat');
       
-
-       console.log('in authorize')
+      console.log('post noRepeat')
       if(!sent.oauth_verifier) throw this.CustomError('verifierNotFound');
       if(!sent.oauth_token)    throw this.CustomError('tokenNotFound');
 
