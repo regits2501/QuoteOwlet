@@ -252,14 +252,14 @@ var deliverData = require('twiz-client-redirect').prototype.deliverData;
    }
 
    AccessToken.prototype.parseRedirectionUrl = function(url){ // parses data in url 
-      // console.log('in parseRedirectionUrl');
+      console.log('in parseRedirectionUrl');
 
       var str = this.parse(url, /\?/g, /#/g);              // parses query string
       this.redirectionData = this.parseQueryParams(str);   // parse parameters from query string
 
       this.redirectionUrlParsed = true;                    // indicate that the url was already parsed  
       
-      // console.log(this.redirectionData.twiz_);
+      console.log('redirectionData: >>', this.redirectionData);
    }
 
    AccessToken.prototype.parse = function(str, delimiter1, delimiter2){ // parses substring of a string (str) 
