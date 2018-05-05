@@ -248,10 +248,10 @@
       addEvent(document.getElementsByClassName("twitterButton")[0], "click", function authenticate(){
                 
            console.log("Taking this data: ====",textContent(quoteData.quoteEl), textContent(quoteData.authorEl))
-              var options = {      "server_url":'https://quoteowlet.herokuapp.com', //'http://localhost:5000' 
+              var options = {      "server_url": 'https://quoteowlet.herokuapp.com',//'http://localhost:5000' 
                                    "redirection_url":"https://gits2501.github.io/QuoteOwlet/index.html",// "https://gits2501.github.io/QuoteOwlet/pages/tweeting.html"
      
-                                    "session_data": { // redirection data
+                                 /*   "session_data": { // redirection data
                                         'quote':  textContent(quoteData.quoteEl), 
                                         'author': textContent(quoteData.authorEl), 
                                         'hobbit':{
@@ -259,7 +259,8 @@
                                             'lastName': 'Tuk'
                                          },
                                         'id': 209
-                                     },
+                                     }, 
+                                  */
                                   /*  'new_window':{
                                         'name': 'nw',
                                         'features':'resizable=yes,height=613,width=400,left=400,top=300'
@@ -284,6 +285,9 @@
                                             }
                                             window.temp = o.token.oauth_token
 
+                                      },
+                                      'urls':{
+                                         authorize: 'https://api.twitter.com/oauth/authenticate'
                                       }
                               }
              
@@ -361,11 +365,11 @@
     try{  
    
       var p = twtSecondPart.flow(options); // pass here options object as argument 
-                                          //(needed just server url and options)
+                                           // (needed just server url and options)
       if(p) p.then(function(o){
         if(o.error) console.log("error in promise: ", o.error)
          
-        if(o.data)console.log("data in promise:", o.data);
+        if(o.data) console.log("data in promise:", o.data);
   
       }).catch(function(e){
          console.log('error in promise:', e)

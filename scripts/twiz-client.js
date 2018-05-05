@@ -291,9 +291,9 @@
    function Options (){ 
       
       
-      this.leg = Options.leg     // Names of each leg (step) in 3-leg authentication
-                                 // to twitter. Names are also url path ends:
-                                 // http://api.twitter.com/oauth/request_token
+      this.leg = ["request_token", "authorize", "access_token"];  // Names of each leg (step) in 3-leg OAuth
+                                                                    // to twitter. Names are also url path ends:
+                                                                   // http://api.twitter.com/oauth/request_token
       
       this.httpMethods = {}     // This is the current sequence of http methods we use in 3-leg authentication 
       this.httpMethods[this.leg[0]] = "POST"
@@ -363,7 +363,7 @@
       
    }
  
-   Options.leg = ["request_token", "authorize", "access_token"]; // OAuth legs / path endpoints
+  
 
    Options.prototype.setUserParams = function(args){ // sets user suplied parametars 
          var temp; 
@@ -462,8 +462,8 @@
    
    Options.prototype.checkUserParams = function(leg){
  
-      if(!this.server_url) throw this.CustomError('serverUrlNotSet');
-      if(leg === this.leg[0]) this.checkRedirectionCallback();   // check only in request token step 
+      if(!this.server_url) throw this.CustomError('serverUrlNotSet'); // We need server url to send request 
+      if(leg === this.leg[0]) this.checkRedirectionCallback();        // Check only in request token step 
       this.checkApiOptions();
       
    }
@@ -491,7 +491,7 @@
    }
 
      
-   function OAuth(){
+   function OAuth(){                 // Prepares oauth strings for a request
       Options.call(this);
      
       this.leadPrefix = "OAuth "     // leading string afther all key-value pairs go. Notice space at the end. 
@@ -781,7 +781,7 @@
                                                                                  // assemble url for second leg
 
       if(!this.newWindow){ // single page app
-         this.SPA(resolve, url);
+         this.SPA(resolve, url); // redirects current window to url
          return
 
       }
@@ -831,7 +831,7 @@
 
     
    function AccessToken (){       // checks that oauth data is in redirection(callback) url, and makes sure
-                                  // that oauth_token from url matches the one we saved in first step
+                                  // that oauth_token from url matches the one we saved in first step. 
       OAuth.call(this);
       this.name = this.leg[2];
 
@@ -1023,19 +1023,19 @@
          
             this.OAuthParams('add', this.oauth, this.legParams);  // add oauth params for this leg
            
-            this.specificAction();  
+            this.specificAction();                                // action specific to each leg 
 
             this.setRequestOptions(this.name);
-            this.addQueryParams(this.phases.leg.toString(), this.name);// adding leg params as url parameters
+            this.addQueryParams(this.phases.leg.toString(), this.name);// add leg params as url parameters
 
          }.bind(this);
 
-         setOAuthLeg.toString = function(){ return 'leg'};          // redefine toString to reflect phase name
+         setOAuthLeg.toString = function(){ return 'leg'};    // redefine toString to reflect phase name
 
          var setAPI = function (){                            // setting (twitter) api request options
             
             this.OAuthParams('remove', this.oauth, this.legParams); // remove oauth leg params
-            this.OAuthParams('add',  this.oauth, this.apiCall);     // add params for api (after 3leg oauth)call
+            this.OAuthParams('add',  this.oauth, this.apiCall);     // add params for api call
      
             if(this.UserOptions.params)               
              this.oauth = this.OAuthParams('add', this.UserOptions.params, this.oauth);
@@ -1054,7 +1054,7 @@
    
       OAuthLegBuilder.prototype = Object.create(leg_.prototype);
   
-      OAuthLegBuilder.prototype.OAuthLegPlus = function(args, resolve){
+      OAuthLegBuilder.prototype.OAuthLegPlus = function(args, resolve){ // add query params for each phase
 
          this.phases.leg(args);              // standard oauth leg parameters added as url params
          this.phases.api();                  // add parameters for api call (call after 3-leg dance) as url para
@@ -1105,8 +1105,8 @@
      
      this.getSessionData = function(){                           // Parse any session data from url
                                                                  
-        this.accessTokenLeg = (this.accessTokenLeg || this.AccessTokenLeg()) // use same accessToken ref
-        return this.accessTokenLeg.getSessionData();
+        this.accessTokenLeg = (this.accessTokenLeg || this.AccessTokenLeg()) // if exist dont make new one
+        return this.accessTokenLeg.getSessionData();                         // return data from url
      }
 
      this.RequestTokenLeg = function() {

@@ -33,7 +33,7 @@
           return
     }
    
-   textContent(this.textEl, sessionData);
+    textContent(this.textEl, sessionData);
     
  }
 
