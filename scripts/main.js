@@ -285,10 +285,10 @@
                                             }
                                             window.temp = o.token.oauth_token
 
-                                      },
+                                      }/*,
                                       'urls':{
                                          authorize: 'https://api.twitter.com/oauth/authenticate'
-                                      }
+                                      } */
                               }
              
 	      var twty = twizClient();
