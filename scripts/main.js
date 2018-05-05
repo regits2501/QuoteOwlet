@@ -240,8 +240,10 @@
   quoteData.setQuoteData = function(sessionData){  
         console.log("sessionData ====== ", sessionData),
         console.log("this.quoteEl: ", this.quoteEl);            
-     textContent(this.quoteEl, sessionData.quote);
-     textContent(this.authorEl, sessionData.author);
+     if(sessionData){
+         textContent(this.quoteEl, sessionData.quote);
+         textContent(this.authorEl, sessionData.author);
+     }
   }
   
   whenPageReady( function(){  // on click authenticate to twitter
