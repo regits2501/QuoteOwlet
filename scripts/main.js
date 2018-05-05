@@ -253,7 +253,7 @@
               var options = {      "server_url": 'https://quoteowlet.herokuapp.com',//'http://localhost:5000' 
                                    "redirection_url":"https://gits2501.github.io/QuoteOwlet/index.html",// "https://gits2501.github.io/QuoteOwlet/pages/tweeting.html"
      
-                                 /*   "session_data": { // redirection data
+                                    "session_data": { // redirection data
                                         'quote':  textContent(quoteData.quoteEl), 
                                         'author': textContent(quoteData.authorEl), 
                                         'hobbit':{
@@ -262,8 +262,8 @@
                                          },
                                         'id': 209
                                      }, 
-                                  */
-                                  /*  'new_window':{
+                                     /*
+                                     'new_window':{
                                         'name': 'nw',
                                         'features':'resizable=yes,height=613,width=400,left=400,top=300'
                                      }, */ 
