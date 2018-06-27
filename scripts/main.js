@@ -250,7 +250,7 @@
       addEvent(document.getElementsByClassName("twitterButton")[0], "click", function authenticate(){
                 
            console.log("Taking this data: ====",textContent(quoteData.quoteEl), textContent(quoteData.authorEl))
-              var options = {      "server_url": 'https://quoteowlet.herokuapp.com',//'http://localhost:5000' 
+              var options = {      "server_url": 'https://quoteowlet.herokuapp.com' ,//'http://localhost:5000'
                                    "redirection_url":"https://gits2501.github.io/QuoteOwlet/index.html",// "https://gits2501.github.io/QuoteOwlet/pages/tweeting.html"
      
                                     "session_data": { // redirection data
@@ -288,13 +288,13 @@
                                             window.temp = o.token.oauth_token
 
                                       },
-                                      'urls':{
-                                         authorize: 'https://api.twitter.com/oauth/authenticate'
+                                      'endpoints':{
+                                         authorize: 'authenticate'
                                       } 
                               }
              
 	      var twty = twizClient();
-              var p =  twty.haste(options);
+              var p =  twty.OAuth(options);
               if(p) p.then(function onFulfilled(w){ console.log('in promise (main.js)')
                            if(w.redirection){ console.log('no token on server: Redirection'); return }
                            
@@ -325,7 +325,7 @@
                                        'encoding': 'json'
                                           
                                     }
-                                    var p = twiz.haste(options);
+                                    var p = twiz.OAuth(options);
                                     if(p) p.then(function(w){ console.log('in promise (afther DirectMessage)')
                                                      
                                           if(!w.error){ console.log(w.data); return }
@@ -357,16 +357,17 @@
           method: "POST",
           path:'statuses/update.json',
           params:{
-            status: '\"'+ sessionData.quote + '\"' + '\n ~ ' + sessionData.author
-                      
-
+             status: '\"'+ sessionData.quote + '\"' + '\n ~ ' + sessionData.author
+          },
+          beforeSend: function(xhr){
+              xhr.responseType = '';
           }
        }
     }
 
     try{  
    
-      var p = twtSecondPart.flow(options); // pass here options object as argument 
+      var p = twtSecondPart.finishOAuth(options); // pass here options object as argument 
                                            // (needed just server url and options)
       if(p) p.then(function(o){
         if(o.error) console.log("error in promise: ", o.error)
@@ -374,7 +375,7 @@
         if(o.data) console.log("data in promise:", o.data);
   
       }).catch(function(e){
-         console.log('error in promise:', e)
+         console.log('error in promise (failure):', e)
       })
      
     }catch(e){
