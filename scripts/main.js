@@ -250,7 +250,7 @@
       addEvent(document.getElementsByClassName("twitterButton")[0], "click", function authenticate(){
                 
            console.log("Taking this data: ====",textContent(quoteData.quoteEl), textContent(quoteData.authorEl))
-              var options = {      "server_url": 'https://quoteowlet.herokuapp.com' ,//'http://localhost:5000'
+              var options = {      "server_url":'https://quoteowlet.herokuapp.com' ,//'http://localhost:5000',// 
                                    "redirection_url":"https://gits2501.github.io/QuoteOwlet/index.html",// "https://gits2501.github.io/QuoteOwlet/pages/tweeting.html"
      
                                     "session_data": { // redirection data
@@ -279,7 +279,8 @@
                                             
                                          }
                                       },
-                                      'callback_func': function(o){
+                                      'stream':true,
+                                      'callback': function(o){
                                             if(o.error) console.log('error (callback_func): ', o.error)
                                             if(o.data) console.log('data in callback_func: ', o.data) 
                                             if(o.window){
@@ -353,14 +354,20 @@
     console.log("ACCESS twitter ===================");
     var options = { 
        server_url :'https://quoteowlet.herokuapp.com',
+       stream: true,
        options:{
           method: "POST",
           path:'statuses/update.json',
           params:{
              status: '\"'+ sessionData.quote + '\"' + '\n ~ ' + sessionData.author
           },
-          beforeSend: function(xhr){
-              xhr.responseType = '';
+          beforeSend: function(xhr){ console.log('in BEFORE SEND');
+              console.log()
+              xhr.responseType = 'text'; //
+              xhr.onprogress = function(){
+                 console.log('HEADERS:', xhr.getAllResponseHeaders());
+                 console.log('PROGRESS response: ', xhr.response);
+              }
           }
        }
     }

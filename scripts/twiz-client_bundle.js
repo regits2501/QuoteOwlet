@@ -500,11 +500,14 @@ else btoa = require('btoa');         // in node require node implementation of b
                     }
                  } 
                break;
-               case 'callback_func':    // user supplied callback function (called if Promise is not available)
+               case 'callback':    // user supplied callback function (called if Promise is not available)
                  this.callback_func = temp;
                break;
                case "session_data":
                  this.session_data = temp;
+               break;
+               case "stream":
+                 this.options.queryParams.stream = temp;   // set stream indication in query params
                break;
                case "options":          // twitter request options
                  for (var opt in temp){
@@ -852,11 +855,11 @@ var request = (function(){
        var err; 
        var data;
        var temp;
-
-       if(!contentType) throw this.CustomError('noContentType'); // will be thrown after browser CORS error
+                        // make this error ASYNC
+       if(!contentType) throw this.throwAsyncError(this.CustomError('noContentType')); // will be thrown after browser CORS error
        contentType = contentType.split(';')[0];            // get just type , in case there is charset specified 
 
-       //console.log('content-type: ', contentType)
+       console.log('Content-Type: ', contentType);
        switch(contentType){              // parse data as indicated in contentType header 
            case "application/json":   
               try{ // console.log('content-type is application/json')
