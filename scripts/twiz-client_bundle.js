@@ -177,7 +177,7 @@ var deliverData = require('twiz-client-redirect').prototype.deliverData;
    module.exports = AccessToken;
 
 
-},{"twiz-client-oauth":2,"twiz-client-redirect":4}],2:[function(require,module,exports){
+},{"twiz-client-oauth":2,"twiz-client-redirect":5}],2:[function(require,module,exports){
 var Options       = require('twiz-client-options');
 var percentEncode = require('twiz-client-utils').percentEncode;
 var formEncode    = require('twiz-client-utils').formEncode; 
@@ -386,7 +386,87 @@ else btoa = require('btoa');         // in node require node implementation of b
 
    module.exports = OAuth;
 
-},{"btoa":undefined,"twiz-client-options":3,"twiz-client-utils":7}],3:[function(require,module,exports){
+},{"btoa":undefined,"twiz-client-options":4,"twiz-client-utils":8}],3:[function(require,module,exports){
+'use strict'
+ 
+   function percentEncode(str){                                     // percent encode by RFC3986
+   
+      return encodeURIComponent(str).replace(/[!'()*]/g, function(c){ // percent encodes unsafe chars, then
+                                                                     // it follows RFC3986 and percent encodes
+                                                                     // reserved characters in sqere brackets.
+         return '%' + c.charCodeAt(0).toString(16);   // takes binary representation of every reserved char
+                                                      // , coverts it to hex string char and appends to "%".
+      });
+ 
+   }
+
+   function formEncode(dataObj, spaces){ // form encodes an object (optionaly changes '+' for '%20')
+       var pairs = [];
+       var value;
+       var key;
+       var type;
+        for(var name in dataObj){
+            type = typeof dataObj[name];
+             if(dataObj.hasOwnProperty(name) && type !== "function" && dataObj[name] !== "null"){ // only props 
+                                                                                           // in dataObj 
+                  key = percentEncode(name);   // encode property name
+
+                  if(type === 'object'){                         
+                     value = formEncode(dataObj[name], spaces); // form encode object
+                     value = percentEncode(value)          // since return value is string, percent encode it
+                  }                      
+                  else value = percentEncode(dataObj[name]) // property is not object, percent encode it
+                  
+                  if(!spaces){
+                     key = key.replace(/%20/g, "+") 
+                     value = value.replace(/%20/g, "+"); // substitute space encoding for +
+                  }
+                 
+                  pairs.push(key + "=" + value)                 
+             }
+        }
+
+      return pairs.join("&");
+  } 
+
+  
+  function CustomError(){
+       
+       this.messages = {}; // error messages place holder    
+   
+       
+       this.addCustomErrors = function (errors){  // add custom error messages
+ 
+          Object.getOwnPropertyNames(errors).map(function(name){
+     
+            this.messages[name] = errors[name];
+          },this)
+       }
+
+       this.CustomError = function(name){// uses built-in Error func to make custom err info
+
+          var err = Error(this.messages[name]);      // take message text
+          err['name'] = name;                          // set error name
+          return err; 
+       }
+
+
+   }
+  
+   function throwAsyncError (error){
+           if(Promise) return this.reject(error);  // if we have promise use reject for async Errors
+           
+           throw error;                            // otherways just throw it
+   }
+
+   module.exports = {
+      'percentEncode':   percentEncode,
+      'formEncode':      formEncode,
+      'CustomError':     CustomError,
+      'throwAsyncError': throwAsyncError
+   }
+
+},{}],4:[function(require,module,exports){
  var utils = require('twiz-client-utils');
    
    var formEncode    = utils.formEncode;
@@ -455,7 +535,9 @@ else btoa = require('btoa');         // in node require node implementation of b
       this.options.encoding = '';
       this.options.beforeSend = '';
       this.options.callback = '';      // Callback function
+      this.options.chunked = '';
       this.options.parse = true ;      // if json string, parse it
+      
 
       CustomError.call(this);          // add CustomError feature
       this.addCustomErrors( {          // set errors for this module
@@ -489,14 +571,16 @@ else btoa = require('btoa');         // in node require node implementation of b
                case "new_window":      // object that holds properties for making new window(tab/popup)
                  this.newWindow = {};
                  for(var data in temp){
-                    if(temp.hasOwnProperty(data))
-                    switch(data){
-                       case "name":
-                         this.newWindow[data] = temp[data];
-                       break;
-                       case "features":
-                         this.newWindow[data] = temp[data];
-                       break;
+                    /* istanbul ignore else */
+                    if(temp.hasOwnProperty(data)){
+                      switch(data){
+                         case "name":
+                           this.newWindow[data] = temp[data];
+                         break;
+                         case "features":
+                           this.newWindow[data] = temp[data];
+                         break;
+                      }
                     }
                  } 
                break;
@@ -528,8 +612,11 @@ else btoa = require('btoa');         // in node require node implementation of b
                        case "encoding":
                           this.UserOptions[opt] = temp[opt];          
                        break; 
-                       case 'beforeSend':
+                       case "beforeSend":
                            this.UserOptions[opt] = temp[opt]; 
+                       break;
+                       case "chunked":
+                           this.UserOptions[opt] = temp[opt];
                        break;
                     } 
                  }
@@ -585,12 +672,13 @@ else btoa = require('btoa');         // in node require node implementation of b
       this.options.body       = this.UserOptions.body;      // api call have a body, oauth dance requires no body
       this.options.encoding   = this.UserOptions.encoding;  // encoding of a body
       this.options.beforeSend = this.UserOptions.beforeSend;// manipulates request before it is sent
+      this.options.chunked    = this.UserOptions.chunked;   // indicates chunk by chunk stream consuming
    }
    
    module.exports = Options;
 
 
-},{"twiz-client-utils":7}],4:[function(require,module,exports){
+},{"twiz-client-utils":3}],5:[function(require,module,exports){
 var CustomError     = require('twiz-client-utils').CustomError;
 var throwAsyncError = require('twiz-client-utils').throwAsyncError;
    
@@ -620,7 +708,6 @@ var throwAsyncError = require('twiz-client-utils').throwAsyncError;
       this.res = res;                        // save response reference
       //  console.log('|redirection res|:', res.data || 'no data')
       if(res.error || !res.data.oauth_token){ // on response error or on valid data deliver it to user 
-      
          this.deliverData(resolve, res);
          return;
       }
@@ -632,19 +719,16 @@ var throwAsyncError = require('twiz-client-utils').throwAsyncError;
    
    Redirect.prototype.deliverData = function(resolve, res){ // delivers data to user by promise or
                                                             // by callback function
-                                                    // console.log('in deliverData, obj:', obj);
-   
-      //console.log('|responce|delvr:', resolve); 
       if(resolve){                                  // console.log('has promise')
          resolve(res);
          return;
       }
-      
+
       if(this.callback_func) {             // when no promise is avalable invoke callback
          this.callback_func(res);
          return;
       }
-
+   
       this.throwAsyncError(this.CustomError('noCallbackFunc')); // raise error when there is no promise or
                                                                 // callback present
    }
@@ -652,7 +736,7 @@ var throwAsyncError = require('twiz-client-utils').throwAsyncError;
    Redirect.prototype.throwAsyncError = throwAsyncError;        // promise (async) aware error throwing
 
    Redirect.prototype.confirmCallback = function (sent){ // makes sure that twitter is ok with redirection url
-       //console.log('confirmed: +++ ',sent.oauth_callback_confirmed)
+      // console.log('confirmed: +++ ',sent.oauth_callback_confirmed)
       if(sent.oauth_callback_confirmed !== "true")
          this.throwAsyncError(this.CustomError('callbackURLnotConfirmed'));
    }
@@ -688,23 +772,23 @@ var throwAsyncError = require('twiz-client-utils').throwAsyncError;
       function redirectCurrentWindow(){ window.location = url; }// redirects window we are currently in (no popUp)
       
       this.res.redirection = true;  // since there is no newWindow reference indicate that redirection happens
+     
       if(resolve){                   // resolve promise
          resolve(this.res);          // resolve with response object
 
          Promise.resolve()             
-         .then(function(){          // redirect asap
-            redirectCurrentWindow() 
+         .then(function(){           // redirect asap
+            redirectCurrentWindow();
          })
          return;
       }
 
-      if(this.callback_func){     // when no promise call user callback func
-         this.callback_func(this.res);                                   // run callback with token
+      if(this.callback_func){                                    // when no promise call user callback func
+         this.callback_func(this.res);                           // run callback with token
          setTimeout(function(){ redirectCurrentWindow() }, 0) ;  // redirect asap
          return; 
       }
 
-      
       this.throwAsyncError(this.CustomError('noCallbackFunc')); // raise error when there is no promise or callback present
    }
 
@@ -717,18 +801,15 @@ var throwAsyncError = require('twiz-client-utils').throwAsyncError;
    
    }
 
-   Redirect.prototype.openWindow = function(){ // opens pop-up and puts in under current window
-      //console.log("==== POP-UP =====");
+   Redirect.prototype.openWindow = function(){ // opens pop-up and puts in current window reference
       this.newWindow.window = window.open('', this.newWindow.name, this.newWindow.features);
-      // console.log("this.newWindow: ", this.newWindow.window ); 
-
       return this.newWindow.window;
    }
 
    module.exports = Redirect;
 
 
-},{"twiz-client-utils":7}],5:[function(require,module,exports){
+},{"twiz-client-utils":8}],6:[function(require,module,exports){
 var CustomError     = require('twiz-client-utils').CustomError;
 var formEncode      = require('twiz-client-utils').formEncode;
 var throwAsyncError = require('twiz-client-utils').throwAsyncError;
@@ -744,8 +825,10 @@ var request = (function(){
       callbackNotProvided:"Callback function was not provided.",
       notJSON:            "Received data not in JSON format",
       encodingNotSupported:"Encoding you provided is not supported",
-      noContentType:       "Failed to get content-type header from response. Possible CORS restrictions.",
-      methodMustBePOST:    "If request has body, method must be POST"
+      noContentType:       "Failed to get content-type header from response. Possible CORS restrictions or header missing.",
+      methodMustBePOST:    "If request has body, method must be POST",
+      chunkedResponseWarning: 'Stream is consumed chunk by chunk in xhr.onprogress(..) callback'
+      
     });
 
     request.initRequest = function(args){ // Propertie names, in args object, that this function supports are:
@@ -781,7 +864,10 @@ var request = (function(){
             case "beforeSend":
               this.beforeSend = temp // For instance, if we need to set additonal request specific headers 
                                      // this.beforeSend is invoked before sending the request, but afther open()
-                                     // is called. Here we have created new property.
+                                     // is called. 
+            break;
+            case "chunked":
+              this.chunked = temp
             break;
             case "reject":           // For promise (async) error thrrowing
               this.reject = temp;
@@ -855,11 +941,16 @@ var request = (function(){
        var err; 
        var data;
        var temp;
-                        // make this error ASYNC
-       if(!contentType) throw this.throwAsyncError(this.CustomError('noContentType')); // will be thrown after browser CORS error
+                        
+       if(this.chunked){                                                    
+           this.throwAsyncError(this.CustomError('chunkedResponseWarning'))
+           return;
+       };
+
+       if(!contentType) throw this.throwAsyncError(this.CustomError('noContentType'));
        contentType = contentType.split(';')[0];            // get just type , in case there is charset specified 
 
-       console.log('Content-Type: ', contentType);
+       // console.log('Content-Type: ', contentType);
        switch(contentType){              // parse data as indicated in contentType header 
            case "application/json":   
               try{ // console.log('content-type is application/json')
@@ -903,7 +994,7 @@ var request = (function(){
        })              
 
     }
-
+        
     request.setHeader = function(header, value){     // set the request header 
        this.request.setRequestHeader(header, value);  
     };
@@ -948,7 +1039,7 @@ var request = (function(){
        
     };    
    
-    return function(args){  // modul returns this function as API
+    return function(args){  // can be plain function call or can be called with 'new' keyward
 
       var r = Object.create(request); // behavior delegation link
      
@@ -966,7 +1057,7 @@ var request = (function(){
 module.exports = request;
 
 
-},{"twiz-client-utils":7}],6:[function(require,module,exports){
+},{"twiz-client-utils":8}],7:[function(require,module,exports){
 var OAuth  = require('twiz-client-oauth');
 
    function RequestToken(){
@@ -978,7 +1069,7 @@ var OAuth  = require('twiz-client-oauth');
 
    module.exports = RequestToken;
 
-},{"twiz-client-oauth":2}],7:[function(require,module,exports){
+},{"twiz-client-oauth":2}],8:[function(require,module,exports){
 'use strict'
  
    function percentEncode(str){                                     // percent encode by RFC3986
@@ -1058,7 +1149,7 @@ var OAuth  = require('twiz-client-oauth');
       'throwAsyncError': throwAsyncError
    }
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 "use strict";
 (function() {
   'use strict'
@@ -1131,7 +1222,8 @@ var OAuth  = require('twiz-client-oauth');
 
          this.phases.leg(args);               // standard oauth leg parameters added as url params
          this.phases.api();                   // add parameters for api call (call after 3-leg dance) as url para
-         if(this.phases.other) this.phases.other();     // add any other parameters as url params
+         /* istanbul ignore else */
+         if(this.phases.other){ this.phases.other();}     // add any other parameters as url params
          
          //console.log('leg ', this.name)
          // console.log('this.phases: ', this.phases);
@@ -1271,4 +1363,4 @@ var OAuth  = require('twiz-client-oauth');
 
 
 
-},{"twiz-client-accesstoken":1,"twiz-client-redirect":4,"twiz-client-request":5,"twiz-client-requesttoken":6}]},{},[8]);
+},{"twiz-client-accesstoken":1,"twiz-client-redirect":5,"twiz-client-request":6,"twiz-client-requesttoken":7}]},{},[9]);
