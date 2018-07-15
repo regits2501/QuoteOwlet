@@ -354,21 +354,21 @@
     console.log("ACCESS twitter ===================");
     var options = { 
        server_url :'https://quoteowlet.herokuapp.com',
-       stream: true,
+     //  stream: true,
        options:{
           method: "POST",
           path:'statuses/update.json',
           params:{
              status: '\"'+ sessionData.quote + '\"' + '\n ~ ' + sessionData.author
-          },
-          beforeSend: function(xhr){ console.log('in BEFORE SEND');
+          }
+        /*  beforeSend: function(xhr){ console.log('in BEFORE SEND');
               console.log()
               xhr.responseType = 'text'; //
               xhr.onprogress = function(){
                  console.log('HEADERS:', xhr.getAllResponseHeaders());
                  console.log('PROGRESS response: ', xhr.response);
               }
-          }
+          } */
        }
     }
 
