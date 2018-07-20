@@ -1,12 +1,13 @@
-
+/*
 @font-face {
   font-family: "Chalky"; 
   src: url('font/fishchips-regular-webfont.ttf') format("truetype"), 
        url('font/fishchips-regular-webfont.woff') format("woff"),
        url('font/fishchips-regular-webfont.woff2') format("woff2"),
-       url('font/fishchips-regular-webfont.eot'), /*(IE compatibility mode)*/
-       url('font/fishchips-regular-webfont.eot?#iefix') format("embedded-opentype"); /* support IE6-8 */
+       url('font/fishchips-regular-webfont.eot'), (IE compatibility mode)
+       url('font/fishchips-regular-webfont.eot?#iefix') format("embedded-opentype");  support IE6-8 
 }
+*/
 
 @font-face{
   font-family:"DejaVUSerif";
