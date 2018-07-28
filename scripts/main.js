@@ -13,8 +13,59 @@
   var styleRulesMgr = require(["styleRulesMgr"]).styleRulesMgr;
   var addPrefAnimEvent = require(["addPrefixedAnimationEvent"]).addPrefixedAnimationEvent;
   var byteLength = require(["byteLength"]).byteLength;
- // var twizClient() = require(["twizClient()"]).twizClient(); // twizClient() is renamed to twizClient() in separete repo 
   var quoter = {}; // Object that handles getting data from server and showing it on page
+
+ //// no owlet flying animation on redirections /////
+ var leftWing  = Object.create(cssClassMgr);
+ var rightWing = Object.create(cssClassMgr);
+ var owlet     = Object.create(cssClassMgr);
+ 
+  
+ var mainStyleSheet = styleRulesMgr(); // Instance of object that handles  css style rules of particular 
+ 
+ whenPageReady(function removeOwletsAnimation(){
+    
+                                       // css style sheet. It uses css selector sintax to select rules.
+    mainStyleSheet.initStyleSheet();
+    // var isRedirection = twizlent.getSessionData().redir // set this prop to session data in args
+
+    leftWing.initClass("left");  // Elements that have "left" and "right" class names
+    rightWing.initClass("right");
+    owlet.initClass('owletCont');
+
+    leftWing.removeClass('lwAnimation')   // remove wing animations
+    leftWing.addClass('wingsRedir')       // add css for redirection pages (wings position not for flight)
+
+    
+    rightWing.removeClass('rwAnimation');     // remove wing animations
+    rightWing.addClass('wingsRedir');      //  add css for redirection pages (wings position not for flight) 
+
+    owlet.removeClass('owletCont')        // removes 'page glide' animation in cross browser way
+    owlet.addClass('owletContRedir')      // add just css with no page glide animation
+ 
+ })
+
+ whenPageReady(function(){
+  // should add class that changes look of button and sets new src image to checkmark.svg
+        var btnCss = Object.create(cssClassMgr);
+        btnCss.initClass('twitterButton');
+        var btn = document.getElementsByClassName('twitterButton')[0];
+
+    setTimeout(function(){ 
+        
+         btnCss.addClass('tweetOk'); 
+         console.log('btn.src: ',btn.src)
+         btn.src = 'file:///home/p2501/Locals/RandomQuotesMachine/images/checkmark.svg'
+
+         setTimeout(function(){
+            btnCss.removeClass('tweetOk');
+            btn.src = 'images/twitterLogo.svg'
+         },3201)
+    },1000);
+
+ })
+ ////////////
+
 
   quoter.messages = {
       noQuoteInArray: "There is no quote in array."
@@ -136,10 +187,7 @@
   whenPageReady(changeOwletsCssOnClick); // when dom ready set click event handler on element with class "owlet".
 
 ////////// left and right wings animation fix (cross browser)////////
- var leftWingClass = Object.create(cssClassMgr);
- var rightWingClass = Object.create(cssClassMgr);
- var mainStyleSheet = styleRulesMgr(); // Instance of object that handles  css style rules of particular 
-                                       // css style sheet. It uses css selector sintax to select rules.
+
 
  function removeWingAnimationsOnEnd(){ // Removes css animations we used for owlets wingsFlap, tuckWing
                                        // and wingRadiate, after last animation(wingRadiate) in sequence ends.
@@ -147,22 +195,22 @@
     
      mainStyleSheet.initStyleSheet();  // If no argument it defaults to first stylesheet for document
 
-     leftWingClass.initClass("left");  // Elements that have "left" and "right" class names
-     rightWingClass.initClass("right");
+     leftWing.initClass("left");  // Elements that have "left" and "right" class names
+     rightWing.initClass("right");
 
-     addPrefAnimEvent(leftWingClass.el, "AnimationEnd", function(handle){ 
+     addPrefAnimEvent(leftWing.el, "AnimationEnd", function(handle){ 
        setTimeout(function(){
          if(handle.animationName === "wingRadiate"){
            mainStyleSheet.addStyle(".left","line-height","1.3em");  
-           leftWingClass.removeClass.call(leftWingClass,"lwAnimation"); // "lwAnimation" is css class name 
+           leftWing.removeClass.call(leftWing,"lwAnimation"); // "lwAnimation" is css class name 
          }
        },100)                                                              // responsible for all 3 animations
      })
-     addPrefAnimEvent(rightWingClass.el, "animationend", function(handle){
+     addPrefAnimEvent(rightWing.el, "animationend", function(handle){
          setTimeout(function(){ 
           if(handle.animationName === "wingRadiate"){
             mainStyleSheet.addStyle(".right","line-height","1.3em");  
-            rightWingClass.removeClass.call(rightWingClass, "rwAnimation");
+            rightWing.removeClass.call(rightWing, "rwAnimation");
   	        }
          }, 100);
      })

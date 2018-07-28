@@ -1,13 +1,3 @@
-/*
-@font-face {
-  font-family: "Chalky"; 
-  src: url('font/fishchips-regular-webfont.ttf') format("truetype"), 
-       url('font/fishchips-regular-webfont.woff') format("woff"),
-       url('font/fishchips-regular-webfont.woff2') format("woff2"),
-       url('font/fishchips-regular-webfont.eot'), (IE compatibility mode)
-       url('font/fishchips-regular-webfont.eot?#iefix') format("embedded-opentype");  support IE6-8 
-}
-*/
 
 @font-face{
   font-family:"DejaVUSerif";
@@ -56,27 +46,13 @@ body{
    color:white;
 }
 
-.twittButton{
-   font-size: 1.5em;
-   margin-right: 4%;
-   border-radius: 8px;
-   width: 90px;
-   height: 40px;
-   border: 1px solid #193f41; 
-   line-height:35px;
-   text-align:center;
-   float:right;
-   color:white;
-   font-family:'Georgia', 'Arial';
+.img{
+
+   display: inline-block;
 }
-
-.scaleText {
-  
-}
-
-
 
 /*  index.html */
+
 .showQuote{
     font-size:3em;
     padding:0px 5px;
@@ -110,10 +86,11 @@ body{
    
 } 
 .twitterButton {
-    width:50px;
-    height:50px;
+    width:55px;
+    height:55px;
     border: solid white 0px;
     border-radius:5px;
+    display: inline-block;
 }
 .boxShadow{  
     box-shadow: 0 0px 2px 0 rgba(0, 0, 0, 0.2), 0 2px 5px 0 rgba(0, 0, 0, 0.19);
@@ -481,6 +458,7 @@ body{
 }
 
 
+
 @keyframes pageGlide{
   0%{
      transform: translate(-40px,150px) scale(0.7);
@@ -561,6 +539,43 @@ body{
    -o-animation: pageGlide 8.1s cubic-bezier(.61,-0.3,.71,.71); 
    animation: pageGlide 8.1s cubic-bezier(.61,-0.3,.71,.71); 
 }
+.owletContRedir{
+   display:inline-block;
+   position:relative; /* hook for positininig elements inside*/
+   right:-15%; /* moving it slitely to the right from normal position in page flow*/
+   top:20px;
+
+}
+.wingsRedir{          /* both wing css for twitter redirection urls*/
+   line-height:1.3em;
+}
+
+
+.tweetEpilog{
+  display: inline-block;
+  height: 55px;
+}
+
+.tweetOk{
+   animation: tweetOk 1.6s cubic-bezier(.61,-0.3,.71,.71) 0s 2 alternate forwards;
+}
+
+@keyframes tweetOk{
+   0%{
+      opacity:0; 
+      width:20px;
+      height:20px; 
+   } 
+   25%, 100%{
+       width:60px; 
+       height:60px;
+       box-shadow:none;
+       opacity:1;
+
+       background-color: #eee;
+   }
+   
+}
 
 @media (max-width:569px){
    
@@ -568,10 +583,16 @@ body{
      margin-left:7.5%;
      width:85%;
    }  
-  .owletCont{
+
+   .owletCont{
     transform: scale(0.9);
-  }
-  .showQuote{ /* 20% smaller font size */ 
+   }
+    
+   .owletContRedir{
+     transform: scale(0.9);
+   }
+
+   .showQuote{ /* 20% smaller font size */ 
       font-size: 2.4em;
    }
    .showAuthor{

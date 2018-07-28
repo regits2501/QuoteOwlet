@@ -143,7 +143,7 @@ if(typeof _pS_.modulMgr ==="object" && _pS_.modulMgr !== null){ // checking to s
       cssClassList.contains = function(clsName, pocket){ // Checks of for existance of class name,
                                                         // returns true or false
         if(clsName.length === 0 || clsName.indexOf(" ") != -1){// Throw error if its illegal css class name
-                throw new Error(this.messages.invalidClsName + " " + clsName);
+            throw new Error(this.messages.invalidClsName + " " + clsName);
         }
         if(this.e.className === clsName) return true; // Return true if its exact match
         
@@ -172,7 +172,7 @@ if(typeof _pS_.modulMgr ==="object" && _pS_.modulMgr !== null){ // checking to s
                                                                          //  trailing white space.
           console.log("to Remove: "+clsName); 
           if(this.contains(clsName)){ // on false this.contains() throws an error.
-                this.e.className = this.e.className.replace(pocket.regexpRm, "");
+               this.e.className = this.e.className.replace(pocket.regexpRm, "");
                console.log(this.e.className);
           }
           else console.log(this.messages.desntExistClsName + " " + clsName)
@@ -294,7 +294,7 @@ if(typeof _pS_.modulMgr ==="object" && _pS_.modulMgr !== null){ // checking to s
          return Object.create(cssEventMgr);
      }
  })
- mgr.define("styleRulesMgr",[], function(){
+ mgr.define("styleRulesMgr",[], function(){ // style sheet rules menager 
         
         var styleRulesUtils = {};  // object use css selector syntax to find rules
         styleRulesUtils.findRule = function(ruleName){ // returns rule object or undefined
@@ -310,7 +310,8 @@ if(typeof _pS_.modulMgr ==="object" && _pS_.modulMgr !== null){ // checking to s
               
          }
 
-        var styleRules = Object.create(styleRulesUtils);
+         var styleRules = Object.create(styleRulesUtils);
+
          styleRules.messages = {
               provideRuleName: "You must provide a rule name when calling this function.",
               invalidRuleName : "Rule name is invalid",
