@@ -8,7 +8,7 @@
   var textContent = require(["textContent"]).textContent; 
   var whenPageReady = require(["whenReady"]).whenReady;
   var addEvent = require(["addEvent"]).addEvent;
-  var cssClassMgr = require(['cssClassMgr']).cssClassMgr(); // adds, removes etc ... css classes for an element
+  var cssClassMgr = require(['cssClassMgr']).cssClassMgr(); // adds, removes css classes for an element
   var cssEventMgr = require(['cssEventMgr']).cssEventMgr;
   var styleRulesMgr = require(["styleRulesMgr"]).styleRulesMgr;
   var addPrefAnimEvent = require(["addPrefixedAnimationEvent"]).addPrefixedAnimationEvent;
@@ -21,49 +21,55 @@
  var owlet     = Object.create(cssClassMgr);
  
   
- var mainStyleSheet = styleRulesMgr(); // Instance of object that handles  css style rules of particular 
+ var mainStyleSheet = styleRulesMgr(); // Instance of object that handles css rules of a style sheet 
  
- whenPageReady(function removeOwletsAnimation(){
+ whenPageReady(function removeOwletsAnimation(){// remove owlets animation on redirection urls
     
-                                       // css style sheet. It uses css selector sintax to select rules.
-    mainStyleSheet.initStyleSheet();
-    // var isRedirection = twizlent.getSessionData().redir // set this prop to session data in args
+    if(!twizClient().getSessionData()) return;   // not redirection urls 
+
+                                   // css style sheet. It uses css selector sintax to select rules.
+    mainStyleSheet.initStyleSheet(); // initiate style sheet contenxt
 
     leftWing.initClass("left");  // Elements that have "left" and "right" class names
     rightWing.initClass("right");
     owlet.initClass('owletCont');
 
-    leftWing.removeClass('lwAnimation')   // remove wing animations
+    leftWing.removeClass('lwAnimation')   // remove left wing wing animations
     leftWing.addClass('wingsRedir')       // add css for redirection pages (wings position not for flight)
 
     
-    rightWing.removeClass('rwAnimation');     // remove wing animations
+    rightWing.removeClass('rwAnimation');     // remove right wing wing animations
     rightWing.addClass('wingsRedir');      //  add css for redirection pages (wings position not for flight) 
 
     owlet.removeClass('owletCont')        // removes 'page glide' animation in cross browser way
     owlet.addClass('owletContRedir')      // add just css with no page glide animation
  
  })
-
+ 
+// function twitterFailureText(){}
+/*
  whenPageReady(function(){
   // should add class that changes look of button and sets new src image to checkmark.svg
-        var btnCss = Object.create(cssClassMgr);
-        btnCss.initClass('twitterButton');
-        var btn = document.getElementsByClassName('twitterButton')[0];
-
+     var btnCss = Object.create(cssClassMgr);
+     btnCss.initClass('twitterButton');
+      
     setTimeout(function(){ 
-        
-         btnCss.addClass('tweetOk'); 
-         console.log('btn.src: ',btn.src)
-         btn.src = 'file:///home/p2501/Locals/RandomQuotesMachine/images/checkmark.svg'
+       btnCss.addClass('tweetOk'); // adds tweet Ok or tweet failure animation to btn
+       var btnEl = document.getElementsByClassName('twitterButton')[0];console.log('btnEl', btnEl)
+       btnEl.removeEventListener('click', oauth, false)
 
          setTimeout(function(){
-            btnCss.removeClass('tweetOk');
-            btn.src = 'images/twitterLogo.svg'
-         },3201)
-    },1000);
+           btnCss.removeClass('tweetOk');         // remove animation
+           addEvent(btnEl,'click', oauth);        // bring back oauth
 
+
+         
+
+         },3201) 
+    },1000);
+      
  })
+ */
  ////////////
 
 
@@ -293,41 +299,28 @@
          textContent(this.authorEl, sessionData.author);
      }
   }
-  
-  whenPageReady( function(){  // on click authenticate to twitter
-      addEvent(document.getElementsByClassName("twitterButton")[0], "click", function authenticate(){
+
+  function oauth(){
                 
            console.log("Taking this data: ====",textContent(quoteData.quoteEl), textContent(quoteData.authorEl))
               var options = {      "server_url":'https://quoteowlet.herokuapp.com' ,//'http://localhost:5000',// 
-                                   "redirection_url":"https://gits2501.github.io/QuoteOwlet/index.html",// "https://gits2501.github.io/QuoteOwlet/pages/tweeting.html"
+                                   "redirection_url":"https://gits2501.github.io/QuoteOwlet/index.html",
      
                                     "session_data": { // redirection data
                                         'quote':  textContent(quoteData.quoteEl), 
-                                        'author': textContent(quoteData.authorEl), 
-                                        'hobbit':{
-                                            'name': 'Peregrin',
-                                            'lastName': 'Tuk'
-                                         },
-                                        'id': 209
+                                        'author': textContent(quoteData.authorEl)
+                                        
                                      }, 
-                                     /*
-                                     'new_window':{
-                                        'name': 'nw',
-                                        'features':'resizable=yes,height=613,width=400,left=400,top=300'
-                                     }, */ 
                                      'options':{ 
                                         'method': 'POST',               // GET
                                         'path': 'statuses/update.json', // users/search.json
                                         'params':{
-                                          
-                                         // q:"DaiMokuroku"
                                            
-                                          status: '\"'+ textContent(document.querySelector('.showQuote')) +'\"'
+                                           status: '\"'+ textContent(document.querySelector('.showQuote')) +'\"'
                                                     +'\n ~ ' + textContent(document.querySelector('.showAuthor'))
-                                            
                                          }
                                       },
-                                      'stream':true,
+                                      
                                       'callback': function(o){
                                             if(o.error) console.log('error (callback_func): ', o.error)
                                             if(o.data) console.log('data in callback_func: ', o.data) 
@@ -344,100 +337,82 @@
              
 	      var twty = twizClient();
               var p =  twty.OAuth(options);
-              if(p) p.then(function onFulfilled(w){ console.log('in promise (main.js)')
+              if(p){ 
+                 p.then(function onFulfilled(w){ console.log('in promise (main.js)')
                            if(w.redirection){ console.log('no token on server: Redirection'); return }
-                           
                             console.log("Promised: ", w)
-
-                            if (!w.error && w.data){
-                               userID = w.data[0]['id_str']; 
-                               console.log('userID:', userID)
-                              return new Promise(function(res, rej){
-                                    var twiz = twizClient();
-                                    delete options.options.params;
-                                    options.options = {
-                                      'method': "POST", 
-                                      'path':'direct_messages/events/new.json',
-                                       'body': {
-                                                  "event": {
-                                                      "type": "message_create",
-                                                      "message_create": {
-                                                         "target": {
-                                                           "recipient_id": userID
-                                                         },
-                                                         "message_data": {
-                                                           "text": "Moshi hirakanto hossureba, mazu futa subeshi"
-                                                         }
-                                                      }
-                                                  }
-                                               },
-                                       'encoding': 'json'
-                                          
-                                    }
-                                    var p = twiz.OAuth(options);
-                                    if(p) p.then(function(w){ console.log('in promise (afther DirectMessage)')
-                                                     
-                                          if(!w.error){ console.log(w.data); return }
-
-                                          console.log('error posting direct mesage:', w.error);
                 
-                                    }, function(e){ conosle.log('error afther direct message:', e)})
-                              })
-                           }
-                          
-                      }
-                    ).catch(function(e){
-                        console.log('error in promise: ', e)
-                    })
-              else{ console.log('NO Promise available')
-                
+                 })
               }
-       })
-     
-  })
+     }
+  function Authenticate(){  // on click authenticate to twitter
+      addEvent(document.getElementsByClassName("twitterButton")[0], "click", oauth);
+ }
+ whenPageReady(Authenticate);
+
  whenPageReady(function(){            // when testing SPA case
-     var twtSecondPart = twizClient();
-     var sessionData = twtSecondPart.getSessionData();
+    var twtSecondPart = twizClient();
+    var sessionData = twtSecondPart.getSessionData();
     quoteData.setQuoteData.apply(quoteData, [sessionData]);
+    
     console.log("ACCESS twitter ===================");
+
     var options = { 
        server_url :'https://quoteowlet.herokuapp.com',
-     //  stream: true,
        options:{
           method: "POST",
           path:'statuses/update.json',
           params:{
              status: '\"'+ sessionData.quote + '\"' + '\n ~ ' + sessionData.author
           }
-        /*  beforeSend: function(xhr){ console.log('in BEFORE SEND');
-              console.log()
-              xhr.responseType = 'text'; //
-              xhr.onprogress = function(){
-                 console.log('HEADERS:', xhr.getAllResponseHeaders());
-                 console.log('PROGRESS response: ', xhr.response);
-              }
-          } */
        }
     }
 
     try{  
    
-      var p = twtSecondPart.finishOAuth(options); // pass here options object as argument 
-                                           // (needed just server url and options)
-      if(p) p.then(function(o){
-        if(o.error) console.log("error in promise: ", o.error)
+      var p = twtSecondPart.finishOAuth(options); // pass arguments 
+                                                  // (needed just server url and options)
+      if(p){
+        p.then(function(o){
+        
+           if(o.error){ 
+             
+               console.log("error in promise: ", o.error)
+               twitterButtonEpilog('tweetFailed'); // add css animation for failure to btn 
+           }
          
-        if(o.data) console.log("data in promise:", o.data);
+           if(o.data){ 
+               console.log("data in promise:", o.data);
+             
+               twitterButtonEpilog('tweetOk'); // add css animation for success to btn 
+           }
   
-      }).catch(function(e){
-         console.log('error in promise (failure):', e)
-      })
+        })
+        .catch(function(e){
+            console.log('error in promise (failure):', e)
+        }) 
+      }
      
     }catch(e){
       console.log('error in try-catch: ', e)
     }
 })  
 
+ var twitterButtonEpilog = function(selector){
+
+     var btn = Object.create(cssClassMgr);
+     btn.initClass('twitterButton');
+
+     btn.addClass(selector); // adds tweet Ok or tweet failure animation to btn
+     var btnEl = document.getElementsByClassName('twitterButton')[0]
+     btnEl.removeEventListener('click', oauth, false); // remove oauth on click while animation lasts
+
+     setTimeout(function(){
+        btn.removeClass(selector);                    // remove animation
+        addEvent(btnEl,'click', oauth);        // bring back oauth
+                                                      // on animation end
+     }, 3201)                                         // 2201 is on track with css animation timings (see css)
+ }
 
 })()
 

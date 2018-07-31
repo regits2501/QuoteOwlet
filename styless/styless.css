@@ -22,6 +22,8 @@ body{
    margin:0px; 
    background-color:#193f41 ; /*#1b2527;*/ /* #393f4d */
    min-height:100%;
+
+   
 }
 
 /*twitting.html*/
@@ -91,6 +93,7 @@ body{
     border: solid white 0px;
     border-radius:5px;
     display: inline-block;
+    background: url('../images/twitterLogo_and_marks.svg') 0px -42px/106px 150px no-repeat;
 }
 .boxShadow{  
     box-shadow: 0 0px 2px 0 rgba(0, 0, 0, 0.2), 0 2px 5px 0 rgba(0, 0, 0, 0.19);
@@ -99,7 +102,10 @@ body{
 }
 .logoOnClick{
     border:2px solid #193f41;
+    width: 53px;
+    height:53px;
     box-shadow: 0 1px 10px 1px rgba(255, 255, 255, 0.2), 0 2px 6px 0 rgba(0, 0, 0, 0.19);
+    background:url('../images/twitterLogo_and_marks.svg') -2px -43px/103px 145px no-repeat;
 }
 
 .quoteClickRadiate ~ .quoteSign{ /* for assigning with javascript */
@@ -557,26 +563,163 @@ body{
 }
 
 .tweetOk{
-   animation: tweetOk 1.6s cubic-bezier(.61,-0.3,.71,.71) 0s 2 alternate forwards;
+   animation: tweetOk 1.6s cubic-bezier(.61,-0.3,.71,.71) 0s 2 alternate forwards; 
 }
 
 @keyframes tweetOk{
-   0%{
+   10%{
       opacity:0; 
-      width:20px;
-      height:20px; 
+      width:30px;
+      height:30px; 
+      background: url('../images/twitterLogo_and_marks.svg') -22px -17px/42px 60px no-repeat;
+    
    } 
    25%, 100%{
        width:60px; 
        height:60px;
-       box-shadow:none;
+       box-shadow:none; 
        opacity:1;
-
-       background-color: #eee;
+       background: url('../images/twitterLogo_and_marks.svg') -57px -39px/106px 150px no-repeat;
+       background-color: #eee; 
    }
    
 }
+@-moz-keyframes tweetOk{
+   10%{
+      opacity:0; 
+      width:30px;
+      height:30px; 
+      background: url('../images/twitterLogo_and_marks.svg') -22px -17px/42px 60px no-repeat;
+    
+   } 
+   25%, 100%{
+       width:60px; 
+       height:60px;
+       box-shadow:none; 
+       opacity:1;
+       background: url('../images/twitterLogo_and_marks.svg') -57px -39px/106px 150px no-repeat;
+       background-color: #eee; 
+   }
+   
+}
+@-o-keyframes tweetOk{
+   10%{
+      opacity:0; 
+      width:30px;
+      height:30px; 
+      background: url('../images/twitterLogo_and_marks.svg') -22px -17px/42px 60px no-repeat;
+    
+   } 
+   25%, 100%{
+       width:60px; 
+       height:60px;
+       box-shadow:none; 
+       opacity:1;
+       background: url('../images/twitterLogo_and_marks.svg') -57px -39px/106px 150px no-repeat;
+       background-color: #eee; 
+   }
+   
+}
+@-webkit-keyframes tweetOk{
+   10%{
+      opacity:0; 
+      width:30px;
+      height:30px; 
+      background: url('../images/twitterLogo_and_marks.svg') -22px -17px/42px 60px no-repeat;
+    
+   } 
+   25%, 100%{
+       width:60px; 
+       height:60px;
+       box-shadow:none; 
+       opacity:1;
+       background: url('../images/twitterLogo_and_marks.svg') -57px -39px/106px 150px no-repeat;
+       background-color: #eee; 
+   }
+   
+}
+.tweetFailed{
+   animation: tweetFailed 1.6s cubic-bezier(.61,-0.3,.71,.71) 0s 2 alternate forwards; 
+}
 
+@keyframes tweetFailed{
+  10%{
+      opacity:0; 
+      width:30px;
+      height:30px; 
+      background: url('../images/twitterLogo_and_marks.svg') -12px -41px/42px 60px no-repeat;
+    
+    
+   } 
+   25%, 100%{
+       width:60px; 
+       height:60px;
+       box-shadow:none; 
+       opacity:1;
+       background: url('../images/twitterLogo_and_marks.svg') -27px -98px/106px 150px no-repeat;
+       background-color: #eee; 
+   }
+
+}
+
+@-moz-keyframes tweetFailed{
+  10%{
+      opacity:0; 
+      width:30px;
+      height:30px; 
+      background: url('../images/twitterLogo_and_marks.svg') -12px -41px/42px 60px no-repeat;
+    
+    
+   } 
+   25%, 100%{
+       width:60px; 
+       height:60px;
+       box-shadow:none; 
+       opacity:1;
+       background: url('../images/twitterLogo_and_marks.svg') -27px -98px/106px 150px no-repeat;
+       background-color: #eee; 
+   }
+
+}
+
+@-o-keyframes tweetFailed{
+  10%{
+      opacity:0; 
+      width:30px;
+      height:30px; 
+      background: url('../images/twitterLogo_and_marks.svg') -12px -41px/42px 60px no-repeat;
+    
+    
+   } 
+   25%, 100%{
+       width:60px; 
+       height:60px;
+       box-shadow:none; 
+       opacity:1;
+       background: url('../images/twitterLogo_and_marks.svg') -27px -98px/106px 150px no-repeat;
+       background-color: #eee; 
+   }
+
+}
+@-webkit-keyframes tweetFailed{
+  10%{
+      opacity:0; 
+      width:30px;
+      height:30px; 
+      background: url('../images/twitterLogo_and_marks.svg') -12px -41px/42px 60px no-repeat;
+    
+    
+   } 
+   25%, 100%{
+       width:60px; 
+       height:60px;
+       box-shadow:none; 
+       opacity:1;
+       background: url('../images/twitterLogo_and_marks.svg') -27px -98px/106px 150px no-repeat;
+       background-color: #eee; 
+   }
+
+}
 @media (max-width:569px){
    
    .quoteCont{
