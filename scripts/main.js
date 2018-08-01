@@ -15,6 +15,19 @@
   var byteLength = require(["byteLength"]).byteLength;
   var quoter = {}; // Object that handles getting data from server and showing it on page
 
+
+ whenPageReady(function addTwitterUserName(){                   // adds twitter user name to element on page 
+     var sessionData = twizClient().getSessionData();           // get sessiondata fomr redirection url, if any
+     var user = document.createElement('div');          
+     var userName = sessionData ? sessionData.userName : 'guest' // userName from twiz-client session data 
+                                                                 // or put 'guest'        
+ 
+     user.setAttribute('class', 'user');                 // add style - attach '.user' class from stylesheet
+     user.innerText = userName;    
+    
+     document.body.insertBefore(user, document.querySelector('.quoteCont')) // add element before quote container
+ })
+
  //// no owlet flying animation on redirections /////
  var leftWing  = Object.create(cssClassMgr);
  var rightWing = Object.create(cssClassMgr);
@@ -46,33 +59,6 @@
  
  })
  
-// function twitterFailureText(){}
-/*
- whenPageReady(function(){
-  // should add class that changes look of button and sets new src image to checkmark.svg
-     var btnCss = Object.create(cssClassMgr);
-     btnCss.initClass('twitterButton');
-      
-    setTimeout(function(){ 
-       btnCss.addClass('tweetOk'); // adds tweet Ok or tweet failure animation to btn
-       var btnEl = document.getElementsByClassName('twitterButton')[0];console.log('btnEl', btnEl)
-       btnEl.removeEventListener('click', oauth, false)
-
-         setTimeout(function(){
-           btnCss.removeClass('tweetOk');         // remove animation
-           addEvent(btnEl,'click', oauth);        // bring back oauth
-
-
-         
-
-         },3201) 
-    },1000);
-      
- })
- */
- ////////////
-
-
   quoter.messages = {
       noQuoteInArray: "There is no quote in array."
   }                 
@@ -308,7 +294,8 @@
      
                                     "session_data": { // redirection data
                                         'quote':  textContent(quoteData.quoteEl), 
-                                        'author': textContent(quoteData.authorEl)
+                                        'author': textContent(quoteData.authorEl),
+                                        'userName': textContent(document.querySelector('.user'))
                                         
                                      }, 
                                      'options':{ 
@@ -345,9 +332,11 @@
                  })
               }
      }
-  function Authenticate(){  // on click authenticate to twitter
+
+ function Authenticate(){  // on click authenticate to twitter
       addEvent(document.getElementsByClassName("twitterButton")[0], "click", oauth);
  }
+
  whenPageReady(Authenticate);
 
  whenPageReady(function(){            // when testing SPA case
@@ -384,7 +373,8 @@
            if(o.data){ 
                console.log("data in promise:", o.data);
              
-               twitterButtonEpilog('tweetOk'); // add css animation for success to btn 
+               twitterButtonEpilog('tweetOk'); // add css animation for success to btn
+               setUserName(o.data.user.name);
            }
   
         })
@@ -398,7 +388,7 @@
     }
 })  
 
- var twitterButtonEpilog = function(selector){
+ var twitterButtonEpilog = function(selector){ // adds animation to twitter button
 
      var btn = Object.create(cssClassMgr);
      btn.initClass('twitterButton');
@@ -412,6 +402,10 @@
         addEvent(btnEl,'click', oauth);        // bring back oauth
                                                       // on animation end
      }, 3201)                                         // 2201 is on track with css animation timings (see css)
+ }
+  
+ var setUserName = function (name){
+     textContent(document.querySelector('.user'), name); // set user name as text of the user element
  }
 
 })()

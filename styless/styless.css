@@ -55,6 +55,22 @@ body{
 
 /*  index.html */
 
+.user{
+   display: inline-block;
+   background-color:#1da1f2; /* twitter blue*/
+   text-align: center;
+   padding:8px 10px 10px 10px;
+   margin-right: 10%;
+   margin-top: 5%;
+   float: right; 
+   font-size:1.2em;
+   color:white;
+   line-height:1em;
+   border-radius:2px;
+   font-family:Helvetica;
+   font-weight: bold;
+}
+
 .showQuote{
     font-size:3em;
     padding:0px 5px;
@@ -66,7 +82,7 @@ body{
    display:inline-block;
    width:80%;
    margin-left:10%;
-   margin-top:10%;
+   margin-top:5%;
    text-align:center;
    color: white;
    font-family: "Chalky";
@@ -745,8 +761,11 @@ body{
 }
 
 @media screen and (min-width:1024px) and (min-height:768px){
+   .user{
+      margin-top:3%;
+   }
    .quoteCont{
-      margin-top:15%;    
+      margin-top:10%;    
    }
 }
 
