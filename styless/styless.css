@@ -28,6 +28,10 @@ body{
 
 /*twitting.html*/
 
+.twitterButtonCont{
+   text-align:right;
+   margin: 50px 50px 10px 0px;
+}
 .twitt{
  
    margin: 4%;
@@ -48,6 +52,19 @@ body{
    color:white;
 }
 
+.twtButton{
+   width:85px;
+   height:45px;
+   border-radius:5px;
+   display: inline-block;
+   color:white;
+   text-align:center;
+   font-family:Helvetica;
+   font-size:1.4em;
+   font-weight: bold;
+   line-height: 1.9em;
+   
+}
 .img{
 
    display: inline-block;
@@ -93,7 +110,6 @@ body{
    position:relative; /* hook for positininig elements inside*/
    right:-15%; /* moving it slitely to the right from normal position in page flow*/
    top:20px;
-      
    
 }
 .quoteClick{ /* stretching this element to fill 100% of parent element */
@@ -106,7 +122,6 @@ body{
 .twitterButton {
     width:55px;
     height:55px;
-    border: solid white 0px;
     border-radius:5px;
     display: inline-block;
     background: url('../images/twitterLogo_and_marks.svg') 0px -42px/106px 150px no-repeat;
@@ -122,6 +137,12 @@ body{
     height:53px;
     box-shadow: 0 1px 10px 1px rgba(255, 255, 255, 0.2), 0 2px 6px 0 rgba(0, 0, 0, 0.19);
     background:url('../images/twitterLogo_and_marks.svg') -2px -43px/103px 145px no-repeat;
+}
+.btnOnClick{
+    border:1px solid #193f41;
+    width: 84px;
+    height:44px;
+    box-shadow: 0 1px 10px 1px rgba(255, 255, 255, 0.2), 0 2px 6px 0 rgba(0, 0, 0, 0.19);
 }
 
 .quoteClickRadiate ~ .quoteSign{ /* for assigning with javascript */

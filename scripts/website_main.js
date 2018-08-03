@@ -290,13 +290,17 @@
                 
            console.log("Taking this data: ====",textContent(quoteData.quoteEl), textContent(quoteData.authorEl))
               var options = {      "server_url":'https://quoteowlet.herokuapp.com' ,//'http://localhost:5000',// 
-                                   "redirection_url":"https://gits2501.github.io/QuoteOwlet/index.html",
+                                   "redirection_url":"https://gits2501.github.io/QuoteOwlet/pages/tweeting.html",
      
                                     "session_data": { // redirection data
                                         'quote':  textContent(quoteData.quoteEl), 
                                         'author': textContent(quoteData.authorEl),
                                         'userName': textContent(document.querySelector('.user'))
                                         
+                                     },
+                                     "new_window":{
+                                        name:'tweet',
+                                        features: 'resizable=yes,height=613,width=400,left=400,top=300'
                                      }, 
                                      'options':{ 
                                         'method': 'POST',               // GET
@@ -374,7 +378,6 @@
                console.log("data in promise:", o.data);
              
                twitterButtonEpilog('tweetOk'); // add css animation for success to btn
-               setUserName(o.data.user.name);
            }
   
         })
@@ -388,25 +391,7 @@
     }
 })  
 
- var twitterButtonEpilog = function(selector){ // adds animation to twitter button
-
-     var btn = Object.create(cssClassMgr);
-     btn.initClass('twitterButton');
-
-     btn.addClass(selector); // adds tweet Ok or tweet failure animation to btn
-     var btnEl = document.getElementsByClassName('twitterButton')[0]
-     btnEl.removeEventListener('click', oauth, false); // remove oauth on click while animation lasts
-
-     setTimeout(function(){
-        btn.removeClass(selector);                    // remove animation
-        addEvent(btnEl,'click', oauth);               // bring back oauth
-                                                      // on animation end
-     }, 3201)                                         // 2201 is on track with css animation timings (see css)
- }
-  
- var setUserName = function (name){
-     textContent(document.querySelector('.user'), name); // set user name as text of the user element
- }
+ 
 
 })()
 

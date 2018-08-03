@@ -6,6 +6,17 @@
       <title>Send quotes to twitter</title>
       <meta name="description" content="Random quotes generator.">
       <meta name="keywords" content="twittering, quotes, twitter">
+      
+      <style>
+        @font-face {
+          font-family: "Chalky"; 
+          src: url('../styless/font/fishchips-regular-webfont.ttf') format("truetype"), 
+               url('../styless/font/fishchips-regular-webfont.woff') format("woff"),
+               url('../styless/font/fishchips-regular-webfont.woff2') format("woff2"),
+               url('../styless/font/fishchips-regular-webfont.eot'), /*(IE compatibility mode)*/
+               url('../styless/font/fishchips-regular-webfont.eot?#iefix') format("embedded-opentype"); /* support IE6-8 */
+        }
+      </style> 
       <link rel="stylesheet" type="text/css" href="../styless/styless.css"> 
       
      <script src="../scripts/initGlobalObject.js"></script>
@@ -18,12 +29,12 @@
 
 <body>
  <script src="../scripts/twitting_main.js"></script> 
- <div class="twitt" >
-   <textarea  class="twittText">
-   </textarea>
- </div>
- <div class="twittButton boxShadow">Tweet
+  <div class="twitt" >
+    <textarea  class="twittText">
+    </textarea>
+    <div class='twitterButtonCont'>
+    <div class="twtButton boxShadow">tweet</div>
  </div> 
-
+</div>
 </body>
 </html>
