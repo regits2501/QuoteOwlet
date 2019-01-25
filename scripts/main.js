@@ -64,7 +64,7 @@
   }                 
                     /* https://thingproxy.freeboard.io/fetch/ is the forward proxy we use to avoid 
                        "mixed content" loading since api.forismatic.com doesnt support https       */
-  quoter.url = "https://thingproxy.freeboard.io/fetch/http://api.forismatic.com/api/1.0/"; // server url
+  quoter.url = "https://quoteowlet.herokuapp.com/fetch/https://api.forismatic.com/api/1.0/"; // server url
   quoter.queryParams = {                   // making data object specific to JSONP server we are connnecting to. 
       method: 'getQuote',
       format: 'text',
@@ -79,12 +79,14 @@
                                        // data in "quotes" array. 
       this.setQuoteKey(); // Generates random quote key
       thisMany = thisMany || 1 ; // Defaults to 1, if it's negative it doesnt get any quote, see loop.
-
+       console.log('this.url: ', this.url)
       for(thisMany; thisMany > 0; thisMany--){ 
           request({ "url": this.url, "queryParams": this.queryParams, "callback": this.callback });// uses
-                                                                                                   // request API
+        
+                                                                                                  // request API
       }
   }.bind(quoter)
+
   quoter.setQuotePlace = function(){
      quoter.textPlace = document.getElementsByClassName("showQuote")[0]; // html element to put quote text 
                                                                            // into.

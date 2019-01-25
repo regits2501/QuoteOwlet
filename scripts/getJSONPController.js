@@ -12,6 +12,14 @@ if(typeof _pS_.modulMgr === "object" && _pS_.modulMgr !== null){
   mgr.define("getJSONPcontroller", ["formEncode"], function (formEncode){
 
   var getJSONP = {
+   config: function(conf){
+       this.config = conf; 
+       this.setUrl(conf.url);
+       this.setQueryData(conf.queryParams);
+       this.setCallback(conf.callbacks.onSuccess, conf.callbacks.onFailure);
+       this.setScriptPlace(conf.scriptParent, conf.flg);
+       this.setRequestTimeout(conf.timeout);
+   },
    setUrl: function (url) {
      this.url = url; // url string
    },
@@ -79,7 +87,11 @@ if(typeof _pS_.modulMgr === "object" && _pS_.modulMgr !== null){
     if(!this.scriptTags) this.scriptTags = []; // make array if id doesn't exist
 
      var script = document.createElement('script'); 
-     script.src = this.url;    
+     var attrs = this.config.scriptAttrs;
+
+     script.src = this.url;                              // set script source url
+     for(var attr in attrs){ script[attr] = attrs[attr] } // set any script attributes
+
      this.scriptTags.push(script); // put it into array so we can remove exactly one with which we'le make remote                                   // request, no matter in what order responces come from server 
                                    // (that is callbackWrapper gets invoked).  
      
@@ -188,12 +200,15 @@ if(typeof _pS_.modulMgr === "object" && _pS_.modulMgr !== null){
 */
 
    return publicAPI = {
+      config: getJSONP.config.bind(getJSONP),
+      getData:  getJSONP.getData.bind(getJSONP)
+   /*
       setUrl :  getJSONP.setUrl.bind(getJSONP),
       setQueryData:  getJSONP.setQueryData.bind(getJSONP),
       setScriptPlace:  getJSONP.setScriptPlace.bind(getJSONP),
       setCallback:  getJSONP.setCallback,// function doesn't have "this" reference so binding is unnecessary
-      getData:  getJSONP.getData.bind(getJSONP),
       setTimeout:  getJSONP.setRequestTimeout.bind(getJSONP)
+     */
    }
  })
 } // if condition end
