@@ -62,9 +62,12 @@
   quoter.messages = {
       noQuoteInArray: "There is no quote in array."
   }                 
-                    /* https://thingproxy.freeboard.io/fetch/ is the forward proxy we use to avoid 
-                       "mixed content" loading since api.forismatic.com doesnt support https       */
-  quoter.url = "https://quoteowlet.herokuapp.com/fetch/https://api.forismatic.com/api/1.0/"; // server url
+                    
+  /* https://thingproxy.freeboard.io/fetch/ is the forward proxy we use to avoid 
+   "mixed content" loading since api.forismatic.com doesnt support https.
+   Curretnly hosted on "fossil-bittersweet-rat.glitch.me"     
+  */
+  quoter.url = "https://fossil-bittersweet-rat.glitch.me/fetch/https://api.forismatic.com/api/1.0/"; // server url
   quoter.queryParams = {                   // making data object specific to JSONP server we are connnecting to. 
       method: 'getQuote',
       format: 'text',
