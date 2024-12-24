@@ -117,14 +117,22 @@ body{
   z-index:1;
   width:100%;
   height:100%;
+ 
+  &, :hover {
+   cursor: pointer;
+  }
+}
    
-} 
 .xButton {
     width:55px;
     height:55px;
     border-radius:5px;
     display: inline-block;
     background: url('../images/X_logo_and_marks.svg') 0px -42px/106px 150px no-repeat;
+    
+    &, :hover {
+      cursor: pointer;
+   }
 }
 .boxShadow{  
     box-shadow: 0 0px 2px 0 rgba(0, 0, 0, 0.2), 0 2px 5px 0 rgba(0, 0, 0, 0.19);
