@@ -83,12 +83,12 @@
                 p.then(function(o){
                   if(o.error){
                       console.log('error (twitter)', o.error);
-                      twitterButtonEpilog('tweetFailed');      // add animation that indicates that tweet failed  
+                      xButtonEpilog('tweetFailed');      // add animation that indicates that tweet failed  
                   }
                   
                   if(o.data){ 
                      console.log('success data: ', o.data);
-                      twitterButtonEpilog('tweetOk');         // add animation that indicaties tweet was success
+                      xButtonEpilog('tweetOk');         // add animation that indicaties tweet was success
                       setUserName(o.data.user.name) 
                   }
 
@@ -104,7 +104,7 @@
           console.log('error in try-catch: ', e);
         }
  }
-var twitterButtonEpilog = function(selector){ // adds animation to twitter button
+var xButtonEpilog = function(selector){ // adds animation to twitter button
      var btnText = 'tweet'
      var btn = Object.create(cssClassMgr);
      var btnEl = document.getElementsByClassName('twtButton')[0]

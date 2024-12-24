@@ -28,7 +28,7 @@ body{
 
 /*twitting.html*/
 
-.twitterButtonCont{
+.xButtonCont{
    text-align:right;
    margin: 50px 50px 10px 0px;
 }
@@ -119,12 +119,12 @@ body{
   height:100%;
    
 } 
-.twitterButton {
+.xButton {
     width:55px;
     height:55px;
     border-radius:5px;
     display: inline-block;
-    background: url('../images/twitterLogo_and_marks.svg') 0px -42px/106px 150px no-repeat;
+    background: url('../images/X_logo_and_marks.svg') 0px -42px/106px 150px no-repeat;
 }
 .boxShadow{  
     box-shadow: 0 0px 2px 0 rgba(0, 0, 0, 0.2), 0 2px 5px 0 rgba(0, 0, 0, 0.19);
@@ -136,7 +136,7 @@ body{
     width: 53px;
     height:53px;
     box-shadow: 0 1px 10px 1px rgba(255, 255, 255, 0.2), 0 2px 6px 0 rgba(0, 0, 0, 0.19);
-    background:url('../images/twitterLogo_and_marks.svg') -2px -43px/103px 145px no-repeat;
+    background:url('../images/X_logo_and_marks.svg') -2px -43px/103px 145px no-repeat;
 }
 .btnOnClick{
     border:1px solid #193f41;
@@ -608,7 +608,7 @@ body{
       opacity:0; 
       width:30px;
       height:30px; 
-      background: url('../images/twitterLogo_and_marks.svg') -22px -17px/42px 60px no-repeat;
+      background: url('../images/X_logo_and_marks.svg') -22px -17px/42px 60px no-repeat;
     
    } 
    25%, 100%{
@@ -616,7 +616,7 @@ body{
        height:60px;
        box-shadow:none; 
        opacity:1;
-       background: url('../images/twitterLogo_and_marks.svg') -57px -39px/106px 150px no-repeat;
+       background: url('../images/X_logo_and_marks.svg') -57px -39px/106px 150px no-repeat;
        background-color: #eee; 
    }
    
@@ -626,7 +626,7 @@ body{
       opacity:0; 
       width:30px;
       height:30px; 
-      background: url('../images/twitterLogo_and_marks.svg') -22px -17px/42px 60px no-repeat;
+      background: url('../images/X_logo_and_marks.svg') -22px -17px/42px 60px no-repeat;
     
    } 
    25%, 100%{
@@ -634,7 +634,7 @@ body{
        height:60px;
        box-shadow:none; 
        opacity:1;
-       background: url('../images/twitterLogo_and_marks.svg') -57px -39px/106px 150px no-repeat;
+       background: url('../images/X_logo_and_marks.svg') -57px -39px/106px 150px no-repeat;
        background-color: #eee; 
    }
    
@@ -644,7 +644,7 @@ body{
       opacity:0; 
       width:30px;
       height:30px; 
-      background: url('../images/twitterLogo_and_marks.svg') -22px -17px/42px 60px no-repeat;
+      background: url('../images/X_logo_and_marks.svg') -22px -17px/42px 60px no-repeat;
     
    } 
    25%, 100%{
@@ -652,7 +652,7 @@ body{
        height:60px;
        box-shadow:none; 
        opacity:1;
-       background: url('../images/twitterLogo_and_marks.svg') -57px -39px/106px 150px no-repeat;
+       background: url('../images/X_logo_and_marks.svg') -57px -39px/106px 150px no-repeat;
        background-color: #eee; 
    }
    
@@ -662,7 +662,7 @@ body{
       opacity:0; 
       width:30px;
       height:30px; 
-      background: url('../images/twitterLogo_and_marks.svg') -22px -17px/42px 60px no-repeat;
+      background: url('../images/X_logo_and_marks.svg') -22px -17px/42px 60px no-repeat;
     
    } 
    25%, 100%{
@@ -670,7 +670,7 @@ body{
        height:60px;
        box-shadow:none; 
        opacity:1;
-       background: url('../images/twitterLogo_and_marks.svg') -57px -39px/106px 150px no-repeat;
+       background: url('../images/X_logo_and_marks.svg') -57px -39px/106px 150px no-repeat;
        background-color: #eee; 
    }
    
@@ -684,7 +684,7 @@ body{
       opacity:0; 
       width:30px;
       height:30px; 
-      background: url('../images/twitterLogo_and_marks.svg') -12px -41px/42px 60px no-repeat;
+      background: url('../images/X_logo_and_marks.svg') -12px -41px/42px 60px no-repeat;
     
     
    } 
@@ -693,7 +693,7 @@ body{
        height:60px;
        box-shadow:none; 
        opacity:1;
-       background: url('../images/twitterLogo_and_marks.svg') -27px -98px/106px 150px no-repeat;
+       background: url('../images/X_logo_and_marks.svg') -27px -98px/106px 150px no-repeat;
        background-color: #eee; 
    }
 
@@ -704,7 +704,7 @@ body{
       opacity:0; 
       width:30px;
       height:30px; 
-      background: url('../images/twitterLogo_and_marks.svg') -12px -41px/42px 60px no-repeat;
+      background: url('../images/X_logo_and_marks.svg') -12px -41px/42px 60px no-repeat;
     
     
    } 
@@ -713,7 +713,7 @@ body{
        height:60px;
        box-shadow:none; 
        opacity:1;
-       background: url('../images/twitterLogo_and_marks.svg') -27px -98px/106px 150px no-repeat;
+       background: url('../images/X_logo_and_marks.svg') -27px -98px/106px 150px no-repeat;
        background-color: #eee; 
    }
 
@@ -724,7 +724,7 @@ body{
       opacity:0; 
       width:30px;
       height:30px; 
-      background: url('../images/twitterLogo_and_marks.svg') -12px -41px/42px 60px no-repeat;
+      background: url('../images/X_logo_and_marks.svg') -12px -41px/42px 60px no-repeat;
     
     
    } 
@@ -733,7 +733,7 @@ body{
        height:60px;
        box-shadow:none; 
        opacity:1;
-       background: url('../images/twitterLogo_and_marks.svg') -27px -98px/106px 150px no-repeat;
+       background: url('../images/X_logo_and_marks.svg') -27px -98px/106px 150px no-repeat;
        background-color: #eee; 
    }
 
@@ -743,7 +743,7 @@ body{
       opacity:0; 
       width:30px;
       height:30px; 
-      background: url('../images/twitterLogo_and_marks.svg') -12px -41px/42px 60px no-repeat;
+      background: url('../images/X_logo_and_marks.svg') -12px -41px/42px 60px no-repeat;
     
     
    } 
@@ -752,7 +752,7 @@ body{
        height:60px;
        box-shadow:none; 
        opacity:1;
-       background: url('../images/twitterLogo_and_marks.svg') -27px -98px/106px 150px no-repeat;
+       background: url('../images/X_logo_and_marks.svg') -27px -98px/106px 150px no-repeat;
        background-color: #eee; 
    }
 

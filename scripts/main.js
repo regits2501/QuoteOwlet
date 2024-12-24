@@ -262,10 +262,10 @@
 
  ////////////////// twitter button animation //////////////////////////////
   var cssEvents = cssEventMgr(); 
-  var twitterButton = Object.create(cssEvents);
+  var xButton = Object.create(cssEvents);
   
   
-  whenPageReady(twitterButton.initEvent.bind(twitterButton, "twitterButton","logoOnClick",  
+  whenPageReady(xButton.initEvent.bind(xButton, "xButton","logoOnClick",  
                {"events": ["mousedown","mouseup","touchstart","touchmove"],
                 "actions": ["add", "remove","add", "remove"]          
   }));
@@ -338,7 +338,7 @@
      }
 
  function Authenticate(){  // on click authenticate to twitter
-      addEvent(document.getElementsByClassName("twitterButton")[0], "click", oauth);
+      addEvent(document.getElementsByClassName("xButton")[0], "click", oauth);
  }
 
  whenPageReady(Authenticate);
@@ -371,13 +371,13 @@
            if(o.error){ 
              
                console.log("error in promise: ", o.error)
-               twitterButtonEpilog('tweetFailed'); // add css animation for failure to btn 
+               xButtonEpilog('tweetFailed'); // add css animation for failure to btn 
            }
          
            if(o.data){ 
                console.log("data in promise:", o.data);
              
-               twitterButtonEpilog('tweetOk'); // add css animation for success to btn
+               xButtonEpilog('tweetOk'); // add css animation for success to btn
                setUserName(o.data.user.name);
            }
   
@@ -392,13 +392,13 @@
     }
 })  
 
- var twitterButtonEpilog = function(selector){ // adds animation to twitter button
+ var xButtonEpilog = function(selector){ // adds animation to twitter button
 
      var btn = Object.create(cssClassMgr);
-     btn.initClass('twitterButton');
+     btn.initClass('xButton');
 
      btn.addClass(selector); // adds tweet Ok or tweet failure animation to btn
-     var btnEl = document.getElementsByClassName('twitterButton')[0]
+     var btnEl = document.getElementsByClassName('xButton')[0]
      btnEl.removeEventListener('click', oauth, false); // remove oauth on click while animation lasts
 
      setTimeout(function(){
