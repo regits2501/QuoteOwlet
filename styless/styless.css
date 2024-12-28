@@ -1,11 +1,10 @@
 
 @font-face{
   font-family:"DejaVUSerif";
-  src: url('font/dejavuserif-webfont.ttf') format("truetype"),
-       url('font/dejavuserif-webfont.woff') format("woff"),
-       url('font/dejavuserif-webfont.woff2') format("woff2"),
-       url('font/dejavuserif-webfont.eot'),
-       url('font/dejavuserif-webfont.eot?#iefix') format("embeded-opentype");
+  src: url('./font/dejavuserif-webfont.ttf') format("truetype"),
+       url('./font/dejavuserif-webfont.woff') format("woff"),
+       url('./font/dejavuserif-webfont.eot'),
+       url('./font/dejavuserif-webfont.eot?#iefix') format("embeded-opentype");
 }
 *{
    box-sizing:border-box;
