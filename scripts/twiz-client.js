@@ -1,3 +1,6 @@
+// import twiz-client to global page scope
+import "twiz-client";
+
 (function() {
   'use strict'
 
