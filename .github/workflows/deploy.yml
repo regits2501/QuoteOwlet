@@ -1,0 +1,47 @@
+name: Build and Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - master  # Triggers the workflow on pushes to the 'master' branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout code from the 'master' branch
+      - name: Checkout code in master branch
+        uses: actions/checkout@v2
+        with:
+          ref: master  # Ensures the 'master' branch is checked out
+
+      # Step 2: Set up Node.js (adjust version if needed)
+      - name: Set up Node.js version
+        uses: actions/setup-node@v2
+        with:
+          node-version: '22'  # Use the appropriate Node.js version
+
+      # Step 3: Install dependencies with 'npm ci'
+      - name: Install dependencies
+        run: npm ci  #  Do a clean install of node_modules
+
+      # Step 5: Configure the branch for deployment
+      - name: Configure git for deployment
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+
+      # Step 6: Create and push the build result to the 'github_pages' branch
+      - name: Push to github_pages branch
+        run: |
+         
+          # Create a new orphan branch 'github_pages' from the current branch
+          git checkout --orphan github_pages
+         
+          # Commit and push the changes
+          git add .
+          git commit -m "Deploy to github_pages"
+          git push --force origin github_pages  # Force-push to ensure the branch is updated
+
+         
