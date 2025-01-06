@@ -1,5 +1,6 @@
 // add twiz-client to global scope
-import ".twiz-client_bundle";
+import "./twiz-client_bundle.js";
+
 
 (function () {
    if (typeof _pS_ === "object" && _pS_ !== null) _pS_.quotes = [];
