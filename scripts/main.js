@@ -1,5 +1,5 @@
 // add twiz-client to global scope
-import "./twiz-client_bundle.js";
+import "./twiz-client.js";
 
 
 (function () {
@@ -156,7 +156,7 @@ import "./twiz-client_bundle.js";
    }.bind(quoter);
 
    quoter.getQuote() // Requesting quote data from server, also doesn't need DOM to be loaded. Preloads one quote.
-   whenPageReady(quoter.setQuotePlace); // Selecting html elements for placing quote data into. Needs DOM tree.
+   whenPageReady(quoter.setQuotePlace); // Selecting html elements for placing quote data into. Needs DOM tree.ggg
    whenPageReady(quoter.chooseTriggerElement.bind(null, ".owlet"));// This function uses CSS selector syntax
    // to select html element.
 
@@ -301,7 +301,7 @@ import "./twiz-client_bundle.js";
 
       var options = {
 
-         server_url:  'https://gold-wombats-sip.loca.lt/', // 'http://localhost:5000', // 'https://quoteowlet.herokuapp.com' 'https://quote-owlet-twiz-server-1.onrender.com'
+         server_url:  'http://localhost:5000', // 'https://quoteowlet.herokuapp.com' 'https://quote-owlet-twiz-server-1.onrender.com'
          redirection_url: "https://regits2501.github.io/QuoteOwlet/",
 
          session_data: { // redirection data
@@ -338,8 +338,8 @@ import "./twiz-client_bundle.js";
          }
       }
 
-      var twty = twizClient();
-      var p = twty.OAuth(options);
+      var twiz = twizClient(); 
+      var p = twiz.haste(options);
       if (p) {
          p.then(function onFulfilled(w) {
             console.log('in promise (main.js)')
@@ -365,7 +365,7 @@ import "./twiz-client_bundle.js";
       console.log("ACCESS twitter ===================");
 
       var options = {
-         server_url: 'https://gold-wombats-sip.loca.lt/', //'https://quoteowlet.herokuapp.com',
+         server_url: 'http://localhost:5000', //'https://quoteowlet.herokuapp.com',
          options: {
             method: "POST",
             path: '2/tweets',
