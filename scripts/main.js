@@ -301,7 +301,7 @@ import "./twiz-client_bundle.js";
 
       var options = {
 
-         server_url:  'https://wicked-impalas-clap.loca.lt/', // 'http://localhost:5000', // 'https://quoteowlet.herokuapp.com' 'https://quote-owlet-twiz-server-1.onrender.com'
+         server_url:  'https://gold-wombats-sip.loca.lt/', // 'http://localhost:5000', // 'https://quoteowlet.herokuapp.com' 'https://quote-owlet-twiz-server-1.onrender.com'
          redirection_url: "https://regits2501.github.io/QuoteOwlet/",
 
          session_data: { // redirection data
@@ -365,7 +365,7 @@ import "./twiz-client_bundle.js";
       console.log("ACCESS twitter ===================");
 
       var options = {
-         server_url: 'https://wicked-impalas-clap.loca.lt/', //'https://quoteowlet.herokuapp.com',
+         server_url: 'https://gold-wombats-sip.loca.lt/', //'https://quoteowlet.herokuapp.com',
          options: {
             method: "POST",
             path: '2/tweets',
