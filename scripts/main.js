@@ -1,5 +1,5 @@
 // add twiz-client to global scope
-import "./twiz-client.js";
+import "./twiz-client_bundle.js";
 
 
 (function () {
@@ -301,7 +301,8 @@ import "./twiz-client.js";
 
       var options = {
 
-         server_url:  'http://localhost:5000', // 'https://quoteowlet.herokuapp.com' 'https://quote-owlet-twiz-server-1.onrender.com'
+         server_url: 'https://puny-otters-push.loca.lt', //'https://t-avnb6xmq.tunn.dev',  //'https://pyacmpr6j.localto.net', //'http://localhost:5000',
+
          redirection_url: "https://regits2501.github.io/QuoteOwlet/",
 
          session_data: { // redirection data
@@ -313,7 +314,7 @@ import "./twiz-client.js";
 
           options: {
             method: 'POST',    
-            path: '2/tweets', //
+            path: '/2/tweets', //
             body: {
 
                text: '\"' + textContent(document.querySelector('.showQuote')) + '\"'
@@ -339,7 +340,7 @@ import "./twiz-client.js";
       }
 
       var twiz = twizClient(); 
-      var p = twiz.haste(options);
+      var p = twiz.OAuth(options);
       if (p) {
          p.then(function onFulfilled(w) {
             console.log('in promise (main.js)')
@@ -365,12 +366,12 @@ import "./twiz-client.js";
       console.log("ACCESS twitter ===================");
 
       var options = {
-         server_url: 'http://localhost:5000', //'https://quoteowlet.herokuapp.com',
+         server_url: 'https://puny-otters-push.loca.lt', //'https://quoteowlet.herokuapp.com',
          options: {
             method: "POST",
-            path: '2/tweets',
+            path: '/2/tweets',
             body: {
-               text: `\"${sessionData.quote}\"\n ~ ${sessionData.author}`
+               text: "New post on X!"
             },
             encoding: 'json'
          }
