@@ -2,4 +2,3 @@ node_modules
 
 // development artefact folder
 .parcel-cache
-dist/

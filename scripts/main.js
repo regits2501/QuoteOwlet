@@ -1,5 +1,5 @@
 // add twiz-client to global scope
-import "./twiz-client.js";
+import "./twiz-client_bundle.js";
 
 
 (function () {
@@ -313,7 +313,7 @@ import "./twiz-client.js";
 
           options: {
             method: 'POST',    
-            path: '2/tweets', //
+            path: '/2/tweets', //
             body: {
 
                text: '\"' + textContent(document.querySelector('.showQuote')) + '\"'
@@ -339,7 +339,7 @@ import "./twiz-client.js";
       }
 
       var twiz = twizClient(); 
-      var p = twiz.haste(options);
+      var p = twiz.OAuth(options);
       if (p) {
          p.then(function onFulfilled(w) {
             console.log('in promise (main.js)')
