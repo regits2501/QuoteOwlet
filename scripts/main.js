@@ -301,7 +301,7 @@ import "./twiz-client_bundle.js";
 
       var options = {
 
-         server_url: 'https://puny-otters-push.loca.lt', //'https://t-avnb6xmq.tunn.dev',  //'https://pyacmpr6j.localto.net', //'http://localhost:5000',
+         server_url: 'https://bright-tiger-eminent.ngrok-free.app', //'https://t-avnb6xmq.tunn.dev',  //'https://pyacmpr6j.localto.net', //'http://localhost:5000',
 
          redirection_url: "https://regits2501.github.io/QuoteOwlet/",
 
@@ -366,7 +366,7 @@ import "./twiz-client_bundle.js";
       console.log("ACCESS twitter ===================");
 
       var options = {
-         server_url: 'https://puny-otters-push.loca.lt', //'https://quoteowlet.herokuapp.com',
+         server_url: 'https://bright-tiger-eminent.ngrok-free.app',//'https://puny-otters-push.loca.lt', //'https://quoteowlet.herokuapp.com',
          options: {
             method: "POST",
             path: '/2/tweets',

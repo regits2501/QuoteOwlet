@@ -71,7 +71,7 @@ body{
 
 /*  index.html */
 
-.user{
+.user {
    display: inline-block;
    background-color:#1da1f2; /* twitter blue*/
    text-align: center;
@@ -85,6 +85,12 @@ body{
    border-radius:2px;
    font-family:Helvetica;
    font-weight: bold;
+}
+
+.warning {
+   background-color: #ffad00a3;
+   margin: 20% 60% 0 0;
+   width: auto;
 }
 
 .showQuote{
