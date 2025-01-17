@@ -69,22 +69,23 @@ import "./twiz-client_bundle.js";
    /* https://thingproxy.freeboard.io/fetch/ is the forward proxy we use to avoid 
     "mixed content" loading since api.forismatic.com doesnt support https.     
    */
-   quoter.url = "https://random-quotes-proxy.onrender.com/fetch/https://api.forismatic.com/api/1.0/"; // server url
+   quoter.url = "https://quote-owlet-twiz-server-1.onrender.com/proxy/fetch/https://zenquotes.io/api/random"; // server url
    quoter.queryParams = {                   // making data object specific to JSONP server we are connnecting to. 
       method: 'getQuote',
       format: 'text',
       key: 0,
       lang: 'en'
    };
-   quoter.callback = function (data) { // Setting  callback function which will be invoked with server data               
-      _pS_.quotes.push(data);  // We are putting server data into quotes array
+   quoter.callback = function (data) { // Setting  callback function which will be invoked with server data  
+       parsedData = JSON.parse(data);
+       let quote = parsedData[0]; // get quote object
+      _pS_.quotes.push(quote);  // We are putting server data into quotes array
       // which is a propertie of _pS_ global var.
    }
    quoter.getQuote = function (thisMany) { // Gets data from server and initiates callback function which puts that 
       // data in "quotes" array. 
       this.setQuoteKey(); // Generates random quote key
       thisMany = thisMany || 1; // Defaults to 1, if it's negative it doesnt get any quote, see loop.
-      console.log('this.url: ', this.url)
       for (thisMany; thisMany > 0; thisMany--) {
          request({ "url": this.url, "queryParams": this.queryParams, "callback": this.callback });// uses
 
@@ -100,19 +101,17 @@ import "./twiz-client_bundle.js";
 
    quoter.showQuote = function () { // inserts quote data into paragraphs elements, shows quote data on page.
 
-      if (_pS_.quotes.length !== 0) {
-         var q = _pS_.quotes.splice(0, 1)[0] // Take (remove) first element from quotes. 
-         // Server response is in text format is like bellow:
-         // This is the quote string. (Here goes the author)  
+      let quotes = _pS_.quotes;
 
-         var quoteEnd = (q.indexOf("(") === -1) ? q.length : (q.indexOf("(") - 1); // Get index of the "(" - 1. 
-         // Emty space before "(" .
-         var quoteText = q.substring(0, quoteEnd);   // Get quote string up to dot(including).
+      let quoteText = "They sasy the owlet brings wisdom";
+      let quoteAuthor = "Trough random quotes";
+      
+      if (quotes.length !== 0) { 
 
-         var authorEnd = q.indexOf(")");
-         var quoteAuthor = "";
-         if (authorEnd !== -1) quoteAuthor = q.substring(quoteEnd + 2, authorEnd);// Get author string, 
-         // up to ")" . If there is one.
+         let quote = quotes.pop();
+
+         quoteText = quote.q;
+         quoteAuthor = quote.a;
       }
       else {
          console.log(this.messages.noQuoteInArray);
@@ -131,16 +130,7 @@ import "./twiz-client_bundle.js";
    }.bind(quoter);
    quoter.showAndGetQuote = function () {
       this.showQuote(); // show quote data on page
-      if (_pS_.quotes.length == 0) this.getQuote();// preloads one more quote in quotes array for eventual next
-      // invocation, if there is none in quotes array. There could
-      // be more then one, if you where to click multiple times. 
-      // Each click 
-      // shows a quote on page and preloads one more. So if data
-      // doesnt come defore your next click, there is no 
-      // data to display, and data from clicks would come in 
-      // close intervals (like in a batch) filling array with more
-      // then one. Thats why we preload only when there is no 
-      // quote in array.   
+      this.getQuote();
 
    }.bind(quoter)
 
@@ -287,8 +277,7 @@ import "./twiz-client_bundle.js";
    whenPageReady(quoteData.getQuoteElements.bind(quoteData))     // when page is ready sellect the quote elements
 
    quoteData.setQuoteData = function (sessionData) {
-      console.log("sessionData ====== ", sessionData),
-         console.log("this.quoteEl: ", this.quoteEl);
+      console.log("sessionData ====== ", sessionData)
       if (sessionData) {
          textContent(this.quoteEl, sessionData.quote);
          textContent(this.authorEl, sessionData.author);
@@ -301,7 +290,7 @@ import "./twiz-client_bundle.js";
 
       var options = {
 
-         server_url: 'https://bright-tiger-eminent.ngrok-free.app', //'https://t-avnb6xmq.tunn.dev',  //'https://pyacmpr6j.localto.net', //'http://localhost:5000',
+         server_url: 'https://quote-owlet-twiz-server-1.onrender.com', //'https://t-avnb6xmq.tunn.dev',  //'https://pyacmpr6j.localto.net', //'http://localhost:5000',
 
          redirection_url: "https://regits2501.github.io/QuoteOwlet/",
 
@@ -366,7 +355,7 @@ import "./twiz-client_bundle.js";
       console.log("ACCESS twitter ===================");
 
       var options = {
-         server_url: 'https://bright-tiger-eminent.ngrok-free.app',//'https://puny-otters-push.loca.lt', //'https://quoteowlet.herokuapp.com',
+         server_url: 'https://quote-owlet-twiz-server-1.onrender.com',//'https://puny-otters-push.loca.lt', //'https://quoteowlet.herokuapp.com',
          options: {
             method: "POST",
             path: '/2/tweets',
