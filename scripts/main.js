@@ -22,11 +22,11 @@ import "./twiz-client_bundle.js";
    whenPageReady(function addTwitterUserName() {                   // adds twitter user name to element on page 
       var sessionData = twizClient().getSessionData();           // get sessiondata fomr redirection url, if any
       var user = document.createElement('div');
-      var userName = sessionData ? sessionData.userName : 'guest' // userName from twiz-client session data 
+      var screenName = sessionData ? sessionData.screenName : 'guest' // userName from twiz-client session data 
       // or put 'guest'        
 
       user.setAttribute('class', 'user');                 // add style - attach '.user' class from stylesheet
-      user.innerText = userName;
+      user.innerText = screenName;
 
       document.body.insertBefore(user, document.querySelector('.quoteCont')) // add element before quote container
    })
@@ -296,7 +296,7 @@ import "./twiz-client_bundle.js";
          session_data: { // redirection data
             quote: textContent(quoteData.quoteEl),
             author: textContent(quoteData.authorEl),
-            userName: textContent(document.querySelector('.user'))
+            screenName: textContent(document.querySelector('.user'))
 
          },
 
@@ -372,9 +372,10 @@ import "./twiz-client_bundle.js";
          if (p) {
             p.then(function (o) {
 
-               if (o.error) {
+               if (o.error?.statusCode >= 200 && o.error.statusCode <= 300) { // check that we got success
 
                   console.log("error in promise: ", o.error)
+
                   xButtonEpilog('tweetFailed'); // add css animation for failure to btn 
                }
 
@@ -382,7 +383,7 @@ import "./twiz-client_bundle.js";
                   console.log("data in promise:", o.data);
 
                   xButtonEpilog('tweetOk'); // add css animation for success to btn
-                  setUserName(o.data.user.name);
+                  setUserName(o.data.screen_name);
                }
 
             })
