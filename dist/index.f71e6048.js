@@ -142,7 +142,7 @@
       this[globalName] = mainExports;
     }
   }
-})({"h81tc":[function(require,module,exports,__globalThis) {
+})({"hwUlY":[function(require,module,exports,__globalThis) {
 var global = arguments[3];
 var HMR_HOST = null;
 var HMR_PORT = null;
@@ -847,7 +847,7 @@ var _twizClientBundleJs = require("./twiz-client_bundle.js");
     function oauth() {
         console.log("Taking this data: ====", textContent(quoteData.quoteEl), textContent(quoteData.authorEl));
         var options = {
-            server_url: 'http://localhost:5000',
+            server_url: 'https://quote-owlet-twiz-server-1.onrender.com',
             redirection_url: "https://regits2501.github.io/QuoteOwlet/",
             session_data: {
                 quotor: textContent(quoteData.quoteEl),
@@ -895,7 +895,7 @@ var _twizClientBundleJs = require("./twiz-client_bundle.js");
         ]);
         console.log("ACCESS twitter ===================");
         var options = {
-            server_url: 'http://localhost:5000',
+            server_url: 'https://quote-owlet-twiz-server-1.onrender.com',
             options: {
                 method: "POST",
                 path: '/2/tweets',
@@ -1988,6 +1988,6 @@ console.log("main loaded");
     8
 ]);
 
-},{}]},["h81tc","8VGZO"], "8VGZO", "parcelRequire94c2")
+},{}]},["hwUlY","8VGZO"], "8VGZO", "parcelRequire94c2")
 
 //# sourceMappingURL=index.f71e6048.js.map
