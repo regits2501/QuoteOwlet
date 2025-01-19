@@ -66,16 +66,15 @@ import "./twiz-client_bundle.js";
       noQuoteInArray: "There is no quote in array."
    }
 
-   /* https://thingproxy.freeboard.io/fetch/ is the forward proxy we use to avoid 
-    "mixed content" loading since api.forismatic.com doesnt support https.     
-   */
    quoter.url = "https://quote-owlet-twiz-server-1.onrender.com/proxy/fetch/https://zenquotes.io/api/random"; // server url
+   
    quoter.queryParams = {                   // making data object specific to JSONP server we are connnecting to. 
       method: 'getQuote',
       format: 'text',
       key: 0,
       lang: 'en'
    };
+   
    quoter.callback = function (data) { // Setting  callback function which will be invoked with server data  
        let parsedData = JSON.parse(data);
        let quote = parsedData[0]; // get quote object
@@ -290,12 +289,12 @@ import "./twiz-client_bundle.js";
 
       var options = {
 
-         server_url: 'https://quote-owlet-twiz-server-1.onrender.com', //'https://t-avnb6xmq.tunn.dev',  //'https://pyacmpr6j.localto.net', //'http://localhost:5000',
+         server_url: 'https://bright-tiger-eminent.ngrok-free.app', //'http://localhost:5000',//'https://quote-owlet-twiz-server-1.onrender.com', //'https://t-avnb6xmq.tunn.dev',  //'https://pyacmpr6j.localto.net', //'http://localhost:5000',
 
          redirection_url: "https://regits2501.github.io/QuoteOwlet/",
 
          session_data: { // redirection data
-            quotor: textContent(quoteData.quoteEl),
+            quote: textContent(quoteData.quoteEl),
             author: textContent(quoteData.authorEl),
             userName: textContent(document.querySelector('.user'))
 
@@ -332,9 +331,8 @@ import "./twiz-client_bundle.js";
       var p = twiz.OAuth(options);
       if (p) {
          p.then(function onFulfilled(w) {
-            console.log('in promise (main.js)')
+            
             if (w.redirection) { console.log('no token on server: Redirection'); return }
-            console.log("Promised: ", w)
 
          })
       }
@@ -355,12 +353,13 @@ import "./twiz-client_bundle.js";
       console.log("ACCESS twitter ===================");
 
       var options = {
-         server_url: 'https://quote-owlet-twiz-server-1.onrender.com',//'https://puny-otters-push.loca.lt', //'https://quoteowlet.herokuapp.com',
+         server_url: 'https://bright-tiger-eminent.ngrok-free.app',//'http://localhost:5000', //'https://quote-owlet-twiz-server-1.onrender.com',//'https://puny-otters-push.loca.lt', //'https://quoteowlet.herokuapp.com',
          options: {
             method: "POST",
             path: '/2/tweets',
             body: {
-               text: "New post on X!"
+                 text: '\"' + textContent(document.querySelector('.showQuote')) + '\"'
+                  + '\n ~ ' + textContent(document.querySelector('.showAuthor'))
             },
             encoding: 'json'
          }
