@@ -142,7 +142,7 @@
       this[globalName] = mainExports;
     }
   }
-})({"hwUlY":[function(require,module,exports,__globalThis) {
+})({"h81tc":[function(require,module,exports,__globalThis) {
 var global = arguments[3];
 var HMR_HOST = null;
 var HMR_PORT = null;
@@ -676,7 +676,7 @@ var _twizClientBundleJs = require("./twiz-client_bundle.js");
         lang: 'en'
     };
     quoter.callback = function(data) {
-        parsedData = JSON.parse(data);
+        let parsedData = JSON.parse(data);
         let quote = parsedData[0]; // get quote object
         _pS_.quotes.push(quote); // We are putting server data into quotes array
     // which is a propertie of _pS_ global var.
@@ -1988,6 +1988,6 @@ console.log("main loaded");
     8
 ]);
 
-},{}]},["hwUlY","8VGZO"], "8VGZO", "parcelRequire94c2")
+},{}]},["h81tc","8VGZO"], "8VGZO", "parcelRequire94c2")
 
 //# sourceMappingURL=index.f71e6048.js.map

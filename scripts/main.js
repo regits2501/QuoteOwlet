@@ -77,7 +77,7 @@ import "./twiz-client_bundle.js";
       lang: 'en'
    };
    quoter.callback = function (data) { // Setting  callback function which will be invoked with server data  
-       parsedData = JSON.parse(data);
+       let parsedData = JSON.parse(data);
        let quote = parsedData[0]; // get quote object
       _pS_.quotes.push(quote);  // We are putting server data into quotes array
       // which is a propertie of _pS_ global var.
