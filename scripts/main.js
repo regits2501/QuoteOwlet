@@ -289,7 +289,7 @@ import "./twiz-client_bundle.js";
 
       var options = {
 
-         server_url: 'https://bright-tiger-eminent.ngrok-free.app', //'http://localhost:5000',//'https://quote-owlet-twiz-server-1.onrender.com', //'https://t-avnb6xmq.tunn.dev',  //'https://pyacmpr6j.localto.net', //'http://localhost:5000',
+         server_url: 'https://quote-owlet-twiz-server-1.onrender.com',//'https://bright-tiger-eminent.ngrok-free.app', //'http://localhost:5000',//'https://quote-owlet-twiz-server-1.onrender.com', //'https://t-avnb6xmq.tunn.dev',  //'https://pyacmpr6j.localto.net', //'http://localhost:5000',
 
          redirection_url: "https://regits2501.github.io/QuoteOwlet/",
 
@@ -353,7 +353,7 @@ import "./twiz-client_bundle.js";
       console.log("ACCESS twitter ===================");
 
       var options = {
-         server_url: 'https://bright-tiger-eminent.ngrok-free.app',//'http://localhost:5000', //'https://quote-owlet-twiz-server-1.onrender.com',//'https://puny-otters-push.loca.lt', //'https://quoteowlet.herokuapp.com',
+         server_url:  'https://quote-owlet-twiz-server-1.onrender.com',// 'https://bright-tiger-eminent.ngrok-free.app',//'http://localhost:5000',,//'https://puny-otters-push.loca.lt', //'https://quoteowlet.herokuapp.com',
          options: {
             method: "POST",
             path: '/2/tweets',
@@ -372,7 +372,7 @@ import "./twiz-client_bundle.js";
          if (p) {
             p.then(function (o) {
 
-               if (o.error?.statusCode >= 200 && o.error.statusCode <= 300) { // check that we got success
+               if (o.error?.statusCode >= 200 && o.error.statusCode <= 300) { // check that we got success code
 
                   console.log("error in promise: ", o.error)
 
