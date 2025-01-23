@@ -372,7 +372,7 @@ import "./twiz-client_bundle.js";
          if (p) {
             p.then(function (o) {
 
-               if (o.error?.statusCode >= 200 && o.error.statusCode <= 300) { // check that we got success code
+               if (o.error?.statusCode < 400 ) { // check that we got success code
 
                   console.log("error in promise: ", o.error)
 

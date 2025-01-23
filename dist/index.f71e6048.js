@@ -632,11 +632,11 @@ var _twizClientBundleJs = require("./twiz-client_bundle.js");
     whenPageReady(function addTwitterUserName() {
         var sessionData = twizClient().getSessionData(); // get sessiondata fomr redirection url, if any
         var user = document.createElement('div');
-        var userName = sessionData ? sessionData.userName : 'guest' // userName from twiz-client session data 
+        var screenName = sessionData ? sessionData.screenName : 'guest' // userName from twiz-client session data 
         ;
         // or put 'guest'        
         user.setAttribute('class', 'user'); // add style - attach '.user' class from stylesheet
-        user.innerText = userName;
+        user.innerText = screenName;
         document.body.insertBefore(user, document.querySelector('.quoteCont')) // add element before quote container
         ;
     });
@@ -666,9 +666,7 @@ var _twizClientBundleJs = require("./twiz-client_bundle.js");
     quoter.messages = {
         noQuoteInArray: "There is no quote in array."
     };
-    /* https://thingproxy.freeboard.io/fetch/ is the forward proxy we use to avoid 
-    "mixed content" loading since api.forismatic.com doesnt support https.     
-   */ quoter.url = "https://quote-owlet-twiz-server-1.onrender.com/proxy/fetch/https://zenquotes.io/api/random"; // server url
+    quoter.url = "https://quote-owlet-twiz-server-1.onrender.com/proxy/fetch/https://zenquotes.io/api/random"; // server url
     quoter.queryParams = {
         method: 'getQuote',
         format: 'text',
@@ -850,9 +848,9 @@ var _twizClientBundleJs = require("./twiz-client_bundle.js");
             server_url: 'https://quote-owlet-twiz-server-1.onrender.com',
             redirection_url: "https://regits2501.github.io/QuoteOwlet/",
             session_data: {
-                quotor: textContent(quoteData.quoteEl),
+                quote: textContent(quoteData.quoteEl),
                 author: textContent(quoteData.authorEl),
-                userName: textContent(document.querySelector('.user'))
+                screenName: textContent(document.querySelector('.user'))
             },
             options: {
                 method: 'POST',
@@ -875,12 +873,10 @@ var _twizClientBundleJs = require("./twiz-client_bundle.js");
         var twiz = twizClient();
         var p = twiz.OAuth(options);
         if (p) p.then(function onFulfilled(w) {
-            console.log('in promise (main.js)');
             if (w.redirection) {
                 console.log('no token on server: Redirection');
                 return;
             }
-            console.log("Promised: ", w);
         });
     }
     function Authenticate() {
@@ -900,7 +896,7 @@ var _twizClientBundleJs = require("./twiz-client_bundle.js");
                 method: "POST",
                 path: '/2/tweets',
                 body: {
-                    text: "New post on X!"
+                    text: '\"' + textContent(document.querySelector('.showQuote')) + '\"' + '\n ~ ' + textContent(document.querySelector('.showAuthor'))
                 },
                 encoding: 'json'
             }
@@ -909,14 +905,14 @@ var _twizClientBundleJs = require("./twiz-client_bundle.js");
             var p = twtSecondPart.finishOAuth(options); // pass arguments 
             // (needed just server url and options)
             if (p) p.then(function(o) {
-                if (o.error) {
+                if (o.error?.statusCode >= 200 && o.error.statusCode <= 300) {
                     console.log("error in promise: ", o.error);
                     xButtonEpilog('tweetFailed'); // add css animation for failure to btn 
                 }
                 if (o.data) {
                     console.log("data in promise:", o.data);
                     xButtonEpilog('tweetOk'); // add css animation for success to btn
-                    setUserName(o.data.user.name);
+                    setUserName(o.data.screen_name);
                 }
             }).catch(function(e) {
                 console.log('error in promise (failure):', e);

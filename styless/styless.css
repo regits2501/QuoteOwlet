@@ -18,11 +18,13 @@ html{
 }
 
 body{
+
+   display:flex;
+   flex-direction:column;
+
    margin:0px; 
    background-color:#193f41 ; /*#1b2527;*/ /* #393f4d */
-   min-height:100%;
-
-   
+   min-height:100%;   
 }
 
 /*twitting.html*/
@@ -72,13 +74,12 @@ body{
 /*  index.html */
 
 .user {
-   display: inline-block;
+   align-self: end;
    background-color:#1da1f2; /* twitter blue*/
    text-align: center;
    padding:8px 10px 10px 10px;
    margin-right: 10%;
    margin-top: 5%;
-   float: right; 
    font-size:1.2em;
    color:white;
    line-height:1em;

@@ -1,57 +1,63 @@
 <!DOCTYPE html>
 <html>
-   <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, height=device-height minimum-scale=1, maximum-scale=1">  
-      <title>Quote Owlet</title>
-      <meta name="description" content="Random quotes generator.">
-      <meta name="keywords" content="quotes, random quotes">
-     <style>
-        @font-face {
-          font-family: "Chalky"; 
-          src: url('styless/font/fishchips-regular-webfont.ttf') format("truetype"), 
-               url('styless/font/fishchips-regular-webfont.woff') format("woff"),
-               url('styless/font/fishchips-regular-webfont.woff2') format("woff2"),
-               url('styless/font/fishchips-regular-webfont.eot'), /*(IE compatibility mode)*/
-               url('styless/font/fishchips-regular-webfont.eot?#iefix') format("embedded-opentype"); /* support IE6-8 */
-        }
-     </style> 
-     <link rel="stylesheet" type="text/css" href="styless/styless.css"> 
-     
 
-   </head>
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, height=device-height minimum-scale=1, maximum-scale=1">
+   <title>Quote Owlet</title>
+   <meta name="description" content="Random quotes generator.">
+   <meta name="keywords" content="quotes, random quotes">
+   <style>
+      @font-face {
+         font-family: "Chalky";
+         src: url('styless/font/fishchips-regular-webfont.ttf') format("truetype"),
+            url('styless/font/fishchips-regular-webfont.woff') format("woff"),
+            url('styless/font/fishchips-regular-webfont.woff2') format("woff2"),
+            url('styless/font/fishchips-regular-webfont.eot'),
+            /*(IE compatibility mode)*/
+            url('styless/font/fishchips-regular-webfont.eot?#iefix') format("embedded-opentype");
+         /* support IE6-8 */
+      }
+   </style>
+   <link rel="stylesheet" type="text/css" href="styless/styless.css">
+
+
+</head>
 
 
 <body>
+   <div class="quoteCont">
 
-<div class="quoteCont">
-    
-    <div class="owletCont">
-        <div class="quoteClick owlet"> <!-- dummy div for making clickable area in front of .svg image --> 
-        </div>
-        <div class="left quoteSign lwAnimation">”
-        </div>
- 
-        <object class="quoteOwlet" type="image/svg+xml" data="images/QuoteOwlet.svg">
-   
-        </object>
- 
-        <div class="right quoteSign rwAnimation">”
-        </div> 
+      <div>
+         <span>(server wake up takes ~30s)</span>
+      </div>
+      
+      <div class="owletCont">
+         <div class="quoteClick owlet"> <!-- dummy div for making clickable area in front of .svg image -->
+         </div>
+         <div class="left quoteSign lwAnimation">”
+         </div>
 
-    </div>
-    
-   <p class="showQuote">They say the owlet brings wisdom</p>
-   <p class="showAuthor">Trough random quotes</p> 
-  <div class='xButton boxShadow'>
-  </div> 
+         <object class="quoteOwlet" type="image/svg+xml" data="images/QuoteOwlet.svg">
 
-</div>
- <div class="user warning">⚠ under maintenance</div>
+         </object>
 
-  <script src="scripts/initGlobalObject.js"></script>
-  <script src="scripts/polyLib.js"></script> 
-  <script src="scripts/toolbox.js"></script>
-  <script type=module src="scripts/main.js"></script> 
+         <div class="right quoteSign rwAnimation">”
+         </div>
+
+      </div>
+
+      <p class="showQuote">They say the owlet brings wisdom</p>
+      <p class="showAuthor">Trough random quotes</p>
+      <div class='xButton boxShadow'>
+      </div>
+
+   </div>
+
+   <script src="scripts/initGlobalObject.js"></script>
+   <script src="scripts/polyLib.js"></script>
+   <script src="scripts/toolbox.js"></script>
+   <script type=module src="scripts/main.js"></script>
 </body>
+
 </html>
