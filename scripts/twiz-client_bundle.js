@@ -43,14 +43,11 @@ var deliverData = require('twiz-client-redirect').prototype.deliverData;
    }
  
    AccessToken.prototype.parseRedirectionUrl = function(url){ // parses data in url 
-      // console.log('in parseRedirectionUrl');
 
       var str = this.parse(url, /\?/g, /#/g);              // parses query string
       this.redirectionData = this.parseQueryParams(str);   // parse parameters from query string
 
       this.redirectionUrlParsed = true;                    // indicate that the url was already parsed  
-      
-      // console.log('redirectionData: >>', this.redirectionData);
    }
 
    AccessToken.prototype.parse = function(str, delimiter1, delimiter2){ // parses substring of a string (str) 
@@ -63,7 +60,6 @@ var deliverData = require('twiz-client-redirect').prototype.deliverData;
                                                                          // or we didnt find it, then end index
                                                                          // is length of the string.
        else end = str.search(delimiter2);    // calcualte to which index to take                                                             
-       // console.log(str); 
        return str.substring(start, end);     // return substring
             
    };
@@ -81,7 +77,6 @@ var deliverData = require('twiz-client-redirect').prototype.deliverData;
 
              });
      
-      // console.log(arr);
       return  this.objectify(arr);                  // makes an object from query string parametars
    }
 
@@ -110,7 +105,6 @@ var deliverData = require('twiz-client-redirect').prototype.deliverData;
    }
    AccessToken.prototype.authorize = function(sent){ // check that sent data from redirection url has needed info
      
-       //console.log('in authorize');
       if(this.isRequestTokenUsed(window.localStorage))          
         throw this.CustomError('noRepeat');
       
@@ -140,28 +134,22 @@ var deliverData = require('twiz-client-redirect').prototype.deliverData;
 
      this.loadedRequestToken = storage.requestToken_;           // load token from storage
 
-     // console.log('storage after: ', storage.requestToken_);
-     // console.log('this.loadedRequestToken :', this.loadedRequestToken);
 
      storage.requestToken_ = null;                              // since we've loaded the token, mark it as 
                                                                 // used/erased with null 
-     // console.log('after erasing storage.requestToken :', storage.requestToken_);  
-     // console.log('loadedRequestToken',this.loadedRequestToken);
      if(!this.loadedRequestToken) throw this.CustomError('requestTokenNotSet');
    }
    
    AccessToken.prototype.getSessionData = function(){       // gets session data from redirection url
-         //  console.log('in getSessionData')
          if(!this.redirectionUrlParsed) 
           this.parseRedirectionUrl(window.location.href);   // parse data from url 
          
          if(!this.redirectionData.data){  // return if no session data
-            console.warn(this.messages['noSessionData']);
+            console.log(this.messages['noSessionData']);
             return;
          }
           
          this.sessionData = this.parseSessionData(this.redirectionData.data) // further parsing of session data
-         //console.log('sessionData: ',this.sessionData);
          return this.sessionData;
    }
 
@@ -250,7 +238,6 @@ var btoa          = window.btoa  // use browser's btoa
       }
     
       nonce = btoa(nonce).replace(/=/g,"");       // encode to base64 and strip the "=" sign
-     //  console.log("nonce: " + nonce)
       this.oauth[ this.prefix + 'nonce'] = nonce; // set twitter session identifier (nonce)
    }
 
@@ -261,7 +248,6 @@ var btoa          = window.btoa  // use browser's btoa
 
    OAuth.prototype.addQueryParams = function(phase, leg){ // 'phase' indicates for which type of request we are
                                                           // adding params. 
-     console.log(`addQueryParams(): \n phase: ${phase}`);
       this.options.queryParams[phase + 'Host']   = this.twtUrl.domain;
       this.options.queryParams[phase + 'Path']   = phase === 'leg' ? this.twtUrl.path + leg : 
                                                                     // this.twtUrl.api_path +
@@ -303,8 +289,7 @@ var btoa          = window.btoa  // use browser's btoa
               default:
                 value = this.oauth[key];          // Takes value of that key
             }
-            pair = percentEncode(key) + "=" + percentEncode(value); // Encodes key value and inserts "="
-            //console.log(pair)                                     // in between.
+            pair = percentEncode(key) + "=" + percentEncode(value); // Encodes key value and inserts "=" between
             if(i !== a.length - 1) pair += "&"; // Dont append "&" on last pair    
             this.signatureBaseString += pair;   // Add pair to SBS
          } 
@@ -324,7 +309,6 @@ var btoa          = window.btoa  // use browser's btoa
            url = this.twtUrl.protocol + this.twtUrl.domain + leg.path;    // + this.twtUrl.api_path 
                                                      // Get the absoute url for api call + user provided path
            url = percentEncode(url) + "&";           // Encode the url, add "&".
-           console.log('genSignatureBaseString(): url', url); 
            //debugger;
          
          }
@@ -342,7 +326,7 @@ var btoa          = window.btoa  // use browser's btoa
       for(var name in this.oauth){
           a.push(name);
       }
-      //console.log("a; " + a);
+
       a.sort();                           // Aphabeticaly sort array of property names
 
       var headerString = this.leadPrefix; // Adding "OAuth " in front everthing
@@ -368,20 +352,16 @@ var btoa          = window.btoa  // use browser's btoa
    }
 
    OAuth.prototype.appendToCallback = function(data, name){ // appends data object as querystring to                                                                         // oauth_callback url. 
-      //console.log('Data: ==> ', data)
       if(!name) name = "data";
       var callback = this.oauth[ this.prefix + 'callback'];
       var fEncoded = formEncode(data, true);
 
-      //console.log(fEncoded);
       var queryString = name + '=' + percentEncode(fEncoded); // Make string from object then                                                                                  // percent encode it.  
-      //console.log("queryString: ", queryString)
     
       if(!/\?/.test(callback)) callback += "?";               // Add "?" if one not exist
       else queryString =  '&' + queryString                   // other queryString exists, so add '&' to this qs
       this.oauth[ this.prefix + 'callback'] = callback + queryString;           // Add queryString to callback
                                                      
-    //   console.log("OAUTH CALLBACK: "+this.oauth[ this.prefix + 'callback'])
       return this.oauth[ this.prefix + 'callback'];
    };
 
@@ -622,16 +602,14 @@ var throwAsyncError = require('twiz-client-utils').throwAsyncError;
 
 
    Redirect.prototype.redirection = function(resolve, res){ // Callback function for 2nd step
-      //  console.log(res);
-      //console.log("From twitter request_token: ", res.data);
-      //console.log('res.data type: ',typeof res.data);
       
-      this.res = res;                        // save response reference
-      //  console.log('|redirection res|:', res.data || 'no data')
+      this.res = res;                        // save response referenceA
+
       if(res.error || !res.data.oauth_token){ // on response error or on valid data deliver it to user 
          this.deliverData(resolve, res);
          return;
       }
+      
       this.requestToken = res.data;      // set requestToken data
       this.confirmCallback(res.data);    // confirm that twitter accepted user's redirection(callback) url
       this.saveRequestToken(window.localStorage, res.data.oauth_token); // save token for url authorization 
@@ -640,7 +618,7 @@ var throwAsyncError = require('twiz-client-utils').throwAsyncError;
    
    Redirect.prototype.deliverData = function(resolve, res){ // delivers data to user by promise or
                                                             // by callback function
-      if(resolve){                                  // console.log('has promise')
+      if(resolve){
          resolve(res);
          return;
       }
@@ -657,7 +635,6 @@ var throwAsyncError = require('twiz-client-utils').throwAsyncError;
    Redirect.prototype.throwAsyncError = throwAsyncError;        // promise (async) aware error throwing
 
    Redirect.prototype.confirmCallback = function (sent){ // makes sure that twitter is ok with redirection url
-      // console.log('confirmed: +++ ',sent.oauth_callback_confirmed)
       if(sent.oauth_callback_confirmed !== "true")
          this.throwAsyncError(this.CustomError('callbackURLnotConfirmed'));
    }
@@ -666,11 +643,9 @@ var throwAsyncError = require('twiz-client-utils').throwAsyncError;
       storage.requestToken_ = null;                                // erase any previous tokens, note null is
                                                                    // actualy transformed to string "null"
       storage.requestToken_ =  token;                              // save token to storage
-      //console.log('storage before: ', storage); 
    }
 
    Redirect.prototype.redirect = function(resolve){ // redirects user to twitter for authorization   
-      //console.log('RESOLVE : ', resolve);
   
       var url = this.url + "?" + 'oauth_token=' + this.requestToken.oauth_token; // assemble url for second leg
       this.adjustResponse(this.res);                               // removes this.res.data                                                                               
@@ -800,7 +775,6 @@ var request = (function(){
       if(!this.method) this.method = "GET";              // Defaults to "GET" method 
       if(!this.request.onreadystatechange) throw this.CustomError('callbackNotProvided'); // cb missing
       
-      // console.log(args);
       this.sendRequest();                                // Makes the actual http request
 
     }; 
@@ -871,10 +845,9 @@ var request = (function(){
        if(!contentType) throw this.throwAsyncError(this.CustomError('noContentType'));
        contentType = contentType.split(';')[0];            // get just type , in case there is charset specified 
 
-       // console.log('Content-Type: ', contentType);
        switch(contentType){              // parse data as indicated in contentType header 
            case "application/json":   
-              try{ // console.log('content-type is application/json')
+              try{
                  if(this.parse) temp = JSON.parse(this.request.responseText); // only if parse flag is set
                  else temp = this.request.responseText;
               }
@@ -886,7 +859,7 @@ var request = (function(){
               temp = this.request.responseXML;        // responceXML already parsed as a DOM object
            break;
            case "application/x-www-url-formencoded":  
-              temp =  {}; //console.log('responseText:', this.request.responseText)
+              temp =  {};
               this.request.responseText.trim().split("&").forEach(function(el){ // split on &
                    
                   var pairs = el.split('=');                    
@@ -921,7 +894,7 @@ var request = (function(){
     };
 
     request.setBody = function(){ // sets Content-Type encoding and encode the body of a request
-               //console.log("In setBody")
+
           if(this.method === 'GET') throw this.CustomError('methodMustBePOST'); // don't set body on GET method
          
           if(!this.encoding){       
@@ -944,13 +917,11 @@ var request = (function(){
              default:
                 throw this.CustomError('encodingNotSupported');
           }
-       console.log('setBody(): body:', this.body);
     };
     request.sendRequest = function(){
 
       if(this.request.readyState == "0") this.request.open(this.method, this.url);// "0" means open() not called
       if(this.beforeSend) this.beforeSend(this.request) // if user supplied beforeSend() func, call it.
-       // console.log("This before setBody!", "req state:"+ this.request.readyState);
       
       if(!this.body) this.body = null; // set it to 'null' when there is no body 
       else this.setBody();

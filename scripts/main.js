@@ -113,7 +113,7 @@ import "./twiz-client_bundle.js";
          quoteAuthor = quote.a;
       }
       else {
-         console.log(this.messages.noQuoteInArray);
+         console.info(this.messages.noQuoteInArray);
          return;
       }
 
@@ -276,7 +276,6 @@ import "./twiz-client_bundle.js";
    whenPageReady(quoteData.getQuoteElements.bind(quoteData))     // when page is ready sellect the quote elements
 
    quoteData.setQuoteData = function (sessionData) {
-      console.log("sessionData ====== ", sessionData)
       if (sessionData) {
          textContent(this.quoteEl, sessionData.quote);
          textContent(this.authorEl, sessionData.author);
@@ -284,8 +283,6 @@ import "./twiz-client_bundle.js";
    }
 
    function oauth() {
-
-      console.log("Taking this data: ====", textContent(quoteData.quoteEl), textContent(quoteData.authorEl));
 
       var options = {
 
@@ -314,7 +311,7 @@ import "./twiz-client_bundle.js";
 
          callback: function (o) {
             if (o.error) console.log('error (callback_func): ', o.error)
-            if (o.data) console.log('data in callback_func: ', o.data)
+            if (o.data) console.log('data in redirection: ', o.data)
             if (o.window) {
                console.log('in callback_func has Window: ', o.window);
             }
@@ -332,7 +329,7 @@ import "./twiz-client_bundle.js";
       if (p) {
          p.then(function onFulfilled(w) {
             
-            if (w.redirection) { console.log('no token on server: Redirection'); return }
+            if (w.redirection) { console.info('no token on server: Redirection'); return }
 
          })
       }
@@ -349,8 +346,6 @@ import "./twiz-client_bundle.js";
       var twtSecondPart = twizClient();
       var sessionData = twtSecondPart.getSessionData();
       quoteData.setQuoteData.apply(quoteData, [sessionData]);
-
-      console.log("ACCESS twitter ===================");
 
       var options = {
          server_url:  'https://quote-owlet-twiz-server-1.onrender.com',// 'https://bright-tiger-eminent.ngrok-free.app',//'http://localhost:5000',,//'https://puny-otters-push.loca.lt', //'https://quoteowlet.herokuapp.com',
@@ -374,13 +369,10 @@ import "./twiz-client_bundle.js";
 
                if (o.error?.statusCode < 400 ) { // check that we got success code
 
-                  console.log("error in promise: ", o.error)
-
                   xButtonEpilog('tweetFailed'); // add css animation for failure to btn 
                }
 
                if (o.data) {
-                  console.log("data in promise:", o.data);
 
                   xButtonEpilog('tweetOk'); // add css animation for success to btn
                   setUserName(o.data.screen_name);
@@ -388,12 +380,12 @@ import "./twiz-client_bundle.js";
 
             })
                .catch(function (e) {
-                  console.log('error in promise (failure):', e)
+                  console.info('finish OAuth: ', e)
                })
          }
 
       } catch (e) {
-         console.log('error in try-catch: ', e)
+         console.log('finish OAuth error: ', e)
       }
    })
 

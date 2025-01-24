@@ -170,7 +170,6 @@ if(typeof _pS_.modulMgr ==="object" && _pS_.modulMgr !== null){ // checking to s
           
           pocket.regexpRm = new RegExp("\\b" + clsName + "\\b\\s*", "g") // For removal, whole words plus any
                                                                          //  trailing white space.
-          console.log("to Remove: "+clsName); 
           if(this.contains(clsName)){ // on false this.contains() throws an error.
                this.e.className = this.e.className.replace(pocket.regexpRm, "");
                console.log(this.e.className);
@@ -271,7 +270,6 @@ if(typeof _pS_.modulMgr ==="object" && _pS_.modulMgr !== null){ // checking to s
         for(var i = 0; i < eventDesc.events.length; i++){  
            evtType = eventDesc.events[i];
            action = eventDesc.actions[i];
-           console.log("evtType:"+ evtType)
            delay =  eventDesc.delays ? eventDesc.delays[i] : "";
 
            addEvent(this.element, evtType, this[action].bind(this, classToManage, delay))
@@ -498,7 +496,7 @@ if(typeof _pS_.modulMgr ==="object" && _pS_.modulMgr !== null){ // checking to s
     };
 
     request.setBody = function(){ // sets Content-Type encoding and encode the body of a request
-               console.log("In setBody")
+
         if(this.body){     // check for data payload 
           
           if(!this.encoding){                       // If there is no string that indicates encoding
@@ -531,7 +529,6 @@ if(typeof _pS_.modulMgr ==="object" && _pS_.modulMgr !== null){ // checking to s
 
       if(this.request.readyState == "0") this.request.open(this.method, this.url);// "0" means open() not called
       if(this.beforeSend) this.beforeSend(this.request) // if user supplied beforeSend() func, call it.
-        console.log("This before setBody!", "req state:"+ this.request.readyState);
       
       if(this.body) this.setBody();
       else if(this.method === "POST") this.body = null; // set it to 'null' if there is no body and method 
