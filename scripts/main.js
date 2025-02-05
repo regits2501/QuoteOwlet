@@ -1,6 +1,7 @@
-// add twiz-client to global scope
-import "./twiz-client_bundle.js";
+import twizClient  from "./twiz-client_bundle.js";
 
+// add twiz-client to global scope
+window.twizClient = twizClient;
 
 (function () {
    if (typeof _pS_ === "object" && _pS_ !== null) _pS_.quotes = [];
@@ -286,7 +287,7 @@ import "./twiz-client_bundle.js";
 
       var options = {
 
-         server_url: 'https://quote-owlet-twiz-server-1.onrender.com',//'https://bright-tiger-eminent.ngrok-free.app', //'http://localhost:5000',//'https://quote-owlet-twiz-server-1.onrender.com', //'https://t-avnb6xmq.tunn.dev',  //'https://pyacmpr6j.localto.net', //'http://localhost:5000',
+         server_url: 'https://quote-owlet-twiz-server-1.onrender.com',
 
          redirection_url: "https://regits2501.github.io/QuoteOwlet/",
 
@@ -348,7 +349,7 @@ import "./twiz-client_bundle.js";
       quoteData.setQuoteData.apply(quoteData, [sessionData]);
 
       var options = {
-         server_url:  'https://quote-owlet-twiz-server-1.onrender.com',// 'https://bright-tiger-eminent.ngrok-free.app',//'http://localhost:5000',,//'https://puny-otters-push.loca.lt', //'https://quoteowlet.herokuapp.com',
+         server_url: 'https://quote-owlet-twiz-server-1.onrender.com',
          options: {
             method: "POST",
             path: '/2/tweets',
