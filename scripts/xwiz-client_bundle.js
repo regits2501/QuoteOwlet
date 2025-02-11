@@ -1,4 +1,4 @@
-// src/lib/twiz-client-utils/src/utils.js
+// src/lib/Utils/src/utils.js
 function percentEncode(str) {
   return encodeURIComponent(str).replace(/[!'()*]/g, function(c) {
     return `%${c.charCodeAt(0).toString(16)}`;
@@ -44,7 +44,7 @@ function throwAsyncError(error) {
   throw error;
 }
 
-// src/lib/twiz-client-options/src/Options.js
+// src/lib/Options/src/Options.js
 var Options = class {
   constructor() {
     this.leg = ["request_token", "authorize", "access_token"];
@@ -212,7 +212,7 @@ var Options = class {
   }
 };
 
-// src/lib/twiz-client-oauth/src/OAuth.js
+// src/lib/OAuth/src/OAuth.js
 var btoa = window.btoa;
 var OAuth = class extends Options {
   constructor() {
@@ -358,7 +358,7 @@ var OAuth = class extends Options {
   }
 };
 
-// src/lib/twiz-client-accesstoken/src/AccessToken.js
+// src/lib/AccessToken/src/AccessToken.js
 var AccessToken = class _AccessToken extends OAuth {
   constructor() {
     super();
@@ -482,7 +482,7 @@ var AccessToken = class _AccessToken extends OAuth {
   }
 };
 
-// src/lib/twiz-client-redirect/src/Redirect.js
+// src/lib/Redirect/src/Redirect.js
 var Redirect = class _Redirect {
   constructor(args) {
     this.newWindow = args.newWindow;
@@ -579,7 +579,7 @@ var Redirect = class _Redirect {
   static throwAsyncError = throwAsyncError;
 };
 
-// src/lib/twiz-client-requesttoken/src/RequestToken.js
+// src/lib/RequestToken/src/RequestToken.js
 var RequestToken = class extends OAuth {
   constructor() {
     super();
@@ -587,7 +587,7 @@ var RequestToken = class extends OAuth {
   }
 };
 
-// src/lib/twiz-client-request/src/request.js
+// src/lib/Request/src/request.js
 var request = function() {
   let request2 = {};
   CustomError.call(request2);
@@ -775,7 +775,7 @@ var request = function() {
 }();
 var request_default = request;
 
-// src/twiz-client.js
+// src/xwiz-client.js
 function buildOAuthLeg(leg_) {
   class OAuthLegBuilder extends leg_ {
     constructor() {
@@ -825,7 +825,7 @@ function buildOAuthLeg(leg_) {
       }
       this.send(this.options, this.callback.bind(this, resolve));
     }
-    // send request to twiz-server with provided options
+    // send request to xwiz-server with provided options
     send(options, cb) {
       options.callback = cb;
       options.reject = this.reject;
@@ -834,7 +834,7 @@ function buildOAuthLeg(leg_) {
   }
   return new OAuthLegBuilder();
 }
-var TwizOAuth = class {
+var XwizClient = class {
   constructor() {
     this.OAuth = function(args) {
       if (Promise)
@@ -900,17 +900,17 @@ var TwizOAuth = class {
     };
   }
 };
-function twizClient() {
-  let twiz = new TwizOAuth();
+function xwizClient() {
+  let xwiz = new XwizClient();
   const head = {
-    // none of the 'this' references in 'twiz' are exposed to outside code
-    OAuth: twiz.OAuth.bind(twiz),
-    finishOAuth: twiz.finishOAuth.bind(twiz),
-    getSessionData: twiz.getSessionData.bind(twiz)
+    // none of the 'this' references in 'xwiz' are exposed to outside code
+    OAuth: xwiz.OAuth.bind(xwiz),
+    finishOAuth: xwiz.finishOAuth.bind(xwiz),
+    getSessionData: xwiz.getSessionData.bind(xwiz)
   };
   return head;
 }
-var twiz_client_default = twizClient;
+var xwiz_client_default = xwizClient;
 export {
-  twiz_client_default as default
+  xwiz_client_default as default
 };

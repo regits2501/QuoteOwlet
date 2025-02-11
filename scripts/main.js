@@ -1,7 +1,7 @@
-import twizClient  from "./twiz-client_bundle.js";
+import xwizClient  from "./xwiz-client_bundle.js";
 
-// add twiz-client to global scope
-window.twizClient = twizClient;
+// add xwiz-client to global scope
+window.xwizClient = xwizClient;
 
 (function () {
    if (typeof _pS_ === "object" && _pS_ !== null) _pS_.quotes = [];
@@ -21,9 +21,9 @@ window.twizClient = twizClient;
 
 
    whenPageReady(function addTwitterUserName() {                   // adds twitter user name to element on page 
-      var sessionData = twizClient().getSessionData();           // get sessiondata fomr redirection url, if any
+      var sessionData = xwizClient().getSessionData();           // get sessiondata fomr redirection url, if any
       var user = document.createElement('div');
-      var screenName = sessionData ? sessionData.screenName : 'guest' // userName from twiz-client session data 
+      var screenName = sessionData ? sessionData.screenName : 'guest' // userName from xwiz-client session data 
       // or put 'guest'        
 
       user.setAttribute('class', 'user');                 // add style - attach '.user' class from stylesheet
@@ -42,7 +42,7 @@ window.twizClient = twizClient;
 
    whenPageReady(function removeOwletsAnimation() {// remove owlets animation on redirection urls
 
-      if (!twizClient().getSessionData()) return;   // not redirection urls 
+      if (!xwizClient().getSessionData()) return;   // not redirection urls 
 
       // css style sheet. It uses css selector sintax to select rules.
       mainStyleSheet.initStyleSheet(); // initiate style sheet contenxt
@@ -325,7 +325,7 @@ window.twizClient = twizClient;
          }
       }
 
-      var twiz = twizClient(); 
+      var twiz = xwizClient(); 
       var p = twiz.OAuth(options);
       if (p) {
          p.then(function onFulfilled(w) {
@@ -344,7 +344,7 @@ window.twizClient = twizClient;
 
    whenPageReady(function () { // when testing SPA case
 
-      var twtSecondPart = twizClient();
+      var twtSecondPart = xwizClient();
       var sessionData = twtSecondPart.getSessionData();
       quoteData.setQuoteData.apply(quoteData, [sessionData]);
 

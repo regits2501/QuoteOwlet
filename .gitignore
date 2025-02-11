@@ -1,6 +1,7 @@
+
 node_modules
 
+# parcel build folder
 dist
 
-// development artefact folder
 .parcel-cache
