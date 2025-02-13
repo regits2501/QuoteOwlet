@@ -287,7 +287,7 @@ window.xwizClient = xwizClient;
 
       var options = {
 
-         server_url: 'https://quote-owlet-twiz-server-1.onrender.com',
+         server_url: 'https://bright-tiger-eminent.ngrok-free.app',// 'https://quote-owlet-twiz-server-1.onrender.com',
 
          redirection_url: "https://regits2501.github.io/QuoteOwlet/",
 
@@ -349,7 +349,7 @@ window.xwizClient = xwizClient;
       quoteData.setQuoteData.apply(quoteData, [sessionData]);
 
       var options = {
-         server_url: 'https://quote-owlet-twiz-server-1.onrender.com',
+         server_url: 'https://bright-tiger-eminent.ngrok-free.app', //'https://quote-owlet-twiz-server-1.onrender.com',
          options: {
             method: "POST",
             path: '/2/tweets',
