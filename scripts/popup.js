@@ -1,4 +1,4 @@
-import xwizClient from "./xwiz-client";
+import xwizClient from "./xwiz-client_bundle.js";
 
 // add xwiz-client to global scope
 window.xwizClient = xwizClient;
@@ -129,19 +129,10 @@ window.xwizClient = xwizClient;
       this.queryParams.key = value;
 
    }.bind(quoter);
+
    quoter.showAndGetQuote = function () {
       this.showQuote(); // show quote data on page
-      if (_pS_.quotes.length == 0) this.getQuote();// preloads one more quote in quotes array for eventual next
-      // invocation, if there is none in quotes array. There could
-      // be more then one, if you where to click multiple times. 
-      // Each click 
-      // shows a quote on page and preloads one more. So if data
-      // doesnt come defore your next click, there is no 
-      // data to display, and data from clicks would come in 
-      // close intervals (like in a batch) filling array with more
-      // then one. Thats why we preload only when there is no 
-      // quote in array.   
-
+      this.getQuote();// preloads one more quote in quotes array for eventual next
    }.bind(quoter)
 
    quoter.chooseTriggerElement = function (el) { // picks element to be "trigger" for showing data on page. This is
@@ -284,7 +275,7 @@ window.xwizClient = xwizClient;
 
    }
 
-   whenPageReady(quoteData.getQuoteElements.bind(quoteData))     // when page is ready sellect the quote elements
+   whenPageReady(quoteData.getQuoteElements.bind(quoteData));    // when page is ready sellect the quote elements
 
    quoteData.setQuoteData = function (sessionData) {
       console.log("sessionData ====== ", sessionData),
@@ -298,30 +289,34 @@ window.xwizClient = xwizClient;
    function oauth() {
 
       let options = {
-         "server_url": 'https://bright-tiger-eminent.ngrok-free.app',// 'https://quote-owlet-twiz-server-1.onrender.com',
-         "redirection_url": "https://regits2501.github.io/QuoteOwlet/pages/tweeting.html",
+          server_url: 'https://quote-owlet-twiz-server-1.onrender.com/xwiz-server',
+          redirection_url: "https://regits2501.github.io/QuoteOwlet/",
 
-         "session_data": { // redirection data
-            'quote': textContent(quoteData.quoteEl),
-            'author': textContent(quoteData.authorEl),
-            'userName': textContent(document.querySelector('.user'))
+         session_data: { // redirection data
+            quote: textContent(quoteData.quoteEl),
+            author: textContent(quoteData.authorEl),
+            userName: textContent(document.querySelector('.user'))
 
          },
-         "new_window": {
+
+         new_window: {
             name: 'tweet',
-            features: 'resizable=yes,height=613,width=400,left=400,top=300'
+            features: 'resizable=yes,height=650,width=450,left=400,top=300'
          },
-         'options': {
-            'method': 'POST',               // GET
-            'path': 'statuses/update.json', // users/search.json
-            'params': {
 
-               status: '\"' + textContent(document.querySelector('.showQuote')) + '\"'
+         options: {
+            method: 'POST',
+            path: '/2/tweets',
+            body: {
+
+               text: '\"' + textContent(document.querySelector('.showQuote')) + '\"'
                   + '\n ~ ' + textContent(document.querySelector('.showAuthor'))
-            }
+            },
+
+            encoding: 'json'
          },
 
-         'callback': function (o) {
+         callback: function (o) {
             if (o.error) console.log('error (callback_func): ', o.error)
             if (o.data) console.log('data in callback_func: ', o.data)
             if (o.window) {
@@ -330,7 +325,8 @@ window.xwizClient = xwizClient;
             window.temp = o.token.oauth_token
 
          },
-         'endpoints': {
+
+         endpoints: {
             authorize: 'authenticate'
          }
       }
@@ -361,7 +357,8 @@ window.xwizClient = xwizClient;
       console.log("ACCESS twitter ===================");
 
       var options = {
-         server_url: 'https://quoteowlet.herokuapp.com',
+         server_url: 'https://quote-owlet-twiz-server-1.onrender.com/xwiz-server',
+
          options: {
             method: "POST",
             path: 'statuses/update.json',
@@ -380,7 +377,7 @@ window.xwizClient = xwizClient;
 
                if (o.error) { 
              
-               .log("error in promise: ", o.error)
+                  console.log("error in promise: ", o.error)
                   xButtonEpilog('tweetFailed'); // add css animation for failure to btn 
                }
 

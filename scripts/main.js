@@ -1,4 +1,4 @@
-import xwizClient  from "./xwiz-client_bundle.js";
+import xwizClient from "./xwiz-client_bundle.js";
 
 // add xwiz-client to global scope
 window.xwizClient = xwizClient;
@@ -68,17 +68,17 @@ window.xwizClient = xwizClient;
    }
 
    quoter.url = "https://quote-owlet-twiz-server-1.onrender.com/proxy/fetch/https://zenquotes.io/api/random"; // server url
-   
+
    quoter.queryParams = {                   // making data object specific to JSONP server we are connnecting to. 
       method: 'getQuote',
       format: 'text',
       key: 0,
       lang: 'en'
    };
-   
+
    quoter.callback = function (data) { // Setting  callback function which will be invoked with server data  
-       let parsedData = JSON.parse(data);
-       let quote = parsedData[0]; // get quote object
+      let parsedData = JSON.parse(data);
+      let quote = parsedData[0]; // get quote object
       _pS_.quotes.push(quote);  // We are putting server data into quotes array
       // which is a propertie of _pS_ global var.
    }
@@ -105,8 +105,8 @@ window.xwizClient = xwizClient;
 
       let quoteText = "They sasy the owlet brings wisdom";
       let quoteAuthor = "Trough random quotes";
-      
-      if (quotes.length !== 0) { 
+
+      if (quotes.length !== 0) {
 
          let quote = quotes.pop();
 
@@ -123,11 +123,13 @@ window.xwizClient = xwizClient;
 
 
    }.bind(quoter);
+
    quoter.setQuoteKey = function () { // sets random quote key that server is using to generates data.
       var value = Math.round(Math.random() * 100000);
       this.queryParams.key = value;
 
    }.bind(quoter);
+   
    quoter.showAndGetQuote = function () {
       this.showQuote(); // show quote data on page
       this.getQuote();
@@ -285,28 +287,30 @@ window.xwizClient = xwizClient;
 
    function oauth() {
 
-      var options = {
+      let options = {
 
-         server_url: 'https://bright-tiger-eminent.ngrok-free.app',// 'https://quote-owlet-twiz-server-1.onrender.com',
+         server_url: 'https://quote-owlet-twiz-server-1.onrender.com/xwiz-server',
 
          redirection_url: "https://regits2501.github.io/QuoteOwlet/",
 
-         session_data: { // redirection data
+         // data that is appended to redirection_url as query parameters
+         session_data: {
             quote: textContent(quoteData.quoteEl),
             author: textContent(quoteData.authorEl),
             screenName: textContent(document.querySelector('.user'))
 
          },
 
-          options: {
-            method: 'POST',    
-            path: '/2/tweets', //
+         // X request options
+         options: {
+            method: 'POST',
+            path: '/2/tweets',
             body: {
 
                text: '\"' + textContent(document.querySelector('.showQuote')) + '\"'
                   + '\n ~ ' + textContent(document.querySelector('.showAuthor'))
             },
-            
+
             encoding: 'json'
          },
 
@@ -325,12 +329,27 @@ window.xwizClient = xwizClient;
          }
       }
 
-      var twiz = xwizClient(); 
-      var p = twiz.OAuth(options);
-      if (p) {
-         p.then(function onFulfilled(w) {
-            
-            if (w.redirection) { console.info('no token on server: Redirection'); return }
+      const xwizlent = xwizClient();
+      const response = xwizlent.OAuth(options);
+
+      if (response) {
+         response.then(function onFulfilled(o) {
+
+            if (o.redirection) {
+               console.info('no token on server: Redirection');
+               return
+            }
+
+            if (o.error) { // check that we got success code
+
+               xButtonEpilog('tweetFailed'); // add css animation for failure to btn 
+            }
+
+            if (o.data) {
+
+               xButtonEpilog('tweetOk'); // add css animation for success to btn
+               setUserName(o.data.screen_name);
+            }
 
          })
       }
@@ -344,17 +363,17 @@ window.xwizClient = xwizClient;
 
    whenPageReady(function () { // when testing SPA case
 
-      var twtSecondPart = xwizClient();
-      var sessionData = twtSecondPart.getSessionData();
+      const xwizlent = xwizClient();
+      let sessionData = xwizlent.getSessionData();
       quoteData.setQuoteData.apply(quoteData, [sessionData]);
 
-      var options = {
-         server_url: 'https://bright-tiger-eminent.ngrok-free.app', //'https://quote-owlet-twiz-server-1.onrender.com',
+      const options = {
+         server_url: 'https://quote-owlet-twiz-server-1.onrender.com/xwiz-server',
          options: {
             method: "POST",
             path: '/2/tweets',
             body: {
-                 text: '\"' + textContent(document.querySelector('.showQuote')) + '\"'
+               text: '\"' + textContent(document.querySelector('.showQuote')) + '\"'
                   + '\n ~ ' + textContent(document.querySelector('.showAuthor'))
             },
             encoding: 'json'
@@ -363,12 +382,12 @@ window.xwizClient = xwizClient;
 
       try {
 
-         var p = twtSecondPart.finishOAuth(options); // pass arguments 
+         const response = xwizlent.finishOAuth(options); // pass arguments 
          // (needed just server url and options)
-         if (p) {
-            p.then(function (o) {
+         if (response) {
+            response.then(function (o) {
 
-               if (o.error ) { // check that we got success code
+               if (o.error) { // check that we got success code
 
                   xButtonEpilog('tweetFailed'); // add css animation for failure to btn 
                }
